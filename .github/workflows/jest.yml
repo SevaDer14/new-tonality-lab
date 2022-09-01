@@ -1,19 +1,27 @@
 name: Jest
-on: push
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: "16.17.0"
-
-      # Install required deps for action
-      - name: Install Dependencies
-        run: npm install
-
-      # Finally, run our tests
-      - name: Run the tests
-        run: npm run test
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci --legacy-peer-deps
+    - run: npm run build --if-present
+    - run: npm test
