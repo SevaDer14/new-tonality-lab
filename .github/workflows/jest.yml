@@ -8,7 +8,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: "12"
+          node-version: "16.17.0"
 
       # Install required deps for action
       - name: Install Dependencies
