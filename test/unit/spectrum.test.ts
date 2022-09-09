@@ -94,3 +94,32 @@ describe('Spectrum.toHz', () => {
     expect(Spectrum.toHz({ spectrum: emptySpectrum, fundamental: 432 })).toEqual(emptySpectrum);
   });
 })
+
+describe('Spectrum.sum', () => {
+  it('returns empty spectrum if empty spectrums are provided', () => {
+    expect(Spectrum.sum(emptySpectrum, emptySpectrum)).toEqual(emptySpectrum);
+  });
+
+  it('returns spectrum with partials from both spectrums sorted by increasing freq', () => {
+    const spectrum1 = new Map([[6, 0.5555], [17, 0.17], [30, 0.02]])
+    const spectrum2 = new Map([[1, 1], [3, 0.33], [5, 0.2]])
+    const spectrum3 = new Map([[2, 0.5], [4, 0.25], [10, 0.1]])
+
+    const expectedOutcome = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25], [5, 0.2], [6, 0.5555], [10, 0.1], [17, 0.17], [30, 0.02]])
+    expect(Spectrum.sum(spectrum1, spectrum2, spectrum3)).toEqual(expectedOutcome);
+  });
+
+  it('returns empty spectrum if one of input spectrums has freq < 0', () => {
+    const spectrum1 = new Map([[1, 1], [3, 0.33], [5, 0.2]])
+    const spectrum2 = new Map([[6, 0.5555], [-17, 0.17], [30, 0.02]])
+
+    expect(Spectrum.sum(spectrum1, spectrum2)).toEqual(emptySpectrum);
+  });
+
+  it('returns empty spectrum if one of input spectrums has amplitude < 0', () => {
+    const spectrum1 = new Map([[1, 1], [3, 0.33], [5, 0.2]])
+    const spectrum2 = new Map([[6, 0.5555], [17, -0.17], [30, 0.02]])
+
+    expect(Spectrum.sum(spectrum1, spectrum2)).toEqual(emptySpectrum);
+  });
+})

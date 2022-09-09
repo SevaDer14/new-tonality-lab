@@ -79,5 +79,21 @@ export const Spectrum = {
         })
 
         return newSpectrum
+    },
+
+    sum: (...spectrums: TSpectrum[]): TSpectrum => {
+        const sum = initEmptySpectrum()
+
+        const allPartials = spectrums.flatMap(spectrum => [...spectrum.entries()]).sort((a, b) => a[0] - b[0])
+
+        allPartials.forEach(([freq, amp]) => sum.set(freq, amp))
+
+        const result = checkSpectrum({ spectrum: sum, freqCondition: (freq: number) => freq < 0, ampCondition: (amp: number) => amp < 0 })
+
+        if (result === undefined) {
+            return initEmptySpectrum()
+        } else {
+            return result
+        }
     }
 }
