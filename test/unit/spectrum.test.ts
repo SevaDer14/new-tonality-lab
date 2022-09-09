@@ -1,19 +1,12 @@
 
-import { Spectrum } from '../../src/xentonality';
+import { Spectrum, initEmptySpectrum } from '../../src/xentonality';
 
+const emptySpectrum = initEmptySpectrum()
 
-const getNumberOfDecimalPlaces = (number: number) => {
-  const decimalPlaces = number.toString().split('.')[1]
-  return decimalPlaces ? decimalPlaces.length : 0
-}
-
-// TODO: I don't test frequency precision with harmonic spectrum as freq ratios are always integer, test it with edo
 
 describe('Spectrum.create', () => {
-  const emptySpectrum = new Map([])
-
   it('returns harmonic spectrum, with 4 partials and sawtooth amplitude profile', () => {
-    const expectedOutcome = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25]])
+    const expectedOutcome = new Map([[1, 1], [2, 0.5], [3, 0.3333333333333333], [4, 0.25]])
     expect(Spectrum.create({ type: 'harmonic', numberOfPartials: 4 })).toEqual(expectedOutcome);
   });
 
@@ -37,44 +30,67 @@ describe('Spectrum.create', () => {
     expect(Spectrum.create({ type: 'harmonic', numberOfPartials: 0 })).toEqual(expectedOutcome);
   });
 
-  it('returns spectrum with default precision of 2 decimal places', () => {
-    const expectedOutcome = 2
-    const spectrum = Spectrum.create({ type: 'harmonic', numberOfPartials: 3 })
-    const partial = [...spectrum.entries()][2]
-    expect(getNumberOfDecimalPlaces(partial[1])).toEqual(expectedOutcome);
-  });
-
-  it('returns spectrum with precision of 6 decimal places', () => {
-    const expectedOutcome = 6
-    const spectrum = Spectrum.create({ type: 'harmonic', numberOfPartials: 3, precision: 6 })
-    const partial = [...spectrum.entries()][2]
-
-    expect(getNumberOfDecimalPlaces(partial[1])).toEqual(expectedOutcome);
-  });
-
-  it('fallbacks to lowerBound value of 0 for numberOfPartials if numberOfPartials < 0', () => {
+  it('returns empty spectrum if numberOfPartials < 0', () => {
     const expectedOutcome = emptySpectrum
-    expect(Spectrum.create({ type: 'harmonic', numberOfPartials: -1, precision: 2 })).toEqual(expectedOutcome);
+    expect(Spectrum.create({ type: 'harmonic', numberOfPartials: -1 })).toEqual(expectedOutcome);
   });
 
-  it('fallbacks to higherBound value of 1000 for numberOfPartials if numberOfPartials > 1000', () => {
-    const spectrum = Spectrum.create({ type: 'harmonic', numberOfPartials: 1001, precision: 2 })
-    expect(spectrum.size).toEqual(1000);
+  it('returns empty spectrum if numberOfPartials > 1000', () => {
+    const expectedOutcome = emptySpectrum
+    expect(Spectrum.create({ type: 'harmonic', numberOfPartials: 1001 })).toEqual(expectedOutcome);
   });
 
-  it('fallbacks to lowerBound value of 0 for precision if precision < 0', () => {
-    const expectedOutcome = 0
-    const spectrum = Spectrum.create({ type: 'harmonic', numberOfPartials: 3, precision: -1 })
-    const partial = [...spectrum][2]
+  it('returns empty spectrum if numberOfPartials is not integer', () => {
+    const expectedOutcome = emptySpectrum
+    expect(Spectrum.create({ type: 'harmonic', numberOfPartials: 2.5 })).toEqual(expectedOutcome);
+  });
+})
 
-    expect(getNumberOfDecimalPlaces(partial[1])).toEqual(expectedOutcome);
+
+describe('Spectrum.toLoudness', () => {
+  it('returns spectrum with partials amplitues converted to db', () => {
+    const spectrum = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25]])
+    const expectedOutcome = new Map([[1, 78.84951607609639], [2, 64], [3, 56.475136032146196], [4, 51.94705311884243]])
+    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(expectedOutcome);
   });
 
-  it('fallbacks to higherBound value of 16 for precision if precision > 16', () => {
-    const expectedOutcome = 16
-    const spectrum = Spectrum.create({ type: 'harmonic', numberOfPartials: 3, precision: 20 })
-    const partial = [...spectrum][2]
+  it('returns empty spectrum one of the partials have amplitude > 1', () => {
+    const spectrum = new Map([[1, 1], [2, 1.1]])
+    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(emptySpectrum);
+  });
 
-    expect(getNumberOfDecimalPlaces(partial[1])).toEqual(expectedOutcome);
+  it('returns empty spectrum one of the partials have amplitude < 0', () => {
+    const spectrum = new Map([[1, 1], [2, -0.5]])
+    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(emptySpectrum);
+  });
+
+  it('returns empty spectrum if empty spectrum is provided', () => {
+    expect(Spectrum.toHz({ spectrum: emptySpectrum, fundamental: 432 })).toEqual(emptySpectrum);
+  });
+})
+
+describe('Spectrum.toHz', () => {
+  it('returns spectrum with partials frequencies converted to Hz and multiplied by fundamental', () => {
+    const spectrum = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25]])
+
+    const expectedOutcome = new Map([[432, 1], [864, 0.5], [1296, 0.33], [1728, 0.25]])
+    expect(Spectrum.toHz({ spectrum: spectrum, fundamental: 432 })).toEqual(expectedOutcome);
+  });
+
+  it('returns empty spectrum one of the partials have freq < 0', () => {
+    const spectrum = new Map([[1, 1], [-1, 0.5]])
+
+    expect(Spectrum.toHz({ spectrum: spectrum, fundamental: 432 })).toEqual(emptySpectrum);
+  });
+
+  it('does not include frequencies above 20000 Hz', () => {
+    const spectrum = new Map([[1, 1], [400, 0.5]])
+
+    const expectedOutcome = new Map([[432, 1]])
+    expect(Spectrum.toHz({ spectrum: spectrum, fundamental: 432 })).toEqual(expectedOutcome);
+  });
+
+  it('returns empty spectrum if empty spectrum is provided', () => {
+    expect(Spectrum.toHz({ spectrum: emptySpectrum, fundamental: 432 })).toEqual(emptySpectrum);
   });
 })

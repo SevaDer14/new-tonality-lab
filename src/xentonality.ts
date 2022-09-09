@@ -1,27 +1,24 @@
-import { checkNumericParam } from "./utils"
+import { checkNumericParam, checkSpectrum } from "./utils"
 
 export type TSpectrum = Map<number, number>
 
 export interface ISpectrumCreate {
     type: 'harmonic'
     amplitudeProfile?: 'equal' | 'sawtooth'
-    precision?: number
     numberOfPartials?: number
-    // if changing don't forget to update function description
 }
 
+export const initEmptySpectrum = (): TSpectrum => new Map([]) as TSpectrum
+
 export const Spectrum = {
-    /**
-    * Returns spectrum generated from given params. Spectrum is a map of frequency ratio and corresponding amplitude. Should be multiplied on fundamental frequency in Hz to get audible spectrum.
-    * 
-    * @param type (mandatory) - type of spectrum, affects partial frequencie ratios. Harmonic - partial frequencies are integers [1, 2, 3, ...]).
-    * @param amplitudeProfile (default: "sawtooth") - Affects generated amplitudes. "equal" all partials have equal amplitudes; "sawtooth" - every next patrial has half of amplitude of previous, like in sawtooth wave (ex. [1, 0.5, 0.25, ...])
-    * @param precision (default: 5, max: 16, should be >= 0) - number of decimal points in frequency and amplitude
-    * @param numberOfPartials (default: 1000, max: 1000, should be >= 0) - number of partials in spectrum. if decimal -> rounds down to integer, if <= 0 returns zero spectrum Map([[0, 0]])
-    * @returns spectrum of type TSpectrum = Map<number, number>. Each entry represents a partial with first number for frequency ratio (in range (0, 1000] )) and second for amplitude (in range (0, 1] )
-    */
     create: ({ type, amplitudeProfile = 'sawtooth', ...params }: ISpectrumCreate): TSpectrum => {
-        const spectrum = new Map([]) as Map<number, number>
+        const spectrum = initEmptySpectrum()
+
+        const numberOfPartials = checkNumericParam({ param: params.numberOfPartials, fallbackValue: 1000, lowerBound: 0, higherBound: 1000, integer: true })
+
+        if (numberOfPartials === undefined) {
+            return spectrum
+        }
 
         const getAmplitude = (amplitudeProfile: string, partialIndex: number) => {
             if (amplitudeProfile === "equal") {
@@ -31,22 +28,56 @@ export const Spectrum = {
             return 1 / partialIndex // --> defaults to harmonic profile
         }
 
-        const numberOfPartials = checkNumericParam({ paramName: 'numberOfPartials', fallbackValue: 1000, param: params.numberOfPartials, lowerBound: 0, higherBound: 1000 })
-        const precision = checkNumericParam({ paramName: 'precision', fallbackValue: 2, param: params.precision, lowerBound: 0, higherBound: 16 })
-        
-        if (numberOfPartials === undefined || precision === undefined) {
-            return spectrum
-        }
-
-
         if (type === 'harmonic') {
             for (let i = 1; i <= numberOfPartials; i++) {
-                const freqRatio = Number(i.toFixed(precision))
-                const amplitude = Number(getAmplitude(amplitudeProfile, i).toFixed(precision))
+                const freqRatio = i
+                const amplitude = getAmplitude(amplitudeProfile, i)
                 spectrum.set(freqRatio, amplitude)
             }
         }
 
         return spectrum
+    },
+
+    toLoudness: (params: { spectrum: TSpectrum }): TSpectrum => {
+
+        const spectrum = checkSpectrum({ spectrum: params.spectrum, ampCondition: (amp: number) => amp > 1 || amp < 0 })
+
+        if (spectrum === undefined) {
+            return initEmptySpectrum()
+        }
+
+        const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)
+
+        spectrum.forEach((amplitude, freqRatio) => {
+            spectrum.set(freqRatio, setharesLoudness(amplitude))
+        })
+
+        return spectrum
+    },
+
+    toHz: (params: { spectrum: TSpectrum, fundamental: number }): TSpectrum => {
+        const newSpectrum = initEmptySpectrum()
+        const fundamental = checkNumericParam({ param: params.fundamental, lowerBound: 20, higherBound: 20000 })
+
+        if (fundamental === undefined) {
+            return newSpectrum
+        }
+
+        const spectrum = checkSpectrum({ spectrum: params.spectrum, freqCondition: (freq: number) => freq < 0 })
+
+        if (spectrum === undefined) {
+            return newSpectrum
+        }
+
+
+        spectrum.forEach((amplitude, freqRatio) => {
+            const frequency = freqRatio * fundamental
+            if (frequency < 20000) {
+                newSpectrum.set(frequency, amplitude)
+            }
+        })
+
+        return newSpectrum
     }
 }

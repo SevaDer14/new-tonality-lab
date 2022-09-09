@@ -5,6 +5,7 @@ import itertools
 
 # CALCULATING DATA
 
+# DONE
 def loudness_sethares(spectrum):
     loudness_coefficient = 200000000
 
@@ -14,7 +15,7 @@ def loudness_sethares(spectrum):
 
     return spectrum
 
-
+# DONE
 def calculate_spectrum(mtet, fundamental_frequency, number_of_partials, method):
     spectrum = []
     frequency = []
@@ -175,6 +176,49 @@ def calculate_dissonance_curve(spectrum, method, precision, octave, SweepMethod,
     return dissonance_curve
 
 
+def normalization(dissonance_curve):
+    percieved_dissonance = []
+    corrected_dissonance_curve = []
+    normalized_dissonance_curve = []
+
+    # Algo for normalizing to line connecting diss at unison and general-octave
+    # can produce negative values if diss-curve is calculated for 2 different spectrums
+
+    intrinsic_dissonance = float(dissonance_curve[0][1])
+    octave_correction = dissonance_curve[-1][1]
+
+    # Correcting on line (unison and octave = 0 dissonance)
+    tang = octave_correction - intrinsic_dissonance
+
+    for point in dissonance_curve:
+        correcting_line = tang*point[0] - tang + intrinsic_dissonance
+        corrected_value = point[1] - correcting_line
+        corrected_dissonance_curve.append([point[0], corrected_value])
+        percieved_dissonance.append(corrected_value)
+
+    max_dissonance = max(percieved_dissonance)
+
+    for point in corrected_dissonance_curve:
+        normalized_dissonance_curve.append([point[0], (point[1]/max_dissonance)])
+
+    return normalized_dissonance_curve
+
+
+def normalization_to_one(dissonance_curve):
+    # Normalization of max dissonance to 1
+    percieved_dissonance = []
+    normalized_dissonance_curve = []
+
+    for point in dissonance_curve:
+         percieved_dissonance.append(point[1])
+
+    max_dissonance = max(percieved_dissonance)
+    for point in dissonance_curve:
+        normalized_dissonance_curve.append([point[0], (point[1]/max_dissonance)])
+
+    return normalized_dissonance_curve
+
+# SKIP
 def calculate_intrinsic_dissonance(spectrum, method):
     dissonance = 0
     partial_number = []
@@ -193,7 +237,7 @@ def calculate_intrinsic_dissonance(spectrum, method):
 
     return dissonance
 
-
+# SKIP
 def calculate_chord_table(mtet, spectrum, method):
 
     # Generate Spectrums for each step in tuning
@@ -307,46 +351,3 @@ def calculate_chord_table(mtet, spectrum, method):
     # note_3 = note_spectrums[7]
     # chord_spectrum = sum_spectrums(note_1, note_2, note_3)
     # plot_spectrum(chord_spectrum)
-
-
-def normalization(dissonance_curve):
-    percieved_dissonance = []
-    corrected_dissonance_curve = []
-    normalized_dissonance_curve = []
-
-    # Algo for normalizing to line connecting diss at unison and general-octave
-    # can produce negative values if diss-curve is calculated for 2 different spectrums
-
-    intrinsic_dissonance = float(dissonance_curve[0][1])
-    octave_correction = dissonance_curve[-1][1]
-
-    # Correcting on line (unison and octave = 0 dissonance)
-    tang = octave_correction - intrinsic_dissonance
-
-    for point in dissonance_curve:
-        correcting_line = tang*point[0] - tang + intrinsic_dissonance
-        corrected_value = point[1] - correcting_line
-        corrected_dissonance_curve.append([point[0], corrected_value])
-        percieved_dissonance.append(corrected_value)
-
-    max_dissonance = max(percieved_dissonance)
-
-    for point in corrected_dissonance_curve:
-        normalized_dissonance_curve.append([point[0], (point[1]/max_dissonance)])
-
-    return normalized_dissonance_curve
-
-
-def normalization_to_one(dissonance_curve):
-    # Normalization of max dissonance to 1
-    percieved_dissonance = []
-    normalized_dissonance_curve = []
-
-    for point in dissonance_curve:
-         percieved_dissonance.append(point[1])
-
-    max_dissonance = max(percieved_dissonance)
-    for point in dissonance_curve:
-        normalized_dissonance_curve.append([point[0], (point[1]/max_dissonance)])
-
-    return normalized_dissonance_curve
