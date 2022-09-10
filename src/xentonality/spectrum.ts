@@ -49,9 +49,9 @@ export const combinePartials = (...partialGroups: TPartials[]): TPartials => {
     const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.ratio - b.ratio) as TPartials
 
     for (let i = 0; i < allPartials.length; i++) {
-        if (allPartials[i].ratio === result[-1].ratio) {
-            result[-1].amplitude += allPartials[i].amplitude
-            result[-1].loudness = setharesLoudness(result[-1].amplitude)
+        if (result[result.length - 1] && allPartials[i].ratio === result[result.length - 1].ratio) {
+            result[result.length - 1].amplitude += allPartials[i].amplitude
+            result[result.length - 1].loudness = setharesLoudness(result[result.length - 1].amplitude)
         } else {
             result.push(allPartials[i])
         }
