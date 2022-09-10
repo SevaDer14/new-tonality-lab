@@ -1,10 +1,17 @@
 
-import { Spectrum, initEmptySpectrum } from '../../src/xentonality';
+import type { TPartials, TPartial } from '../../src/xentonality/types';
+import { generatePartials, changeFundamental, combinePartials } from '../../src/xentonality/spectrum';
+import { setharesLoudness } from '../../src/xentonality/utils';
 
-const emptySpectrum = initEmptySpectrum()
+const partial1 = { ratio: 1, frequency: 440, amplitude: 1, loudness: setharesLoudness(1) }
+const partial2 = { ratio: 2.3, frequency: 2.3 * 440, amplitude: 1 / 2.3, loudness: setharesLoudness(1 / 2.3) }
 
+const noPartals = [] as TPartials
+const partials1 = [1, 2, 3].map(i => { return { ratio: i, frequency: i * 440, amplitude: 1 / i, loudness: setharesLoudness(1 / i) } }) as TPartials
+const partials2 = [10, 20, 30].map(i => { return { ratio: i, frequency: i * 440, amplitude: 1 / i, loudness: setharesLoudness(1 / i) } }) as TPartials
+const partials3 = [5.4, 7.7, 9.3].map(i => { return { ratio: i, frequency: i * 440, amplitude: 1 / i, loudness: setharesLoudness(1 / i) } }) as TPartials
 
-describe('Spectrum.create', () => {
+describe('Xentonality.Spectrum.generatePartials', () => {
   it('returns harmonic spectrum, with 4 partials and sawtooth amplitude profile', () => {
     const expectedOutcome = new Map([[1, 1], [2, 0.5], [3, 0.3333333333333333], [4, 0.25]])
     expect(Spectrum.create({ type: 'harmonic', numberOfPartials: 4 })).toEqual(expectedOutcome);
@@ -46,30 +53,7 @@ describe('Spectrum.create', () => {
   });
 })
 
-
-describe('Spectrum.toLoudness', () => {
-  it('returns spectrum with partials amplitues converted to db', () => {
-    const spectrum = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25]])
-    const expectedOutcome = new Map([[1, 78.84951607609639], [2, 64], [3, 56.475136032146196], [4, 51.94705311884243]])
-    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(expectedOutcome);
-  });
-
-  it('returns empty spectrum one of the partials have amplitude > 1', () => {
-    const spectrum = new Map([[1, 1], [2, 1.1]])
-    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(emptySpectrum);
-  });
-
-  it('returns empty spectrum one of the partials have amplitude < 0', () => {
-    const spectrum = new Map([[1, 1], [2, -0.5]])
-    expect(Spectrum.toLoudness({ spectrum: spectrum })).toEqual(emptySpectrum);
-  });
-
-  it('returns empty spectrum if empty spectrum is provided', () => {
-    expect(Spectrum.toHz({ spectrum: emptySpectrum, fundamental: 432 })).toEqual(emptySpectrum);
-  });
-})
-
-describe('Spectrum.toHz', () => {
+describe('Xentonality.Spectrum.changeFundamental', () => {
   it('returns spectrum with partials frequencies converted to Hz and multiplied by fundamental', () => {
     const spectrum = new Map([[1, 1], [2, 0.5], [3, 0.33], [4, 0.25]])
 
@@ -95,7 +79,7 @@ describe('Spectrum.toHz', () => {
   });
 })
 
-describe('Spectrum.sum', () => {
+describe('Xentonality.Spectrum.combinePartials', () => {
   it('returns empty spectrum if empty spectrums are provided', () => {
     expect(Spectrum.sum(emptySpectrum, emptySpectrum)).toEqual(emptySpectrum);
   });

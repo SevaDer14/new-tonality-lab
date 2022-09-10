@@ -73,7 +73,7 @@ def calculate_spectrum(mtet, fundamental_frequency, number_of_partials, method):
 
     return spectrum
 
-
+# DONE
 def sum_spectrums(*args):
     summed_spectrum = []
     combined_spectrum = []
@@ -91,7 +91,7 @@ def sum_spectrums(*args):
     # summed_spectrum = combined_spectrum
     return combined_spectrum
 
-
+# DONE
 def calculate_dissonance(partial_0, partial_1, method):
 
     if partial_0[1]*partial_1[1] == 0:
@@ -121,7 +121,7 @@ def calculate_dissonance(partial_0, partial_1, method):
 
     return dissonance
 
-
+# DONE
 def calculate_complex_dissonance(fixed_spectrum, sweep_spectrum, method):
     dissonance = 0
     for i in range(len(fixed_spectrum)):
@@ -218,7 +218,7 @@ def normalization_to_one(dissonance_curve):
 
     return normalized_dissonance_curve
 
-# SKIP
+# DONE
 def calculate_intrinsic_dissonance(spectrum, method):
     dissonance = 0
     partial_number = []
