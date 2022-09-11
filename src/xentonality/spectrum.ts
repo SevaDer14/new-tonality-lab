@@ -3,7 +3,7 @@ import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 
 
 
-export const generatePartials = ({ type, amplitudeProfile = 'harmonic', fundamental = 440, number = 1000 }: { type: 'harmonic', amplitudeProfile?: 'equal' | 'harmonic', fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, profile = 'harmonic', fundamental = 440, number = 1000 }: { type: 'harmonic', profile?: 'equal' | 'harmonic', fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -14,7 +14,7 @@ export const generatePartials = ({ type, amplitudeProfile = 'harmonic', fundamen
 
     if (type === 'harmonic') {
         for (let i = 1; i <= number; i++) {
-            const amplitude = getAmplitude(amplitudeProfile, i)
+            const amplitude = getAmplitude(profile, i)
             partials.push({ ratio: i, frequency: i * 440, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }

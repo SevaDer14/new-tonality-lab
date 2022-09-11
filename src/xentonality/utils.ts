@@ -1,5 +1,5 @@
 import type { TPartials, TPlotCurve } from "./types"
-
+import round from 'lodash-ts/round';
 
 
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
@@ -36,12 +36,12 @@ export const checkPartials = ({ partials, freqCondition, ampCondition }: { parti
 
 
 
-export const getAmplitude = (amplitudeProfile: 'equal' | 'harmonic', ratio: number) => {
-    if (amplitudeProfile === "equal") {
-        return 1
+export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
+    if (profile === "equal") {
+        return ratio >= 1 ? 1 : 0
     }
 
-    return 1 / ratio // --> defaults to harmonic profile
+    return ratio >= 1 ? 1 / ratio : 0 // --> defaults to harmonic profile
 }
 
 
@@ -50,15 +50,15 @@ export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.
 
 
 
-export const deTrend = (curve: TPlotCurve): TPlotCurve => {
+export const detrend = (curve: TPlotCurve): TPlotCurve => {
     const result = [] as TPlotCurve
 
-    const slope = (curve[-1].value - curve[0].value) / (curve[-1].cents)
+    const slope = (curve[curve.length - 1].value - curve[0].value) / (curve[curve.length - 1].ratio - curve[0].ratio)
 
     for (let i = 0; i < curve.length; i++) {
-        const trendLineValue = slope * curve[i].cents + curve[0].value // --> ax + b equation of line going through first and last curve points
-        const deTrendedValue = curve[i].value - trendLineValue
-        result.push({ ...curve[i], value: deTrendedValue })
+        const trendLineValue = slope * (curve[i].ratio - curve[0].ratio) + curve[0].value // --> a(x - x0) + b equation of line going through first and last curve points
+        const detrendedValue = curve[i].value - trendLineValue
+        result.push({ ...curve[i], value: round(detrendedValue, 15) })
     }
 
     return result
@@ -69,10 +69,10 @@ export const deTrend = (curve: TPlotCurve): TPlotCurve => {
 export const normalize = (curve: TPlotCurve): TPlotCurve => {
     const result = [] as TPlotCurve
 
-    const maxValue = curve.sort((a, b) => b.value - a.value)[0].value
+    const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
 
     for (let i = 0; i < curve.length; i++) {
-        result.push({ ...curve[i], value: curve[i].value / maxValue })
+        result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
     }
 
     return result

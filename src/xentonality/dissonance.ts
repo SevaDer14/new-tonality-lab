@@ -1,12 +1,14 @@
 import { changeFundamental, combinePartials } from "./spectrum"
-import { deTrend, normalize } from "./utils"
+import { detrend, normalize } from "./utils"
 import type { TDissonanceCurve, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
 
-export const plomptLevitDissonance = ({ minLoudness, frequencyDifference, minFrequency }: { minLoudness: number, frequencyDifference: number, minFrequency: number }): number => {
-    if (minLoudness === 0) return 0
+export const plompLeveltDissonance = ({ minLoudness, frequencyDifference, minFrequency }: { minLoudness: number, frequencyDifference: number, minFrequency: number }): number => {
+    if (minLoudness === 0 || minFrequency === 0) return 0
 
-    return minLoudness * (Math.exp((-0.84 * frequencyDifference) / (0.021 * minFrequency + 19)) - Math.exp((-1.38 * frequencyDifference) / (0.021 * minFrequency + 19)))
+    const coefficient = frequencyDifference / (0.021 * minFrequency + 19)
+
+    return minLoudness * (Math.exp(-0.84 * coefficient) - Math.exp(-1.38 * coefficient))
 }
 
 
@@ -16,7 +18,7 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
     for (let i = 0; i < partials.length; i++) {
         for (let j = i + 1; j < partials.length; j++) {
-            dissonance += plomptLevitDissonance({
+            dissonance += plompLeveltDissonance({
                 minLoudness: Math.min(partials[i].loudness, partials[j].loudness),
                 frequencyDifference: partials[j].frequency - partials[i].frequency,
                 minFrequency: partials[i].frequency,
@@ -54,7 +56,7 @@ export const dissonanceCurve = (partials: TPartials): TDissonanceCurve => {
         dissonanceCurve.push(dissonancePoint)
     }
 
-    return { curve: normalize(deTrend(dissonanceCurve)), pseudoOctave: pseudoOctave }
+    return { curve: normalize(detrend(dissonanceCurve)), pseudoOctave: pseudoOctave }
 }
 
 
