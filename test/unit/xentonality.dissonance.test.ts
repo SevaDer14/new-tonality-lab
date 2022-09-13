@@ -19,7 +19,7 @@ describe('Xentonality.Dissonance.plompLeveltDissonance', () => {
         expect(Dissonance.plompLeveltDissonance(options)).toEqual(0);
     });
 
-    // TODO: result not checked with Sethares book!! 
+    // WARNING: result not checked with Sethares book!! 
     it('returns correct dissonance value for given options', () => {
         const options = { minLoudness: 64, frequencyDifference: 440, minFrequency: 440 }
         expect(Dissonance.plompLeveltDissonance(options)).toEqual(0.0001324695873304775);
@@ -46,14 +46,14 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
         expect(Dissonance.intrinsicDissonance(partials)).toEqual(expercedOutcome);
     });
 
-    // TODO: value not tested, taken from result of function
+    // WARNING: value not tested, taken from result of function
     it('returns correct value for complex spectrum', () => {
         expect(Dissonance.intrinsicDissonance(Factory.partials({}))).toEqual(0.02201318145631032);
     });
 })
 
 describe('Xentonality.Dissonance.dissonanceCurve', () => {
-    // TODO: I assume fixtures are correct, but need manual testing to confirm that
+    // WARNING: I assume fixtures are correct, but need manual testing to confirm that
     it('returns correct diss curve', () => {
         const testFunction = Dissonance.dissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_4_harmonic

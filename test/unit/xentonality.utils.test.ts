@@ -8,7 +8,7 @@ describe('Xentonality.Utils.setharesLoudness', () => {
         expect(Utils.setharesLoudness(0)).toEqual(0);
     });
 
-    // TODO: double check the formula from Sethares
+    // WARNING: double check the formula from Sethares
     it('returns 0 if 0 amplitude is provided', () => {
         expect(Utils.setharesLoudness(1)).toEqual(78.84951607609639);
     });
