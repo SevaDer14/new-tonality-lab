@@ -16,9 +16,9 @@ const getZeroPlot = (): TPlotCurve => {
 
 
 // Partials
-export const partials = ({ indexes = [1, 2, 3, 4], fundamental = 440, amplitude }: { indexes?: number[], fundamental?: number, amplitude?: number }) => indexes.map(i => { return { ratio: i, frequency: i * fundamental, amplitude: amplitude === undefined ? 1 / i : amplitude, loudness: setharesLoudness(amplitude === undefined ? 1 / i : amplitude) } }) as TPartials
+export const partials = ({ ratios = [1, 2, 3, 4], fundamental = 440, amplitude }: { ratios?: number[], fundamental?: number, amplitude?: number }) => ratios.map(ratio => { return { ratio: ratio, frequency: ratio * fundamental, amplitude: amplitude === undefined ? 1 / ratio : amplitude, loudness: setharesLoudness(amplitude === undefined ? 1 / ratio : amplitude) } }) as TPartials
 
-export const noPartals = partials({ indexes: [] })
+export const noPartals = partials({ ratios: [] })
 
 
 

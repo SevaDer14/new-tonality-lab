@@ -9,7 +9,7 @@ describe('Xentonality.Spectrum.generatePartials', () => {
   });
 
   it('returns 6 harmonic partials with equal amplitude profile', () => {
-    const expectedOutcome = Factory.partials({ indexes: [1, 2, 3, 4, 5, 6], amplitude: 1 })
+    const expectedOutcome = Factory.partials({ ratios: [1, 2, 3, 4, 5, 6], amplitude: 1 })
     expect(Spectrum.generatePartials({ type: 'harmonic', number: 6, profile: 'equal' })).toEqual(expectedOutcome);
   });
 
@@ -37,11 +37,12 @@ describe('Xentonality.Spectrum.generatePartials', () => {
 
 
 describe('Xentonality.Spectrum.changeFundamental', () => {
-  it('recalculates all the partials frequencies with new provided fundamental', () => {
+  it('recalculates all the partials frequencies with new provided fundamental and does not change input spectrum', () => {
     const partials = Factory.partials({})
 
     const expectedOutcome = Factory.partials({ fundamental: 432 })
     expect(Spectrum.changeFundamental({ partials: partials, fundamental: 432 })).toEqual(expectedOutcome);
+    expect(partials).toEqual(Factory.partials({}));
   });
 
   it('returns 0 partials if provided fundamental < 0', () => {
@@ -63,12 +64,47 @@ describe('Xentonality.Spectrum.combinePartials', () => {
     expect(Spectrum.combinePartials(Factory.noPartals, Factory.noPartals)).toEqual(Factory.noPartals);
   });
 
-  it('returns spectrum with partials from both spectrums sorted by increasing freq', () => {
-    const spectrum1 = Factory.partials({ indexes: [5, 6, 7, 8] })
+  it('combines non-overlaping spectrums sorted by increasing freq and doesnt change input spectrums', () => {
+    const spectrum1 = Factory.partials({ ratios: [5, 6, 7, 8] })
     const spectrum2 = Factory.partials({})
-    const spectrum3 = Factory.partials({ indexes: [10, 20, 30, 40] })
+    const spectrum3 = Factory.partials({ ratios: [10, 20, 30, 40] })
+    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrum3)
 
-    const expectedOutcome = Factory.partials({ indexes: [1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40] })
-    expect(Spectrum.combinePartials(spectrum1, spectrum2, spectrum3)).toEqual(expectedOutcome);
+    const expectedOutcome = Factory.partials({ ratios: [1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40] })
+
+    expect(spectrum1).toEqual(Factory.partials({ ratios: [5, 6, 7, 8] }));
+    expect(spectrum3).toEqual(Factory.partials({ ratios: [10, 20, 30, 40] }));
+    expect(combined).toEqual(expectedOutcome);
+  });
+
+  it('combines close overlaping spectrums, sums overlaping amplitudes and doesnt change input spectrums', () => {
+    const spectrum1 = Factory.partials({ ratios: [1, 2] })
+    const spectrum2 = Factory.partials({ ratios: [1, 2], fundamental: 440.01 })
+    const spectrumOverlap = Factory.partials({ ratios: [1], fundamental: 880 })
+    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrumOverlap)
+
+    const expectedOutcome = [
+      { ratio: 1, frequency: 440, amplitude: 1, loudness: 78.84951607609639 },
+      { ratio: 1.0000227272727273, frequency: 440.01, amplitude: 1, loudness: 78.84951607609639 },
+      { ratio: 2, frequency: 880, amplitude: 1.5, loudness: 89.08565617739539 },
+      { ratio: 2.0000454545454547, frequency: 880.02, amplitude: 0.5, loudness: 64 }
+    ]
+
+    expect(spectrum1).toEqual(Factory.partials({ ratios: [1, 2] }));
+    expect(spectrum2).toEqual(Factory.partials({ ratios: [1, 2], fundamental: 440.01 }));
+    expect(combined).toEqual(expectedOutcome);
+  });
+
+  it('sums amplitudes of equal spectrums and doesnt change input spectrums', () => {
+    const spectrum1 = Factory.partials({ amplitude: 1 })
+    const spectrum2 = Factory.partials({ amplitude: 1 })
+    const spectrum3 = Factory.partials({ amplitude: 1 })
+    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrum3)
+
+    const expectedOutcome = Factory.partials({ amplitude: 3 })
+
+    expect(spectrum1).toEqual(Factory.partials({ amplitude: 1 }));
+    expect(spectrum2).toEqual(Factory.partials({ amplitude: 1 }));
+    expect(combined).toEqual(expectedOutcome);
   });
 })

@@ -1,6 +1,7 @@
 import * as Dissonance from '../../src/xentonality/dissonance';
 import * as Factory from './factories'
-
+import { diss_curve_440_4_harmonic } from './fixtures/dissCurves'
+import { curvesEqual } from "./assertions"
 
 describe('Xentonality.Dissonance.plompLeveltDissonance', () => {
     it('returns 0 if minLoudness is 0', () => {
@@ -31,7 +32,7 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
     });
 
     it('returns 0 if 1 partial is provided', () => {
-        expect(Dissonance.intrinsicDissonance(Factory.partials({ indexes: [1] }))).toEqual(0);
+        expect(Dissonance.intrinsicDissonance(Factory.partials({ ratios: [1] }))).toEqual(0);
     });
 
     it('returns 0 if partials have 0 loudness', () => {
@@ -39,7 +40,7 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
     });
 
     it('returns same value as plompLeveltDissonance if 2 partials are provided', () => {
-        const partials = Factory.partials({ indexes: [1, 2], fundamental: 440 })
+        const partials = Factory.partials({ ratios: [1, 2], fundamental: 440 })
         const expercedOutcome = Dissonance.plompLeveltDissonance({ minLoudness: 64, frequencyDifference: 440, minFrequency: 440 })
 
         expect(Dissonance.intrinsicDissonance(partials)).toEqual(expercedOutcome);
@@ -51,12 +52,19 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
     });
 })
 
-// describe('Xentonality.Dissonance.dissonanceCurve', () => {
+describe('Xentonality.Dissonance.dissonanceCurve', () => {
+    // TODO: I assume fixtures are correct, but need manual testing to confirm that
+    it('returns correct diss curve', () => {
+        const testFunction = Dissonance.dissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
+        const expectedFunction = diss_curve_440_4_harmonic
 
-    // test plomp and levelt curve for 2 different freq
+        expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
+    })
 
-    // test complex dissonance curve with fixture
+    it('returns diss curve within the range of pseudo-octave', () => {
+        const dissCurve = Dissonance.dissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
 
-    // test with pseudo octave
-
-// })
+        expect(dissCurve[0].cents).toEqual(0);
+        expect(dissCurve[dissCurve.length - 1].cents).toEqual(1260);
+    })
+})

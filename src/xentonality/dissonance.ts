@@ -32,21 +32,21 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 
-export const dissonanceCurve = (partials: TPartials): TDissonanceCurve => {
+export const dissonanceCurve = (partials: TPartials, points?: number): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
     const octave = { ratio: 2, Hz: 2 * fundamental, cents: 1200, }
 
     const pseudoOctave = { ratio: partials[1].ratio, Hz: partials[1].frequency - fundamental, cents: octave.cents * partials[1].ratio / octave.ratio, }
-    const numberOfPoints = pseudoOctave.cents
-    const step = { ratio: pseudoOctave.ratio / numberOfPoints, Hz: pseudoOctave.Hz / numberOfPoints, cents: pseudoOctave.cents / numberOfPoints, }
+    const numberOfPoints = points ? points : pseudoOctave.cents
+    const sweepStep = { cents: points ? pseudoOctave.cents / (numberOfPoints - 1) : 1 }
 
     for (let i = 0; i < numberOfPoints; i++) {
-        const currentStep = {
-            ratio: 1 + step.ratio * 1,
-            Hz: fundamental + step.Hz * i,
-            cents: step.cents * i,
-        } as TPointX
+        // eslint-disable-next-line prefer-const
+        let currentStep = {} as TPointX
+        currentStep.cents = sweepStep.cents * i
+        currentStep.ratio = 2 ** (currentStep.cents / 1200)
+        currentStep.Hz = fundamental * currentStep.ratio
 
         const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
         const combinedPartials = combinePartials(partials, sweepPartials)

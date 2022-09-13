@@ -1,7 +1,6 @@
 import type { TPartials } from "./types"
 import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
-
-
+import cloneDeep from 'lodash-ts/cloneDeep'
 
 export const generatePartials = ({ type, profile = 'harmonic', fundamental = 440, number = 1000 }: { type: 'harmonic', profile?: 'equal' | 'harmonic', fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
@@ -34,9 +33,7 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
     }
 
     for (let i = 0; i < partials.length; i++) {
-        const partial = partials[i]
-        partial.frequency = partial.ratio * fundamental
-        newPartials.push(partial)
+        newPartials.push({ ...partials[i], frequency: partials[i].ratio * fundamental })
     }
 
     return newPartials
@@ -44,16 +41,19 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
 
 
 
-export const combinePartials = (...partialGroups: TPartials[]): TPartials => {
+export const combinePartials = (...args: TPartials[]): TPartials => {
     const result = [] as TPartials
-    const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.ratio - b.ratio) as TPartials
+    const partialGroups = cloneDeep(args) as TPartials[]
+    const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.frequency - b.frequency) as TPartials
 
     for (let i = 0; i < allPartials.length; i++) {
-        if (result[result.length - 1] && allPartials[i].ratio === result[result.length - 1].ratio) {
+        if (result[result.length - 1] && allPartials[i].frequency === result[result.length - 1].frequency) {
+
             result[result.length - 1].amplitude += allPartials[i].amplitude
             result[result.length - 1].loudness = setharesLoudness(result[result.length - 1].amplitude)
+
         } else {
-            result.push(allPartials[i])
+            result.push({ ...allPartials[i], ratio: i === 0 ? allPartials[i].ratio : allPartials[i].frequency / result[0].frequency })
         }
     }
 
