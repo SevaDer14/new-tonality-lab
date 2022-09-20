@@ -14,7 +14,7 @@ export const generatePartials = ({ type, profile = 'harmonic', fundamental = 440
     if (type === 'harmonic') {
         for (let i = 1; i <= number; i++) {
             const amplitude = getAmplitude(profile, i)
-            partials.push({ ratio: i, frequency: i * 440, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+            partials.push({ ratio: i, frequency: i * fundamental, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }
 

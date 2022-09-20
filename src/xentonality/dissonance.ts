@@ -32,7 +32,7 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 
-export const dissonanceCurve = (partials: TPartials, points?: number): TDissonanceCurve => {
+export const calcDissonanceCurve = (partials: TPartials, points?: number): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
     const octave = { ratio: 2, Hz: 2 * fundamental, cents: 1200, }

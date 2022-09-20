@@ -1,10 +1,25 @@
 <script lang="ts">
-    export let open: boolean
     import { fundamental, numberOfPartials, sampleRate, sampleName, sampleDuration } from '../state/stores.js'
+    import SettingsIcon from '../components/icons/SettingsIcon.svelte'
+    import CrossIcon from '../components/icons/CrossIcon.svelte'
+    import DownloadIcon from '../components/icons/DownloadIcon.svelte'
+
+    let settingsOpen = false
 </script>
 
-{#if open === true}
-    <div class="container">
+<div class="app-bar">
+    <button><DownloadIcon /></button>
+    <button on:click={() => (settingsOpen = !settingsOpen)}>
+        {#if settingsOpen === false}
+            <SettingsIcon />
+        {:else}
+            <CrossIcon />
+        {/if}
+    </button>
+</div>
+
+{#if settingsOpen === true}
+    <div class="drawer">
         <h2 style="margin-top: 100px">SPECTRUM</h2>
 
         <label for="fundamental">Fundamental</label>
@@ -34,7 +49,14 @@
 {/if}
 
 <style>
-    .container {
+    .app-bar {
+        display: flex;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 2;
+    }
+    .drawer {
         position: absolute;
         right: 0;
         padding: 0 12px;
