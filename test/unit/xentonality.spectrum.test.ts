@@ -13,6 +13,11 @@ describe('Xentonality.Spectrum.generatePartials', () => {
     expect(Spectrum.generatePartials({ type: 'harmonic', number: 6, profile: 'equal' })).toEqual(expectedOutcome);
   });
 
+  it('returns 4 harmonic partials with fundamental at 100Hz', () => {
+    const expectedOutcome = 100
+    expect(Spectrum.generatePartials({ type: 'harmonic', fundamental: 100, number: 4 })[0].frequency).toEqual(expectedOutcome);
+  });
+
   it('returns default value of 1000 partials', () => {
     const partials = Spectrum.generatePartials({ type: 'harmonic' })
     expect(partials.length).toEqual(1000);

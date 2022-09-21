@@ -77,3 +77,14 @@ export const normalize = (curve: TPlotCurve): TPlotCurve => {
 
     return result
 }
+
+// TODO: Untested
+export const toPlotJSCurve = ({ xUnit, curve }: { xUnit: 'Hz' | 'ratio' | 'cents'; curve: TPlotCurve }) => {
+    const plotJsCurve = []
+
+    for (let i = 0; i < curve.length; i++) {
+        plotJsCurve.push({ x: curve[i][xUnit], y: curve[i].value })
+    }
+
+    return plotJsCurve
+}

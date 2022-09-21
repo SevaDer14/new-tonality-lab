@@ -52,17 +52,17 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
     });
 })
 
-describe('Xentonality.Dissonance.dissonanceCurve', () => {
+describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
     it('returns correct diss curve', () => {
-        const testFunction = Dissonance.dissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
+        const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_4_harmonic
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     })
 
     it('returns diss curve within the range of pseudo-octave', () => {
-        const dissCurve = Dissonance.dissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
+        const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
 
         expect(dissCurve[0].cents).toEqual(0);
         expect(dissCurve[dissCurve.length - 1].cents).toEqual(1260);
