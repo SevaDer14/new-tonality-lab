@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"chart.js": "^3.9.1",
 		"lodash-ts": "^1.2.7"
 	},
 	"prettier": {
