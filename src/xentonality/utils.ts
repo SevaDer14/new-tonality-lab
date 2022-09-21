@@ -1,5 +1,5 @@
 import type { TPartials, TPlotCurve } from "./types"
-import * as _ from 'lodash-es';
+import { round } from 'lodash-es';
 
 
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
@@ -58,7 +58,7 @@ export const detrend = (curve: TPlotCurve): TPlotCurve => {
     for (let i = 0; i < curve.length; i++) {
         const trendLineValue = slope * (curve[i].ratio - curve[0].ratio) + curve[0].value // --> a(x - x0) + b equation of line going through first and last curve points
         const detrendedValue = curve[i].value - trendLineValue
-        result.push({ ...curve[i], value: _.round(detrendedValue, 15) })
+        result.push({ ...curve[i], value: round(detrendedValue, 15) })
     }
 
     return result
@@ -72,7 +72,7 @@ export const normalize = (curve: TPlotCurve): TPlotCurve => {
     const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
 
     for (let i = 0; i < curve.length; i++) {
-        result.push({ ...curve[i], value: _.round(curve[i].value / Math.abs(mainExtremum.value), 15) })
+        result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
     }
 
     return result
