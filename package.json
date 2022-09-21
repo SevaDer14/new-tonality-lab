@@ -16,6 +16,7 @@
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
 		"@types/jest": "^29.0.0",
+		"@types/lodash-es": "^4.17.6",
 		"@typescript-eslint/eslint-plugin": "^5.27.0",
 		"@typescript-eslint/parser": "^5.27.0",
 		"eslint": "^8.16.0",
@@ -33,8 +34,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/lodash": "^4.14.185",
 		"chart.js": "^3.9.1",
-		"lodash-ts": "^1.2.7"
+		"lodash": "^4.17.21",
+		"lodash-es": "^4.17.21"
 	},
 	"prettier": {
 		"trailingComma": "es5",

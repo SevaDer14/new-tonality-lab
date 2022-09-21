@@ -1,6 +1,6 @@
 import type { TPartials, TPlotCurve } from "./types"
 import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
-import cloneDeep from 'lodash-ts/cloneDeep'
+import { cloneDeep } from 'lodash-es'
 
 // TODO: Untested
 export const partialsToSpectrum = ({ partials, unitY = 'amplitude' }: { partials: TPartials, unitY?: 'amplitude' | 'loudness' }): TPlotCurve => {

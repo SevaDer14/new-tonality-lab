@@ -1,5 +1,5 @@
 import type { TPartials, TPlotCurve } from "./types"
-import round from 'lodash-ts/round';
+import { round } from 'lodash-es';
 
 
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
