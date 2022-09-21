@@ -23,11 +23,13 @@
         <h2 style="margin-top: 100px">SPECTRUM</h2>
 
         <label for="fundamental">Fundamental</label>
-        <input bind:value={$fundamental} id="fundamental" />
+        <input type="range" min={55} max={880} bind:value={$fundamental} id="fundamental" />
+        <span>{$fundamental}</span>
         <p>in Hz</p>
 
         <label for="number_of_partials">Number of partials</label>
-        <input bind:value={$numberOfPartials} id="number_of_partials" />
+        <input type="range" min={2} max={20} bind:value={$numberOfPartials} id="number_of_partials" />
+        <span>{$numberOfPartials}</span>
         <p>max 1000</p>
 
         <h2>EXPORT</h2>
@@ -39,7 +41,8 @@
         </select>
 
         <label for="duartion">Duration</label>
-        <input bind:value={$sampleDuration} id="duration" />
+        <input type="range" min={1} max={20} bind:value={$sampleDuration} id="duration" />
+        <span>{$sampleDuration}</span>
         <p>in seconds</p>
 
         <label for="name">Name</label>
@@ -62,7 +65,7 @@
         padding: 0 12px;
         height: 100%;
         max-width: 256px;
-        background-color: rgb(238, 238, 238);
+        background-color: rgba(219, 233, 255, 0.75);
     }
     p {
         margin-top: 0;

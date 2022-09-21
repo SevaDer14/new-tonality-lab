@@ -1,11 +1,27 @@
 <script lang="ts">
-    import type { TPlotCurve } from '../xentonality/types'
     import type { ChartData } from 'chart.js'
     import Chart from 'chart.js/auto'
-    import { afterUpdate, onMount } from 'svelte'
-    import { colors } from '../theme/colors'
+    import { onMount } from 'svelte'
 
-    export let data: string
+    type TChartOptions =
+        | {
+              label?: string
+              color?: string
+              axes?: {
+                  x?: {
+                      units?: string
+                      label?: string
+                  }
+                  y?: {
+                      units?: string
+                      label?: string
+                  }
+              }
+          }
+        | undefined
+
+    export let data: { x: number; y: number }[]
+    export let options: TChartOptions = undefined
 
     let barChartElement: HTMLCanvasElement
     let plotData: ChartData
@@ -14,21 +30,17 @@
     plotData = {
         datasets: [
             {
-                label: 'Sensory Dissonance',
+                label: options?.label,
                 pointRadius: 0,
-                borderColor: colors.blue,
-                data: JSON.parse(data).curve.map((point) => {
-                    return { x: point.cents, y: point.value }
-                }),
+                borderColor: options?.color || '#000',
+                data: data,
             },
         ],
     }
 
     $: {
         if (chart) {
-            chart.data.datasets[0].data = JSON.parse(data).curve.map((point) => {
-                return { x: point.cents, y: point.value }
-            })
+            chart.data.datasets[0].data = data
             chart.update()
         }
     }
@@ -38,6 +50,8 @@
             type: 'line',
             data: plotData,
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false,
@@ -47,19 +61,32 @@
                     x: {
                         type: 'linear',
                         position: 'bottom',
+                        title: {
+                            display: options?.axes?.x?.label !== undefined,
+                            text: options?.axes?.x?.label,
+                        },
                     },
+                    y: {
+                        title: {
+                            display: options?.axes?.x?.label !== undefined,
+                            text: options?.axes?.y?.label,
+                        },
+                    },
+                },
+                layout: {
+                    padding: 32,
                 },
             },
         })
     })
 </script>
 
-<div class="plot">
+<div class="plot-container">
     <canvas bind:this={barChartElement} />
 </div>
 
 <style>
-    .plot {
+    .plot-container {
         width: 100%;
         height: calc(50vh - 1px);
         display: flex;

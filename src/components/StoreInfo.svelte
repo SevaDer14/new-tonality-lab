@@ -3,21 +3,24 @@
 </script>
 
 <div class="store-observer">
-    <span>fundamental: {$fundamental}</span>
-    <span>numberOfPartials: {$numberOfPartials}</span>
-    <span>sampleRate: {$sampleRate}</span>
-    <span>sampleDuration: {$sampleDuration}</span>
-    <span>sampleName: {$sampleName}</span>
+    <p>fundamental: {$fundamental}</p>
+    <p>numberOfPartials:  {$numberOfPartials}</p>
+    <p>sampleRate:  {$sampleRate}</p>
+    <p>sampleDuration:  {$sampleDuration}</p>
+    <p>sampleName:  {$sampleName}</p>
 </div>
 
 <style>
     .store-observer {
         position: absolute;
-        padding-left: 12px;
-        padding-top: 12px;
+        right: 0;
+        top: 50px;
+        padding-right: 12px;
+        text-align: end;
     }
-    span {
-        margin-right: 8px;
+    p {
+        margin-top: 0;
+        margin-bottom: 6px;
         opacity: 0.5;
         font-size: small;
     }

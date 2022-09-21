@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import { generatePartials } from '../xentonality/spectrum'
+import { generatePartials, partialsToSpectrum } from '../xentonality/spectrum'
 import { calcDissonanceCurve } from '../xentonality/dissonance'
 
 type TSpectrumType = 'harmonic' | 'edo'
@@ -18,6 +18,11 @@ export const sampleName = writable('xenple')
 export const partials = derived(
     [fundamental, numberOfPartials],
     ([$fundamental, $numberOfPartials]) => generatePartials({ type: 'harmonic', fundamental: Number($fundamental), number: Number($numberOfPartials) })
+);
+
+export const spectrum = derived(
+    partials,
+    $partials => partialsToSpectrum({ partials: $partials })
 );
 
 export const dissonanceCurve = derived(
