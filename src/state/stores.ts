@@ -3,8 +3,8 @@ import { generatePartials, partialsToSpectrum } from '../xentonality/spectrum'
 import { calcDissonanceCurve } from '../xentonality/dissonance'
 
 type TSpectrumType = 'harmonic' | 'edo'
-export const fundamental = writable('440');
-export const numberOfPartials = writable('6');
+export const fundamental = writable(440);
+export const numberOfPartials = writable(6);
 export const spectrumType = writable<TSpectrumType>('harmonic');
 export const edoSteps = writable('12')
 
@@ -17,7 +17,7 @@ export const sampleName = writable('xenple')
 
 export const partials = derived(
     [fundamental, numberOfPartials],
-    ([$fundamental, $numberOfPartials]) => generatePartials({ type: 'harmonic', fundamental: Number($fundamental), number: Number($numberOfPartials) })
+    ([$fundamental, $numberOfPartials]) => generatePartials({ type: 'harmonic', fundamental: $fundamental, number: $numberOfPartials })
 );
 
 export const spectrum = derived(

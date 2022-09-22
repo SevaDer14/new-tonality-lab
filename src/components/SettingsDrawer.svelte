@@ -3,8 +3,19 @@
     import SettingsIcon from '../components/icons/SettingsIcon.svelte'
     import CrossIcon from '../components/icons/CrossIcon.svelte'
     import DownloadIcon from '../components/icons/DownloadIcon.svelte'
+    import { throttle } from 'lodash-es'
 
     let settingsOpen = false
+    let fundamentalVal = String($fundamental)
+    let numberOfPartialsVal = String($numberOfPartials)
+
+    const setFundamentalStore = (event: any) => {
+        $fundamental = Number(event.target.value)
+    }
+
+    const setNumberOfPartialsStore = (event: any) => {
+        $numberOfPartials = Number(event.target.value)
+    }
 </script>
 
 <div class="app-bar">
@@ -23,13 +34,13 @@
         <h2 style="margin-top: 100px">SPECTRUM</h2>
 
         <label for="fundamental">Fundamental</label>
-        <input type="range" min={55} max={880} bind:value={$fundamental} id="fundamental" />
-        <span>{$fundamental}</span>
+        <input type="range" min={55} max={880} bind:value={fundamentalVal} on:input={throttle(setFundamentalStore, 250)} id="fundamental" />
+        <span>{fundamentalVal}</span>
         <p>in Hz</p>
 
         <label for="number_of_partials">Number of partials</label>
-        <input type="range" min={2} max={20} bind:value={$numberOfPartials} id="number_of_partials" />
-        <span>{$numberOfPartials}</span>
+        <input type="range" min={2} max={20} bind:value={numberOfPartialsVal} on:input={throttle(setNumberOfPartialsStore, 250)} id="number_of_partials" />
+        <span>{numberOfPartialsVal}</span>
         <p>max 1000</p>
 
         <h2>EXPORT</h2>
@@ -65,7 +76,7 @@
         padding: 0 12px;
         height: 100%;
         max-width: 256px;
-        background-color: rgba(219, 233, 255, 0.75);
+        background-color: rgba(219, 233, 255);
     }
     p {
         margin-top: 0;
