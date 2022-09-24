@@ -1,9 +1,9 @@
 <script lang="ts">
-    import Plot from '../components/Plot.svelte'
-    import SettingsDrawer from '../components/SettingsDrawer.svelte'
-    import { toPlotJSCurve } from '../xentonality/utils'
-    import { spectrum, dissonanceCurve } from '../state/stores.js'
-    import { colors } from '../theme/colors'
+    import Plot from '../../components/Plot.svelte'
+    import SettingsDrawer from '../../components/SettingsDrawer.svelte'
+    import { toPlotJSCurve } from '../../xentonality/utils'
+    import { spectrum, dissonanceCurve } from '../../state/stores.js'
+    import { colors } from '../../theme/colors'
 
     const spectrumChartOptions = {
         color: colors.blue,
