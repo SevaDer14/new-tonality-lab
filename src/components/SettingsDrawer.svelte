@@ -1,15 +1,36 @@
 <script lang="ts">
-    import { fundamental, numberOfPartials, sampleRate, sampleName, sampleDuration } from '../state/stores.js'
+    import { fundamental, numberOfPartials, sampleRate, sampleName, sampleDuration, partials, dissonanceCurve } from '../state/stores.js'
     import SettingsIcon from '../components/icons/SettingsIcon.svelte'
     import CrossIcon from '../components/icons/CrossIcon.svelte'
     import DownloadIcon from '../components/icons/DownloadIcon.svelte'
     import Range from '../components/Range.svelte'
+    import { BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
 
     let settingsOpen = false
+
+    const downloadFiles = async () => {
+        const zipFileWriter = new BlobWriter()
+
+        const partialsFile = new TextReader(JSON.stringify($partials))
+        const dissonanceCurveFile = new TextReader(JSON.stringify($dissonanceCurve))
+        const zipWriter = new ZipWriter(zipFileWriter)
+
+        await zipWriter.add(`${$sampleName}_spectrum`, partialsFile)
+        await zipWriter.add(`${$sampleName}_dissonance_curve`, dissonanceCurveFile)
+        await zipWriter.close()
+
+        const zipFileBlob = await zipFileWriter.getData()
+
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(zipFileBlob)
+        link.download = `${$sampleName}.zip`
+        link.click()
+        link.remove()
+    }
 </script>
 
 <div class="app-bar">
-    <button><DownloadIcon /></button>
+    <button on:click={() => downloadFiles()}><DownloadIcon /></button>
     <button on:click={() => (settingsOpen = !settingsOpen)}>
         {#if settingsOpen === false}
             <SettingsIcon />

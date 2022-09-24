@@ -2,6 +2,7 @@
 	"name": "xen-kit",
 	"version": "0.0.1",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -32,9 +33,9 @@
 		"typescript": "^4.8.2",
 		"vite": "^3.1.0-beta.1"
 	},
-	"type": "module",
 	"dependencies": {
 		"@types/lodash": "^4.14.185",
+		"@zip.js/zip.js": "^2.6.30",
 		"chart.js": "^3.9.1",
 		"lodash": "^4.17.21",
 		"lodash-es": "^4.17.21"
