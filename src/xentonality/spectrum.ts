@@ -1,5 +1,5 @@
 import type { TPartials, TPlotCurve } from "./types"
-import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
+import { checkNumericParam, getAmplitude, setharesLoudness, ratioToCents } from "./utils"
 import { cloneDeep } from 'lodash-es'
 
 // TODO: Untested
@@ -13,16 +13,16 @@ export const partialsToSpectrum = ({ partials, unitY = 'amplitude' }: { partials
         const higherPointFreq = partial.frequency + 0.01
         const higherPointRatio = higherPointFreq / fundamental
         spectrum = [...spectrum, ...[
-            { Hz: lowerPointFreq, ratio: lowerPointRatio, cents: 1200 * Math.log2(lowerPointRatio), value: 0 },
-            { Hz: partial.frequency, ratio: partial.ratio, cents: 1200 * Math.log2(partial.ratio), value: partial[unitY] },
-            { Hz: higherPointFreq, ratio: higherPointRatio, cents: 1200 * Math.log2(higherPointRatio), value: 0 },
+            { Hz: lowerPointFreq, ratio: lowerPointRatio, cents: ratioToCents(lowerPointRatio), value: 0 },
+            { Hz: partial.frequency, ratio: partial.ratio, cents: ratioToCents(partial.ratio), value: partial[unitY] },
+            { Hz: higherPointFreq, ratio: higherPointRatio, cents: ratioToCents(higherPointRatio), value: 0 },
         ]]
     })
 
     return spectrum
 }
 
-export const generatePartials = ({ type, profile = 'harmonic', fundamental = 440, number = 1000 }: { type: 'harmonic', profile?: 'equal' | 'harmonic', fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, profile = 'harmonic', stretch = 1, edo = 5, fundamental = 440, number = 1000 }: { type: 'harmonic' | 'stretched' | 'edo', profile?: 'equal' | 'harmonic', stretch?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -37,6 +37,27 @@ export const generatePartials = ({ type, profile = 'harmonic', fundamental = 440
             partials.push({ ratio: i, frequency: i * fundamental, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }
+
+    // TODO: untested
+    if (type === 'stretched') {
+        for (let i = 1; i <= number; i++) {
+            const amplitude = getAmplitude(profile, i)
+            const frequency = fundamental * (stretch ** Math.log2(i + 1))
+            const ratio = frequency / fundamental
+            partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+        }
+    }
+
+    // TODO: untested
+    if (type === 'stretched') {
+        for (let i = 1; i <= number; i++) {
+            const amplitude = getAmplitude(profile, i)
+            const frequency = fundamental * 2 ** (Math.round(Math.log2(i + 1) * edo) / edo)
+            const ratio = frequency / fundamental
+            partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+        }
+    }
+
 
     return partials
 }

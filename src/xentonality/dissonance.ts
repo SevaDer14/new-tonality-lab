@@ -1,5 +1,5 @@
 import { changeFundamental, combinePartials } from "./spectrum"
-import { detrend, normalize } from "./utils"
+import { centsToRatio, detrend, normalize } from "./utils"
 import type { TDissonanceCurve, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
 
@@ -45,7 +45,7 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
         // eslint-disable-next-line prefer-const
         let currentStep = {} as TPointX
         currentStep.cents = sweepStep.cents * i
-        currentStep.ratio = 2 ** (currentStep.cents / 1200)
+        currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
 
         const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
