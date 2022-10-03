@@ -1,6 +1,14 @@
 import type { TPartials, TPlotCurve } from "./types"
 import { round } from 'lodash-es';
 
+// TODO: Untested
+export const ratioToCents = (ratio: number): number => {
+    return 1200 * Math.log2(ratio)
+}
+// TODO: Untested
+export const centsToRatio = (cents: number): number => {
+    return 2 ** (cents / 1200)
+}
 
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
     let success = true

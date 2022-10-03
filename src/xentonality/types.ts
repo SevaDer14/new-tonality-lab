@@ -2,6 +2,8 @@ export type TPartial = { ratio: number, frequency: number, amplitude: number, lo
 
 export type TPartials = Array<TPartial>
 
+export type TSpectrumType = 'harmonic' | 'stretched' | 'edo'
+
 export type TSpectrum = {
     partials: TPartials,
     intrinsicDissonance?: number,

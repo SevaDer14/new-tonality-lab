@@ -5,6 +5,7 @@
     export let hint = ''
     export let min: number
     export let max: number
+    export let step = 1
     export let initialValue
     export let onInput: (arg: number) => any
 
@@ -18,7 +19,7 @@
 
 <label for={id}>{label}</label>
 <div class="input-container">
-    <input type="range" {min} {max} bind:value on:input={throttle(handleInput, 200)} {id} />
+    <input type="range" {min} {max} {step}  bind:value on:input={throttle(handleInput, 200)} {id} />
     <input class="manual-input" type="number" bind:value on:change={throttle(handleInput, 200)} />
 </div>
 <p>{hint}</p>
