@@ -65,6 +65,6 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
         const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
 
         expect(dissCurve[0].cents).toEqual(0);
-        expect(dissCurve[dissCurve.length - 1].cents).toEqual(1260);
+        expect(dissCurve[dissCurve.length - 1].cents).toEqual(1284.4671934696776);
     })
 })
