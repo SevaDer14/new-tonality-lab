@@ -1,5 +1,5 @@
 import { changeFundamental, combinePartials } from "./spectrum"
-import { centsToRatio, detrend, normalize } from "./utils"
+import { centsToRatio, detrend, normalize, ratioToCents } from "./utils"
 import type { TDissonanceCurve, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
 
@@ -35,15 +35,13 @@ export const intrinsicDissonance = (partials: TPartials) => {
 export const calcDissonanceCurve = (partials: TPartials, points?: number): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
-    const octave = { ratio: 2, Hz: 2 * fundamental, cents: 1200, }
 
-    const pseudoOctave = { ratio: partials[1].ratio, Hz: partials[1].frequency - fundamental, cents: octave.cents * partials[1].ratio / octave.ratio, }
+    const pseudoOctave = { ratio: partials[1].ratio, Hz: partials[1].frequency - fundamental, cents: ratioToCents(partials[1].ratio), }
     const numberOfPoints = points ? points : pseudoOctave.cents
     const sweepStep = { cents: points ? pseudoOctave.cents / (numberOfPoints - 1) : 1 }
 
     for (let i = 0; i < numberOfPoints; i++) {
-        // eslint-disable-next-line prefer-const
-        let currentStep = {} as TPointX
+        const currentStep = {} as TPointX
         currentStep.cents = sweepStep.cents * i
         currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
@@ -58,5 +56,3 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
 
     return { curve: normalize(detrend(dissonanceCurve)), pseudoOctave: pseudoOctave }
 }
-
-
