@@ -1,33 +1,47 @@
 <script lang="ts">
-    import Plot from '../../components/Plot.svelte'
+    import HighPlot from '../../components/HighPlot.svelte'
     import SettingsDrawer from '../../components/SettingsDrawer.svelte'
-    import { toPlotJSCurve } from '../../xentonality/utils'
+    import { toHighchartsJSCurve } from '../../xentonality/utils'
     import { spectrum, dissonanceCurve } from '../../state/stores.js'
-    import { colors } from '../../theme/colors'
 
     const spectrumChartOptions = {
-        color: colors.blue,
-        label: 'Spectrum',
-        axes: {
-            x: { label: 'Hz' },
-            y: { label: 'Amplitude' },
+        series: {
+            name: 'spectrum-1',
+            type: 'line',
         },
+        yAxisTitle: 'Spectrum',
+        xAxisTitle: 'Hz',
     }
 
     const dissonanceCurveChartOptions = {
-        color: colors.blue,
-        label: 'Sensory Dissonance',
-        axes: {
-            x: { label: 'cents' },
-            y: { label: 'Sensory Dissonance' },
+        series: {
+            name: 'dissonance-curve-1',
+            type: 'line',
         },
+        yAxisTitle: 'Precieved Dissonance',
+        xAxisTitle: 'cents',
     }
 </script>
 
-<SettingsDrawer />
+<div class="page">
+    <SettingsDrawer />
 
-<Plot options={spectrumChartOptions} data={toPlotJSCurve({ xUnit: 'Hz', curve: $spectrum })} />
-<Plot options={dissonanceCurveChartOptions} data={toPlotJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve })} />
+    <div class="plots">
+        <HighPlot options={spectrumChartOptions} data={toHighchartsJSCurve({ xUnit: 'Hz', curve: $spectrum })} />
+        <HighPlot options={dissonanceCurveChartOptions} data={toHighchartsJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve })} />
+    </div>
+</div>
 
 <style>
+    .page {
+        display: flex;
+        width: 100%;
+        height: 100%;
+    }
+    .plots {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
 </style>

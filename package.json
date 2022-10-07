@@ -36,7 +36,7 @@
 	"dependencies": {
 		"@types/lodash": "^4.14.185",
 		"@zip.js/zip.js": "^2.6.30",
-		"chart.js": "^3.9.1",
+		"highcharts": "^10.2.1",
 		"lodash": "^4.17.21",
 		"lodash-es": "^4.17.21"
 	},
