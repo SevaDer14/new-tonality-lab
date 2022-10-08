@@ -5,11 +5,33 @@
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
 
+    // TODO: untested
+    const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
+        const toStringRow = (row: any[]) => {
+            let result = `${row[0]}`
+
+            for (let i = 1; i < row.length; i += 1) {
+                result += `\t${row[i]}`
+            }
+
+            return result
+        }
+
+        const headerRow = toStringRow(Object.keys(curve[0]))
+        const rows = [headerRow]
+
+        for (let i = 0; i < curve.length; i += 1) {
+            rows.push(toStringRow(Object.values(curve[i])))
+        }
+
+        return rows.join('\n')
+    }
+
     const downloadFiles = async () => {
         const zipFileWriter = new BlobWriter()
 
-        const partialsFile = new TextReader(JSON.stringify($partials))
-        const dissonanceCurveFile = new TextReader(JSON.stringify($dissonanceCurve))
+        const partialsFile = new TextReader(parseCurveToFileFormat($partials))
+        const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
         const zipWriter = new ZipWriter(zipFileWriter)
 
         await zipWriter.add(`${$sampleName}_spectrum`, partialsFile)

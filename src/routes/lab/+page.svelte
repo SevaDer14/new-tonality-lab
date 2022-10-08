@@ -6,7 +6,7 @@
 
     const spectrumChartProps = {
         series: {
-            name: 'spectrum-1',
+            name: 'Spectrum',
             type: 'line',
         },
         yAxis: {
@@ -24,7 +24,7 @@
 
     const dissonanceCurveChartOptions = {
         series: {
-            name: 'dissonance-curve-1',
+            name: 'Dissonance Curve',
             type: 'line',
         },
         yAxis: {

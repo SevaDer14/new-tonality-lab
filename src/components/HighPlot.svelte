@@ -21,6 +21,7 @@
         yAxis: TAxisOptions
         xAxis: TAxisOptions
     }
+
     export let data: number[][]
 
     let config: PlotOptions
@@ -37,9 +38,9 @@
                 yAxis: options.yAxis,
                 xAxis: {
                     title: options.xAxis.title,
-                    min: options.xAxis.min || 0.95 * data[0][0],
+                    min: options.xAxis.min !== undefined ? options.xAxis.min : 0.95 * data[1][0],
                     max: options.xAxis.max,
-                    tickInterval: options.xAxis.tickInterval || data[0][0],
+                    tickInterval: options.xAxis.tickInterval || data[1][0],
                     gridLineWidth: options.xAxis.gridLineWidth,
                 },
                 plotOptions: {
