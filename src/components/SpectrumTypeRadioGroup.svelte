@@ -29,6 +29,6 @@
         vertical-align: bottom;
     }
     fieldset {
-        margin-bottom: 18px;
+        margin: 18px 0px;
     }
 </style>
