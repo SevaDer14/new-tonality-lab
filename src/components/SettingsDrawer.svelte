@@ -4,6 +4,17 @@
     import { BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
+    import type { PolySynth, Synth, SynthOptions } from 'tone'
+    import * as Tone from 'tone'
+    import { onMount } from 'svelte'
+    import { Time } from 'highcharts'
+
+    let synth: PolySynth<Synth<SynthOptions>>
+
+    onMount(() => {
+        synth = new Tone.PolySynth(Tone.Synth).toDestination()
+        synth.set({ oscillator: { type: 'sine' } })
+    })
 
     // TODO: untested
     const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
@@ -25,6 +36,21 @@
         }
 
         return rows.join('\n')
+    }
+
+    const playSample = () => {
+        Tone.start()
+        $partials.forEach((partial) => {
+            Tone.Transport.scheduleOnce((time) => {
+                synth.triggerAttack(partial.frequency, time, partial.amplitude * 0.1)
+            }, '8n')
+        })
+        Tone.Transport.start()
+    }
+
+    const stopSample = () => {
+        synth.releaseAll()
+        Tone.Transport.stop()
     }
 
     const downloadFiles = async () => {
@@ -64,6 +90,11 @@
         <Range label="Edo steps" min={3} max={19} onInput={(value) => ($edoSteps = value)} initialValue={$edoSteps} />
     {/if}
 
+    <div class="controls">
+        <button class="control-button" on:click={playSample}>Play</button>
+        <button class="control-button" on:click={stopSample}>Stop</button>
+    </div>
+
     <h3>EXPORT</h3>
     <label for="sample_rate">Sample Rate</label>
     <select bind:value={$sampleRate} id="sample_rate">
@@ -95,6 +126,16 @@
         border: none;
         background-color: #2f82de;
         color: #ffffff;
+        border-radius: 4px;
+    }
+    .controls {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+    }
+    .control-button {
+        max-width: 50%;
+        margin: 4px;
     }
     button:hover {
         background-color: #458ddf;
