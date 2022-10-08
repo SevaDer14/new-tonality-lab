@@ -4,13 +4,22 @@
     import { toHighchartsJSCurve } from '../../xentonality/utils'
     import { spectrum, dissonanceCurve } from '../../state/stores.js'
 
-    const spectrumChartOptions = {
+    const spectrumChartProps = {
         series: {
             name: 'spectrum-1',
             type: 'line',
         },
-        yAxisTitle: 'Spectrum',
-        xAxisTitle: 'Hz',
+        yAxis: {
+            title: { text: 'Spectrum' },
+            gridLineWidth: 1,
+            min: 0,
+            max: 1,
+            tickInterval: 0.2,
+        },
+        xAxis: {
+            title: { text: 'Hz' },
+            gridLineWidth: 1,
+        },
     }
 
     const dissonanceCurveChartOptions = {
@@ -18,8 +27,19 @@
             name: 'dissonance-curve-1',
             type: 'line',
         },
-        yAxisTitle: 'Precieved Dissonance',
-        xAxisTitle: 'cents',
+        yAxis: {
+            title: { text: 'Sethares Dissonance' },
+            gridLineWidth: 1,
+            min: 0,
+            max: 1,
+            tickInterval: 0.2,
+        },
+        xAxis: {
+            title: { text: 'cents' },
+            gridLineWidth: 1,
+            min: 0,
+            tickInterval: 100,
+        },
     }
 </script>
 
@@ -27,7 +47,7 @@
     <SettingsDrawer />
 
     <div class="plots">
-        <HighPlot options={spectrumChartOptions} data={toHighchartsJSCurve({ xUnit: 'Hz', curve: $spectrum })} />
+        <HighPlot options={spectrumChartProps} data={toHighchartsJSCurve({ xUnit: 'Hz', curve: $spectrum })} />
         <HighPlot options={dissonanceCurveChartOptions} data={toHighchartsJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve })} />
     </div>
 </div>

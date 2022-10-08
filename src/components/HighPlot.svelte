@@ -3,13 +3,23 @@
     import type { PlotOptions } from 'highcharts'
     import { layout } from '../theme/layout'
 
+    type TAxisOptions = {
+        title?: {
+            text?: string
+        }
+        min?: number
+        max?: number
+        tickInterval?: number
+        gridLineWidth?: number
+    }
+
     export let options: {
         series: {
             name: string
         }
         title?: string
-        yAxisTitle: string
-        xAxisTitle: string
+        yAxis: TAxisOptions
+        xAxis: TAxisOptions
     }
     export let data: number[][]
 
@@ -24,15 +34,13 @@
                 title: {
                     text: options.title,
                 },
-                yAxis: {
-                    title: {
-                        text: options.yAxisTitle,
-                    },
-                },
+                yAxis: options.yAxis,
                 xAxis: {
-                    title: {
-                        text: options.xAxisTitle,
-                    },
+                    title: options.xAxis.title,
+                    min: options.xAxis.min || 0.95 * data[0][0],
+                    max: options.xAxis.max,
+                    tickInterval: options.xAxis.tickInterval || data[0][0],
+                    gridLineWidth: options.xAxis.gridLineWidth,
                 },
                 plotOptions: {
                     series: {
