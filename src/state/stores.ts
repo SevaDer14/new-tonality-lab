@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, readable } from 'svelte/store';
 import type { TSpectrumType } from 'src/xentonality/types';
 import { generatePartials, partialsToSpectrum } from '../xentonality/spectrum'
 import { calcDissonanceCurve } from '../xentonality/dissonance'
@@ -11,8 +11,8 @@ export const stretch = writable(2)
 
 
 type TSampleRate = 44100 | 48000 | 96000
-export const sampleRate = writable<TSampleRate>(44100)
-export const sampleDuration = writable(10)
+export const sampleRate = readable<TSampleRate>(44100)
+export const sampleDuration = writable(5)
 export const sampleName = writable('sample')
 
 
