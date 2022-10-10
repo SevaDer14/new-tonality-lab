@@ -1,58 +1,131 @@
 <script lang="ts">
-    import HighPlot from '../../components/HighPlot.svelte'
     import SettingsDrawer from '../../components/SettingsDrawer.svelte'
     import { toHighchartsJSCurve } from '../../xentonality/utils'
-    import { spectrum, dissonanceCurve } from '../../state/stores.js'
+    import { partials, dissonanceCurve } from '../../state/stores.js'
+    import highcharts from '../../utils/highcharts'
+    import type { PlotOptions } from 'highcharts'
+    import { layout } from '../../theme/layout'
 
-    const spectrumChartProps = {
-        series: {
-            name: 'Spectrum',
-            type: 'line',
-        },
-        yAxis: {
-            title: { text: 'Spectrum' },
-            gridLineWidth: 1,
-            min: 0,
-            max: 1,
-            tickInterval: 0.2,
-        },
-        xAxis: {
-            title: { text: 'Hz' },
-            gridLineWidth: 1,
-        },
-    }
+    let chartContainer = null as HTMLDivElement | null
+    let spectrumChartConfig: PlotOptions
+    let dissonanceCurveChartConfig: PlotOptions
+    let windowWidth: number
+    let windowHeight: number
 
-    const dissonanceCurveChartOptions = {
-        series: {
-            name: 'Dissonance Curve',
-            type: 'line',
-        },
-        yAxis: {
-            title: { text: 'Sethares Dissonance' },
-            gridLineWidth: 1,
-            min: 0,
-            max: 1,
-            tickInterval: 0.2,
-        },
-        xAxis: {
-            title: { text: 'cents' },
-            gridLineWidth: 1,
-            min: 0,
-            tickInterval: 100,
-        },
+    $: {
+        if ($partials && $dissonanceCurve) {
+            spectrumChartConfig = {
+                title: {
+                    text: '',
+                },
+                yAxis: {
+                    title: { text: 'Spectrum' },
+                    gridLineWidth: 1,
+                    min: 0,
+                    max: 1,
+                    tickInterval: 0.2,
+                },
+                xAxis: {
+                    title: { text: 'Hz' },
+                    gridLineWidth: 1,
+                    min: $partials[0].frequency,
+                    tickInterval: $partials[0].frequency,
+                },
+                plotOptions: {
+                    series: {
+                        type: 'line',
+                        label: {
+                            connectorAllowed: false,
+                        },
+                        pointStart: 0,
+                    },
+                },
+                series: [
+                    {
+                        type: 'column',
+                        name: 'Partials',
+                        color: 'DodgerBlue',
+                        pointWidth: 0.5,
+                        data: $partials.map((partial) => [partial.frequency, partial.amplitude]),
+                    },
+                ],
+            }
+
+            dissonanceCurveChartConfig = {
+                title: {
+                    text: '',
+                },
+                yAxis: {
+                    title: { text: 'Sethares Dissonance' },
+                    gridLineWidth: 1,
+                    min: 0,
+                    max: 1,
+                    tickInterval: 0.2,
+                },
+                xAxis: {
+                    title: { text: 'cents' },
+                    gridLineWidth: 1,
+                    min: 0,
+                    tickInterval: 100,
+                },
+                plotOptions: {
+                    series: {
+                        type: 'line',
+                        label: {
+                            connectorAllowed: false,
+                        },
+                        pointStart: 0,
+                    },
+                },
+                series: [
+                    {
+                        name: 'Dissonance Curve',
+                        type: 'line',
+                        color: 'DodgerBlue',
+                        data: toHighchartsJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve }),
+                    },
+                ],
+            }
+        }
     }
 </script>
+
+<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <div class="page">
     <SettingsDrawer />
 
     <div class="plots">
-        <HighPlot options={spectrumChartProps} data={toHighchartsJSCurve({ xUnit: 'Hz', curve: $spectrum })} />
-        <HighPlot options={dissonanceCurveChartOptions} data={toHighchartsJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve })} />
+        <div bind:this={chartContainer} class="plot-container">
+            <div
+                use:highcharts={{
+                    width: windowWidth - layout.menuWidth - 32,
+                    height: windowHeight / 2 - 1,
+                    chart: spectrumChartConfig,
+                }}
+            />
+        </div>
+
+        <div bind:this={chartContainer} class="plot-container">
+            <div
+                use:highcharts={{
+                    width: windowWidth - layout.menuWidth - 32,
+                    height: windowHeight / 2 - 1,
+                    chart: dissonanceCurveChartConfig,
+                }}
+            />
+        </div>
     </div>
 </div>
 
 <style>
+    .plot-container {
+        width: 100%;
+        height: calc(50vh - 1px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     .page {
         display: flex;
         width: 100%;
