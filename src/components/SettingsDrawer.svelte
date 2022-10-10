@@ -109,12 +109,9 @@
 
     <Range label="Fundamental (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} />
     <Range label="Number of Partials" min={2} max={20} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} />
+    <Range label="Stretch" min={0.6} max={2} step={0.1} onInput={(value) => ($stretch = value)} initialValue={$stretch} />
 
     <SpectrumTypeRadioGroup />
-
-    {#if $spectrumType === 'stretched'}
-        <Range label="Stretch" min={1.1} max={4} step={0.1} onInput={(value) => ($stretch = value)} initialValue={$stretch} />
-    {/if}
 
     {#if $spectrumType === 'edo'}
         <Range label="Edo steps" min={3} max={19} onInput={(value) => ($edoSteps = value)} initialValue={$edoSteps} />
@@ -147,7 +144,7 @@
     button {
         width: 100%;
         height: 36px;
-        margin: 0px 4px 4px 0px;
+        margin: 18px 4px 4px 0px;
         border: none;
         background-color: #2f82de;
         color: #ffffff;
@@ -165,6 +162,6 @@
         font-size: small;
     }
     input {
-        margin-bottom: 36px;
+        margin-bottom: 18px;
     }
 </style>

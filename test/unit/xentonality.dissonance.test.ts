@@ -54,17 +54,20 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
 
 describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
-    it('returns correct diss curve', () => {
+    it('returns correct diss curve with no 0 and pseudo octave points', () => {
         const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_4_harmonic
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     })
 
-    it('returns diss curve within the range of pseudo-octave', () => {
+    it('returns diss curve within the range of pseudo-octave with correct step', () => {
         const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
+        const expectedStepInCents = 142.7185770521864
 
-        expect(dissCurve[0].cents).toEqual(0);
-        expect(dissCurve[dissCurve.length - 1].cents).toEqual(1284.4671934696776);
+        expect(dissCurve[0].cents).toEqual(expectedStepInCents);
+        expect(dissCurve[1].cents - dissCurve[0].cents).toEqual(expectedStepInCents);
+        expect(dissCurve[dissCurve.length - 1].cents).toEqual(expectedStepInCents * dissCurve.length);
+        expect(dissCurve.length).toEqual(8);
     })
 })

@@ -1,9 +1,9 @@
 name: Jest
 on:
   push:
-    branches: [ master ]
+    branches: [ develop, production ]
   pull_request:
-    branches: [ master ]
+    branches: [ develop, production ]
 
 jobs:
   build:

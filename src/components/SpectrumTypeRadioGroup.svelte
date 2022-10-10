@@ -10,11 +10,6 @@
     </div>
 
     <div class="radio-container">
-        <input type="radio" id="stretched" name="spectrumType" value="stretched" bind:group={$spectrumType} />
-        <label for="stretched">Stretched</label>
-    </div>
-
-    <div class="radio-container">
         <input type="radio" id="edo" name="spectrumType" value="edo" bind:group={$spectrumType} />
         <label for="edo">Edo</label>
     </div>
@@ -29,6 +24,6 @@
         vertical-align: bottom;
     }
     fieldset {
-        margin: 18px 0px 36px 0px;
+        margin: 18px 0px;
     }
 </style>
