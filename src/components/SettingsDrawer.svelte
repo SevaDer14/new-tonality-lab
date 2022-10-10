@@ -109,7 +109,7 @@
 
     <Range label="Fundamental (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} />
     <Range label="Number of Partials" min={2} max={20} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} />
-    <Range label="Stretch" min={0.1} max={2} step={0.1} onInput={(value) => ($stretch = value)} initialValue={$stretch} />
+    <Range label="Stretch" min={0.6} max={2} step={0.1} onInput={(value) => ($stretch = value)} initialValue={$stretch} />
 
     <SpectrumTypeRadioGroup />
 

@@ -1,8 +1,8 @@
 import type { TPartials, TSpectrumType } from "./types"
 import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep, round } from 'lodash-es'
 
-export const generatePartials = ({ type, profile = 'harmonic', stretch = 2, edo = 12, fundamental = 440, number = 1000 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', stretch?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, profile = 'harmonic', stretch = 1, edo = 12, fundamental = 440, number = 1000 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', stretch?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -15,7 +15,7 @@ export const generatePartials = ({ type, profile = 'harmonic', stretch = 2, edo 
     if (type === 'harmonic') {
         for (let i = 1; i <= number; i++) {
             const amplitude = getAmplitude(profile, i)
-            const frequency = fundamental * ((2 * stretch) ** Math.log2(i))
+            const frequency = round(fundamental * ((2 * stretch) ** Math.log2(i)), 10)
             const ratio = frequency / fundamental
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }

@@ -55,7 +55,6 @@
                 yAxis: {
                     title: { text: 'Sethares Dissonance' },
                     gridLineWidth: 1,
-                    min: 0,
                     max: 1,
                     tickInterval: 0.2,
                 },
