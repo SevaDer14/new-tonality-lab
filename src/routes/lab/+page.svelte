@@ -1,6 +1,5 @@
 <script lang="ts">
     import SettingsDrawer from '../../components/SettingsDrawer.svelte'
-    import { toHighchartsJSCurve } from '../../xentonality/utils'
     import { partials, dissonanceCurve } from '../../state/stores.js'
     import highcharts from '../../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
@@ -82,7 +81,7 @@
                         name: 'Dissonance Curve',
                         type: 'line',
                         color: 'DodgerBlue',
-                        data: toHighchartsJSCurve({ xUnit: 'cents', curve: $dissonanceCurve.curve }),
+                        data: $dissonanceCurve.curve.map((point) => [point.cents, point.value]),
                     },
                 ],
             }
