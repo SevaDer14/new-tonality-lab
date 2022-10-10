@@ -20,7 +20,7 @@
 <label for={id}>{label}</label>
 <div class="input-container">
     <input type="range" {min} {max} {step}  bind:value on:input={throttle(handleInput, 200)} {id} />
-    <input class="manual-input" type="number" bind:value on:change={throttle(handleInput, 200)} />
+    <input class="manual-input" type="number" {step} bind:value on:change={throttle(handleInput, 200)} />
 </div>
 <p>{hint}</p>
 

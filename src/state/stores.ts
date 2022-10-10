@@ -7,7 +7,7 @@ export const fundamental = writable(440);
 export const numberOfPartials = writable(6);
 export const spectrumType = writable<TSpectrumType>('harmonic');
 export const edoSteps = writable(12)
-export const stretch = writable(2)
+export const stretch = writable(1)
 
 
 type TSampleRate = 44100 | 48000 | 96000

@@ -11,18 +11,11 @@ export const generatePartials = ({ type, profile = 'harmonic', stretch = 2, edo 
         return partials
     }
 
+    // TODO: untested with stretch
     if (type === 'harmonic') {
         for (let i = 1; i <= number; i++) {
             const amplitude = getAmplitude(profile, i)
-            partials.push({ ratio: i, frequency: i * fundamental, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
-        }
-    }
-
-    // TODO: untested
-    if (type === 'stretched') {
-        for (let i = 1; i <= number; i++) {
-            const amplitude = getAmplitude(profile, i)
-            const frequency = fundamental * (stretch ** Math.log2(i))
+            const frequency = fundamental * ((2 * stretch) ** Math.log2(i))
             const ratio = frequency / fundamental
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
@@ -32,7 +25,7 @@ export const generatePartials = ({ type, profile = 'harmonic', stretch = 2, edo 
     if (type === 'edo') {
         for (let i = 1; i <= number; i++) {
             const amplitude = getAmplitude(profile, i)
-            const frequency = fundamental * 2 ** (Math.round(Math.log2(i) * edo) / edo)
+            const frequency = fundamental * (2 * stretch) ** (Math.round(Math.log2(i) * edo) / edo)
             const ratio = frequency / fundamental
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }

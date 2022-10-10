@@ -5,7 +5,6 @@
     import type { PlotOptions } from 'highcharts'
     import { layout } from '../../theme/layout'
 
-    let chartContainer = null as HTMLDivElement | null
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
     let windowWidth: number
@@ -95,36 +94,26 @@
     <SettingsDrawer />
 
     <div class="plots">
-        <div bind:this={chartContainer} class="plot-container">
-            <div
-                use:highcharts={{
-                    width: windowWidth - layout.menuWidth - 32,
-                    height: windowHeight / 2 - 1,
-                    chart: spectrumChartConfig,
-                }}
-            />
-        </div>
-
-        <div bind:this={chartContainer} class="plot-container">
-            <div
-                use:highcharts={{
-                    width: windowWidth - layout.menuWidth - 32,
-                    height: windowHeight / 2 - 1,
-                    chart: dissonanceCurveChartConfig,
-                }}
-            />
-        </div>
+        <div
+            class="plot"
+            use:highcharts={{
+                width: windowWidth - layout.menuWidth - 32,
+                height: windowHeight / 2 - 1,
+                chart: spectrumChartConfig,
+            }}
+        />
+        <div
+            class="plot"
+            use:highcharts={{
+                width: windowWidth - layout.menuWidth - 32,
+                height: windowHeight / 2 - 1,
+                chart: dissonanceCurveChartConfig,
+            }}
+        />
     </div>
 </div>
 
 <style>
-    .plot-container {
-        width: 100%;
-        height: calc(50vh - 1px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
     .page {
         display: flex;
         width: 100%;
@@ -135,5 +124,10 @@
         flex-direction: column;
         width: 100%;
         height: 100%;
+    }
+    .plot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
