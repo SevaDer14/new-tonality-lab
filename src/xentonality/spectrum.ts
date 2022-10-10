@@ -1,26 +1,6 @@
-import type { TPartials, TPlotCurve, TSpectrumType } from "./types"
-import { checkNumericParam, getAmplitude, setharesLoudness, ratioToCents } from "./utils"
+import type { TPartials, TSpectrumType } from "./types"
+import { checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 import { cloneDeep } from 'lodash-es'
-
-// TODO: Untested
-export const partialsToSpectrum = ({ partials, unitY = 'amplitude' }: { partials: TPartials, unitY?: 'amplitude' | 'loudness' }): TPlotCurve => {
-    const fundamental = partials[0].frequency
-    let spectrum = [] as TPlotCurve
-
-    partials.forEach(partial => {
-        const lowerPointFreq = partial.frequency - 0.01
-        const lowerPointRatio = lowerPointFreq / fundamental
-        const higherPointFreq = partial.frequency + 0.01
-        const higherPointRatio = higherPointFreq / fundamental
-        spectrum = [...spectrum, ...[
-            { Hz: lowerPointFreq, ratio: lowerPointRatio, cents: ratioToCents(lowerPointRatio), value: 0 },
-            { Hz: partial.frequency, ratio: partial.ratio, cents: ratioToCents(partial.ratio), value: partial[unitY] },
-            { Hz: higherPointFreq, ratio: higherPointRatio, cents: ratioToCents(higherPointRatio), value: 0 },
-        ]]
-    })
-
-    return spectrum
-}
 
 export const generatePartials = ({ type, profile = 'harmonic', stretch = 2, edo = 12, fundamental = 440, number = 1000 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', stretch?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
