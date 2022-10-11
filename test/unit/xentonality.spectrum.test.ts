@@ -64,16 +64,16 @@ describe('Xentonality.Spectrum.changeFundamental', () => {
 
 
 
-describe('Xentonality.Spectrum.combinePartials', () => {
+describe('Xentonality.Spectrum.sumPartials', () => {
   it('returns empty spectrum if empty spectrums are provided', () => {
-    expect(Spectrum.combinePartials(Factory.noPartals, Factory.noPartals)).toEqual(Factory.noPartals);
+    expect(Spectrum.sumPartials(Factory.noPartals, Factory.noPartals)).toEqual(Factory.noPartals);
   });
 
   it('combines non-overlaping spectrums sorted by increasing freq and doesnt change input spectrums', () => {
     const spectrum1 = Factory.partials({ ratios: [5, 6, 7, 8] })
     const spectrum2 = Factory.partials({})
     const spectrum3 = Factory.partials({ ratios: [10, 20, 30, 40] })
-    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrum3)
+    const combined = Spectrum.sumPartials(spectrum1, spectrum2, spectrum3)
 
     const expectedOutcome = Factory.partials({ ratios: [1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40] })
 
@@ -86,7 +86,7 @@ describe('Xentonality.Spectrum.combinePartials', () => {
     const spectrum1 = Factory.partials({ ratios: [1, 2] })
     const spectrum2 = Factory.partials({ ratios: [1, 2], fundamental: 440.01 })
     const spectrumOverlap = Factory.partials({ ratios: [1], fundamental: 880 })
-    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrumOverlap)
+    const combined = Spectrum.sumPartials(spectrum1, spectrum2, spectrumOverlap)
 
     const expectedOutcome = [
       { ratio: 1, frequency: 440, amplitude: 1, loudness: 78.84951607609639 },
@@ -104,7 +104,7 @@ describe('Xentonality.Spectrum.combinePartials', () => {
     const spectrum1 = Factory.partials({ amplitude: 1 })
     const spectrum2 = Factory.partials({ amplitude: 1 })
     const spectrum3 = Factory.partials({ amplitude: 1 })
-    const combined = Spectrum.combinePartials(spectrum1, spectrum2, spectrum3)
+    const combined = Spectrum.sumPartials(spectrum1, spectrum2, spectrum3)
 
     const expectedOutcome = Factory.partials({ amplitude: 3 })
 

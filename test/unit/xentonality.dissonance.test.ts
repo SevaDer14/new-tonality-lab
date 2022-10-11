@@ -1,6 +1,6 @@
 import * as Dissonance from '../../src/xentonality/dissonance';
 import * as Factory from './factories'
-import { diss_curve_440_4_harmonic } from './fixtures/dissCurves'
+import { diss_curve_440_4_harmonic, diss_curve_440_1_partial } from './fixtures/dissCurves'
 import { curvesEqual } from "./assertions"
 
 describe('Xentonality.Dissonance.plompLeveltDissonance', () => {
@@ -54,7 +54,14 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
 
 describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
-    it('returns correct diss curve with no 0 and pseudo octave points', () => {
+    it('returns diss curve for single partial', () => {
+        const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1], fundamental: 440 }), 10).curve
+        const expectedFunction = diss_curve_440_1_partial
+
+        expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
+    })
+
+    it('returns correct diss curve', () => {
         const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_4_harmonic
 
@@ -62,12 +69,12 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     })
 
     it('returns diss curve within the range of pseudo-octave with correct step', () => {
-        const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 10).curve
-        const expectedStepInCents = 142.7185770521864
+        const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), 12).curve
+        const expectedStepInCents = 116.76974486087978
 
-        expect(dissCurve[0].cents).toEqual(expectedStepInCents);
+        expect(dissCurve[0].cents).toEqual(0);
         expect(dissCurve[1].cents - dissCurve[0].cents).toEqual(expectedStepInCents);
-        expect(dissCurve[dissCurve.length - 1].cents).toEqual(expectedStepInCents * dissCurve.length);
-        expect(dissCurve.length).toEqual(8);
+        expect(dissCurve.length).toEqual(12);
+        expect(dissCurve[dissCurve.length - 1].cents).toEqual(expectedStepInCents * 11);
     })
 })

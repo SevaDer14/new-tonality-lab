@@ -36,11 +36,23 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
 
-    const pseudoOctave = { ratio: partials[1].ratio, Hz: partials[1].frequency - fundamental, cents: ratioToCents(partials[1].ratio), }
-    const numberOfPoints = points ? points - 1 : pseudoOctave.cents
+    const pseudoOctave = partials.length > 1 
+    ? {
+        ratio: partials[1].ratio,
+        Hz: partials[1].frequency - fundamental,
+        cents: ratioToCents(partials[1].ratio),
+    }
+    : {
+        ratio: 2,
+        Hz: fundamental,
+        cents: 1200,
+    }
+
+    const numberOfPoints = points ? points : pseudoOctave.cents
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
 
-    for (let i = 1; i < numberOfPoints; i++) {
+
+    for (let i = 0; i < numberOfPoints; i++) {
         const currentStep = {} as TPointX
         currentStep.cents = sweepStep.cents * i
         currentStep.ratio = centsToRatio(currentStep.cents)
@@ -54,8 +66,6 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
         dissonanceCurve.push(dissonancePoint)
     }
 
-    // first and last steps where all partials coinside have sudden frop in dissonance value due to calculation optimisation
-    // so final dissonance curve excludes them
     const correctedDissonanceCurve = normalize(detrend(dissonanceCurve))
 
     return { curve: correctedDissonanceCurve, pseudoOctave: pseudoOctave }
