@@ -55,7 +55,7 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
 
 
 
-export const combinePartials = (...args: TPartials[]): TPartials => {
+export const sumPartials = (...args: TPartials[]): TPartials => {
     const result = [] as TPartials
     const partialGroups = cloneDeep(args) as TPartials[]
     const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.frequency - b.frequency) as TPartials
@@ -69,6 +69,20 @@ export const combinePartials = (...args: TPartials[]): TPartials => {
         } else {
             result.push({ ...allPartials[i], ratio: i === 0 ? allPartials[i].ratio : allPartials[i].frequency / result[0].frequency })
         }
+    }
+
+    return result
+}
+
+
+// TODO: untested
+export const combinePartials = (...args: TPartials[]): TPartials => {
+    const result = [] as TPartials
+    const partialGroups = cloneDeep(args) as TPartials[]
+    const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.frequency - b.frequency) as TPartials
+
+    for (let i = 0; i < allPartials.length; i++) {
+        result.push({ ...allPartials[i], ratio: i === 0 ? allPartials[i].ratio : allPartials[i].frequency / result[0].frequency })
     }
 
     return result

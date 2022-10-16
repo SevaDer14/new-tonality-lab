@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { throttle } from 'lodash-es'
+    import { debounce } from 'lodash-es'
 
     export let label = ''
     export let hint = ''
@@ -19,8 +19,8 @@
 
 <label for={id}>{label}</label>
 <div class="input-container">
-    <input type="range" {min} {max} {step}  bind:value on:input={throttle(handleInput, 200)} {id} />
-    <input class="manual-input" type="number" {step} bind:value on:change={throttle(handleInput, 200)} />
+    <input type="range" {min} {max} {step} bind:value on:input={debounce(handleInput, 200)} {id} />
+    <input class="manual-input" type="number" {step} bind:value on:change={debounce(handleInput, 50)} />
 </div>
 <p>{hint}</p>
 
