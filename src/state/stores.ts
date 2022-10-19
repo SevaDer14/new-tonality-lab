@@ -7,7 +7,7 @@ export const fundamental = writable(440);
 export const numberOfPartials = writable(6);
 export const spectrumType = writable<TSpectrumType>('harmonic');
 export const edoSteps = writable(12)
-export const stretch = writable(1)
+export const pseudoOctave = writable(1200)
 
 
 type TSampleRate = 44100 | 48000 | 96000
@@ -17,8 +17,8 @@ export const sampleName = writable('sample')
 
 
 export const partials = derived(
-    [spectrumType, fundamental, numberOfPartials, edoSteps, stretch],
-    ([$spectrumType, $fundamental, $numberOfPartials, $edoSteps, $stretch]) => generatePartials({ type: $spectrumType, fundamental: $fundamental, number: $numberOfPartials, stretch: $stretch, edo: $edoSteps })
+    [spectrumType, fundamental, numberOfPartials, edoSteps, pseudoOctave],
+    ([$spectrumType, $fundamental, $numberOfPartials, $edoSteps, $pseudoOctave]) => generatePartials({ type: $spectrumType, fundamental: $fundamental, number: $numberOfPartials, pseudoOctave: $pseudoOctave, edo: $edoSteps })
 );
 
 export const dissonanceCurve = derived(

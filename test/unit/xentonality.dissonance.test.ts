@@ -54,6 +54,7 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
 
 describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
+    // WARNING: check default number of points for diss curve 
     it('returns diss curve for single partial', () => {
         const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_1_partial
