@@ -48,7 +48,7 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
         cents: 1200,
     }
 
-    const numberOfPoints = points ? points : pseudoOctave.cents + 1
+    const numberOfPoints = points ? points : Math.round(pseudoOctave.cents) + 1
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
 
 
