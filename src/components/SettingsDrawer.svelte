@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, stretch } from '../state/stores.js'
+    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave } from '../state/stores.js'
     import Range from '../components/Range.svelte'
     import { BlobWriter, TextReader, BlobReader, ZipWriter } from '@zip.js/zip.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
@@ -109,7 +109,7 @@
 
     <Range label="Fundamental (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} />
     <Range label="Number of Partials" min={1} max={20} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} />
-    <Range label="Stretch" min={0.51} max={2} step={0.05} onInput={(value) => ($stretch = value)} initialValue={$stretch} />
+    <Range label="Pseudo-octave (cents)" min={100} max={2400} step={100} onInput={(value) => ($pseudoOctave = value)} initialValue={$pseudoOctave} />
 
     <SpectrumTypeRadioGroup />
 
