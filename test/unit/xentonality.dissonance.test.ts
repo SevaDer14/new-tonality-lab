@@ -48,13 +48,12 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
 
     // WARNING: value not tested, taken from result of function
     it('returns correct value for complex spectrum', () => {
-        expect(Dissonance.intrinsicDissonance(Factory.partials({}))).toEqual(0.02201318145631032);
+        expect(Dissonance.intrinsicDissonance(Factory.partials({ ratios: [1, 2, 3, 4] }))).toEqual(0.02201318145631032);
     });
 })
 
 describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
-    // WARNING: check default number of points for diss curve 
     it('returns diss curve for single partial', () => {
         const testFunction = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1], fundamental: 440 }), 10).curve
         const expectedFunction = diss_curve_440_1_partial
@@ -67,6 +66,15 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
         const expectedFunction = diss_curve_440_4_harmonic
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
+    })
+
+    it('returns diss curve with default number of points = cents in pseudo-octave', () => {
+        const dissCurve = Dissonance.calcDissonanceCurve(Factory.partials({ ratios: [1, 2.1], fundamental: 440 })).curve
+        const expectedStepInCents = 1
+        const expectedNumberOfPoints = 1285
+
+        expect(dissCurve[1].cents - dissCurve[0].cents).toEqual(expectedStepInCents);
+        expect(dissCurve.length).toEqual(expectedNumberOfPoints);
     })
 
     it('returns diss curve within the range of pseudo-octave with correct step', () => {

@@ -3,9 +3,8 @@ import { centsToRatio, detrend, normalize, ratioToCents } from "./utils"
 import type { TDissonanceCurve, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
 
-export const plompLeveltDissonance = ({ minLoudness, frequencyDifference, minFrequency }: { minLoudness: number, frequencyDifference: number, minFrequency: number }): number => {
-    if (minLoudness === 0 || minFrequency === 0) return 0
-
+export const plompLeveltDissonance = ({ minLoudness, frequencyDifference, minFrequency, }: { minLoudness: number, frequencyDifference: number, minFrequency: number }): number => {
+    if (minLoudness === 0 || minFrequency === 0 || frequencyDifference === 0) return 0
     const coefficient = frequencyDifference / (0.021 * minFrequency + 19)
 
     return minLoudness * (Math.exp(-0.84 * coefficient) - Math.exp(-1.38 * coefficient))
@@ -36,17 +35,17 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
 
-    const pseudoOctave = partials.length > 1 
-    ? {
-        ratio: partials[1].ratio,
-        Hz: partials[1].frequency - fundamental,
-        cents: ratioToCents(partials[1].ratio),
-    }
-    : {
-        ratio: 2,
-        Hz: fundamental,
-        cents: 1200,
-    }
+    const pseudoOctave = partials.length > 1
+        ? {
+            ratio: partials[1].ratio,
+            Hz: partials[1].frequency - fundamental,
+            cents: ratioToCents(partials[1].ratio),
+        }
+        : {
+            ratio: 2,
+            Hz: fundamental,
+            cents: 1200,
+        }
 
     const numberOfPoints = points ? points : Math.round(pseudoOctave.cents) + 1
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
