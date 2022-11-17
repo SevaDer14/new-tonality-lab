@@ -1,24 +1,26 @@
 import type { TPartials, TPlotCurve } from "./types"
 import { round } from 'lodash-es';
 
-// TODO: Untested
+
 export const ratioToCents = (ratio: number): number => {
-    return 1200 * Math.log2(ratio)
+    return ratio > 0 ? 1200 * Math.log2(ratio) : 0
 }
-// TODO: Untested
+
+
 export const centsToRatio = (cents: number): number => {
     return 2 ** (cents / 1200)
 }
 
+// rethink error handling
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
     let success = true
 
     if (integer && param.toFixed(0) !== param.toString()) {
-        console.warn(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
+        console.error(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
         success = false
     }
     if (!condition) {
-        console.warn(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
+        console.error(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
         success = false
     }
 
@@ -26,16 +28,16 @@ export const checkNumericParam = ({ param, integer = false, condition }: { param
 }
 
 
-
+// rethink error handling
 export const checkPartials = ({ partials, freqCondition, ampCondition }: { partials: TPartials, freqCondition?: (frequency: number) => boolean, ampCondition?: (amplitude: number) => boolean }): boolean => {
     let success = true
 
     if (ampCondition && partials.every(({ amplitude }) => ampCondition(amplitude))) {
-        console.warn(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
+        console.error(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
         success = false
     }
     if (freqCondition && partials.every(({ frequency }) => freqCondition(frequency))) {
-        console.warn(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
+        console.error(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
         success = false
     }
 
@@ -45,11 +47,7 @@ export const checkPartials = ({ partials, freqCondition, ampCondition }: { parti
 
 
 export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
-    if (profile === "equal") {
-        return ratio >= 1 ? 1 : 0
-    }
-
-    return ratio >= 1 ? 1 / ratio : 0 // --> defaults to harmonic profile
+    return ratio < 1 ? 0 : profile === "harmonic" ? 1 / ratio : 1
 }
 
 
@@ -57,7 +55,7 @@ export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
 export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)
 
 
-
+ 
 export const detrend = (curve: TPlotCurve): TPlotCurve => {
     const result = [] as TPlotCurve
 
