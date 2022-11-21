@@ -18,9 +18,9 @@
                 yAxis: {
                     title: { text: 'Spectrum' },
                     gridLineWidth: 1,
-                    min: 0,
-                    max: 1,
-                    tickInterval: 0.2,
+                    max: 0.999,
+                    minortickInterval: 0.2,
+                    type: "logarithmic",
                 },
                 xAxis: {
                     title: { text: 'Hz' },
