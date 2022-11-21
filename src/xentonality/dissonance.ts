@@ -1,6 +1,6 @@
 import { changeFundamental, combinePartials } from "./spectrum"
-import { centsToRatio, detrend, normalize, ratioToCents } from "./utils"
-import type { TDissonanceCurve, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
+import { centsToRatio, detrend, normalize, ratioToCents, withinLimit } from "./utils"
+import type { TDissonanceCurve, TDissonanceCurveOptions, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
 
 export const plompLeveltDissonance = ({ minLoudness, frequencyDifference, minFrequency, }: { minLoudness: number, frequencyDifference: number, minFrequency: number }): number => {
@@ -30,16 +30,20 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 
-
-export const calcDissonanceCurve = (partials: TPartials, points?: number): TDissonanceCurve => {
+export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCurveOptions): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
 
-    const pseudoOctave = partials.length > 1
+
+    const pronouncedPartials = partials.filter(
+        ({ amplitude, frequency }) => withinLimit({ value: amplitude, limits: limits?.amplitude }) && withinLimit({ value: frequency, limits: limits?.frequency })
+    )
+    
+    const pseudoOctave = pronouncedPartials.length > 1
         ? {
-            ratio: partials[1].ratio,
-            Hz: partials[1].frequency - fundamental,
-            cents: ratioToCents(partials[1].ratio),
+            ratio: pronouncedPartials[1].ratio,
+            Hz: pronouncedPartials[1].frequency - fundamental,
+            cents: ratioToCents(pronouncedPartials[1].ratio),
         }
         : {
             ratio: 2,
@@ -57,8 +61,8 @@ export const calcDissonanceCurve = (partials: TPartials, points?: number): TDiss
         currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
 
-        const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
-        const combinedPartials = combinePartials(partials, sweepPartials)
+        const sweepPartials = changeFundamental({ partials: pronouncedPartials, fundamental: currentStep.Hz })
+        const combinedPartials = combinePartials(pronouncedPartials, sweepPartials)
         const dissonanceValue = intrinsicDissonance(combinedPartials)
 
         const dissonancePoint = { ...currentStep, value: dissonanceValue, } as TPlotPoint

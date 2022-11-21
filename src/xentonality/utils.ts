@@ -45,6 +45,14 @@ export const checkPartials = ({ partials, freqCondition, ampCondition }: { parti
 }
 
 
+export const withinLimit = ({ value, limits }: { value: number, limits?: { min?: number, max?: number } }) => {
+    if (limits === undefined) return true
+
+    const satisfiesMinLimit = limits.min ? value >= limits.min : true
+    const satisfiesMaxLimit = limits.max ? value <= limits.max : true
+
+    return satisfiesMinLimit && satisfiesMaxLimit
+}
 
 export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
     return ratio < 1 ? 0 : profile === "harmonic" ? 1 / ratio : 1
@@ -55,7 +63,7 @@ export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
 export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)
 
 
- 
+
 export const detrend = (curve: TPlotCurve): TPlotCurve => {
     const result = [] as TPlotCurve
 
@@ -82,4 +90,29 @@ export const normalize = (curve: TPlotCurve): TPlotCurve => {
     }
 
     return result
+}
+
+export const rowToString = (row: Array<number | string>) => {
+    if (row.length === 0) return ""
+
+    let result = `${row[0]}`
+
+    for (let i = 1; i < row.length; i += 1) {
+        result += `\t${row[i]}`
+    }
+
+    return result
+}
+
+export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
+    if (curve.length === 0) return ""
+
+    const headerRow = rowToString(Object.keys(curve[0]))
+    const rows = [headerRow]
+
+    for (let i = 0; i < curve.length; i += 1) {
+        rows.push(rowToString(Object.values(curve[i])))
+    }
+
+    return rows.join('\n')
 }

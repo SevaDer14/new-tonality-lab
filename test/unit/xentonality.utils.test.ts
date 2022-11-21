@@ -153,3 +153,79 @@ describe('Xentonality.Utils.normilize', () => {
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     });
 })
+
+
+describe('Xentonality.Utils.withinLimit', () => {
+    it('returns false for 0 in [0.5, 1]', () => {
+        expect(Utils.withinLimit({ value: 0, limits: { min: 0.5, max: 1 } })).toEqual(false);
+    });
+
+    it('returns true for 0 in [undefined, 1]', () => {
+        expect(Utils.withinLimit({ value: 0, limits: { max: 1 } })).toEqual(true);
+    });
+
+    it('returns false for 2 in [undefined, 1]', () => {
+        expect(Utils.withinLimit({ value: 2, limits: { max: 1 } })).toEqual(false);
+    });
+
+    it('returns true for 0.5 in [0, 1]', () => {
+        expect(Utils.withinLimit({ value: 0.5, limits: { min: 0, max: 1 } })).toEqual(true);
+    });
+
+    it('returns false for 1 in [0, 0.5]', () => {
+        expect(Utils.withinLimit({ value: 1, limits: { min: 0, max: 0.5 } })).toEqual(false);
+    });
+
+    it('returns true for 1 in [0.5, undefined]', () => {
+        expect(Utils.withinLimit({ value: 1, limits: { min: 0.5 } })).toEqual(true);
+    });
+
+    it('returns false for 0 in [0.5, undefined]', () => {
+        expect(Utils.withinLimit({ value: 0, limits: { min: 0.5 } })).toEqual(false);
+    });
+
+    it('returns true for 1 in [undefined, undefined]', () => {
+        expect(Utils.withinLimit({ value: 1, limits: {} })).toEqual(true);
+    });
+
+    it('returns true for 1 with limits = undefined', () => {
+        expect(Utils.withinLimit({ value: 1 })).toEqual(true);
+    });
+})
+
+
+describe('Xentonality.Utils.rowToString', () => {
+    it('returns empty string for empty array', () => {
+        expect(Utils.rowToString([])).toEqual("");
+    });
+
+    it('returns correct string for array of length 1', () => {
+        expect(Utils.rowToString([1])).toEqual("1");
+    });
+
+    it('returns correct string with tab spaced numbers', () => {
+        expect(Utils.rowToString([0, 1, 2, 3])).toEqual("0\t1\t2\t3");
+    });
+
+    it('returns correct string with tab spaced strings', () => {
+        expect(Utils.rowToString(['zero', 'one', 'two', 'three'])).toEqual("zero\tone\ttwo\tthree");
+    });
+})
+
+describe('Xentonality.Utils.parseCurveToFileFormat', () => {
+    it('returns correct string with tab spaced numbers', () => {
+        const curveToTest = [
+            { key1: 1, key2: 10, key3: 20 },
+            { key1: 2, key2: 11, key3: 21 },
+            { key1: 3, key2: 12, key3: 22 },
+        ]
+
+        const expectedOutcome = `key1\tkey2\tkey3\n1\t10\t20\n2\t11\t21\n3\t12\t22`
+
+        expect(Utils.parseCurveToFileFormat(curveToTest)).toEqual(expectedOutcome);
+    });
+
+    it('returns empty string for empty array', () => {
+        expect(Utils.parseCurveToFileFormat([])).toEqual('');
+    });
+})

@@ -9,6 +9,10 @@ export const spectrumType = writable<TSpectrumType>('harmonic');
 export const edoSteps = writable(12)
 export const pseudoOctave = writable(1200)
 
+export const dissLimitMinFrequency = writable(20)
+export const dissLimitMaxFrequency = writable(6000)
+export const dissLimitMinAmplitude = writable(0.1)
+export const dissLimitMaxAmplitude = writable(1)
 
 type TSampleRate = 44100 | 48000 | 96000
 export const sampleRate = readable<TSampleRate>(44100)
@@ -22,6 +26,18 @@ export const partials = derived(
 );
 
 export const dissonanceCurve = derived(
-    partials,
-    $partials => calcDissonanceCurve($partials)
+    [partials, dissLimitMinFrequency, dissLimitMaxFrequency, dissLimitMinAmplitude, dissLimitMaxAmplitude],
+    ([$partials, $dissLimitMinFrequency, $dissLimitMaxFrequency, $dissLimitMinAmplitude, $dissLimitMaxAmplitude]) => calcDissonanceCurve({
+        partials: $partials,
+        limits: {
+            frequency: {
+                min: $dissLimitMinFrequency,
+                max: $dissLimitMaxFrequency,
+            },
+            amplitude: {
+                min: $dissLimitMinAmplitude,
+                max: $dissLimitMaxAmplitude,
+            }
+        }
+    })
 );
