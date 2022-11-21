@@ -1,11 +1,10 @@
-import { sum } from 'lodash';
 import * as Spectrum from '../../src/xentonality/spectrum';
 import * as Factory from './factories'
 import * as Fixture from './fixtures/spectrum'
 
 
 describe('Xentonality.Spectrum.generatePartials', () => {
-  it('returns default value of 1000 partials', () => {
+  it('returns default value of 100 partials', () => {
     const partials = Spectrum.generatePartials({ type: 'harmonic' })
     expect(partials.length).toEqual(100);
   });
@@ -41,7 +40,12 @@ describe('Xentonality.Spectrum.generatePartials', () => {
   });
 
   it('returns 3 partials of stretched spectrum with pseudoOctave of 2400 and harmonic amplitude profile', () => {
-    const expectedOutcome = Factory.partials({ ratios: [1, 4, 9] })
+    const partial1 = Factory.partials({ ratios: [1], amplitude: 1 })
+    const partial2 = Factory.partials({ ratios: [4], amplitude: 0.25 })
+    const partial3 = Factory.partials({ ratios: [9], amplitude: 0.1111111111111111 })
+
+    const expectedOutcome = [partial1, partial2, partial3].flat()
+
     expect(Spectrum.generatePartials({ type: 'harmonic', number: 3, pseudoOctave: 2400 })).toEqual(expectedOutcome);
   });
 
