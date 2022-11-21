@@ -23,3 +23,18 @@ export type TPlotPoint = TPointX & TPointY
 export type TPlotCurve = TPlotPoint[]
 
 export type TDissonanceCurve = { curve: TPlotCurve, pseudoOctave: TPointX }
+
+export type TDissonanceCurveOptions = {
+    partials: TPartials,
+    points?: number,
+    limits?: {
+        frequency?: {
+            max?: number
+            min?: number
+        },
+        amplitude?: {
+            max?: number
+            min?: number
+        }
+    }
+}
