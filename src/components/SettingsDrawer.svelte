@@ -1,77 +1,38 @@
 <script lang="ts">
-    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave } from '../state/stores.js'
+    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave, dissLimitMinFrequency, dissLimitMaxFrequency, dissLimitMinAmplitude, dissLimitMaxAmplitude } from '../state/stores.js'
     import Range from '../components/Range.svelte'
-    import { BlobWriter, TextReader, BlobReader, ZipWriter } from '@zip.js/zip.js'
+    import { BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
-    import type { PolySynth, Synth, SynthOptions } from 'tone'
-    import * as Tone from 'tone'
+    import { AdditiveSynth } from '../xentonality/synth'
     import { onMount } from 'svelte'
+    import { parseCurveToFileFormat } from '../xentonality/utils'
 
-    let synth: PolySynth<Synth<SynthOptions>>
+    let synth: AdditiveSynth
+    let audioCtx: AudioContext
     let processing = false
     let playing = false
 
     onMount(() => {
-        synth = new Tone.PolySynth(Tone.Synth).toDestination()
-        synth.set({ oscillator: { type: 'sine' } })
+        audioCtx = new AudioContext()
+        synth = new AdditiveSynth($partials, audioCtx)
+        synth.connect(audioCtx.destination)
     })
 
-    // TODO: untested, move to Utils?
-    const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
-        const toStringRow = (row: any[]) => {
-            let result = `${row[0]}`
-
-            for (let i = 1; i < row.length; i += 1) {
-                result += `\t${row[i]}`
-            }
-
-            return result
+    $: {
+        if (synth !== undefined) {
+            synth.updatePartials($partials)
         }
-
-        const headerRow = toStringRow(Object.keys(curve[0]))
-        const rows = [headerRow]
-
-        for (let i = 0; i < curve.length; i += 1) {
-            rows.push(toStringRow(Object.values(curve[i])))
-        }
-
-        return rows.join('\n')
     }
 
     const playSample = () => {
+        synth.start()
         playing = true
-        Tone.start()
-        $partials.forEach((partial) => {
-            Tone.Transport.scheduleOnce((time) => {
-                synth.triggerAttack(partial.frequency, time, partial.amplitude * 0.1)
-            }, '8n')
-        })
-        Tone.Transport.start()
     }
 
     const stopSample = () => {
-        synth.releaseAll()
-        Tone.Transport.stop()
+        synth.stop(audioCtx.currentTime)
         playing = false
-    }
-
-    const recordSample = () => {
-        const recorder = new Tone.Recorder()
-        synth.disconnect()
-        synth.connect(recorder)
-        recorder.start()
-        playSample()
-
-        let recording = new Promise((resolve) =>
-            setTimeout(async () => {
-                let result = await recorder.stop()
-                stopSample()
-                synth.toDestination()
-                resolve(result)
-            }, $sampleDuration * 1000)
-        )
-        return recording
     }
 
     const downloadFiles = async () => {
@@ -80,15 +41,12 @@
         const zipFileWriter = new BlobWriter()
         const partialsFile = new TextReader(parseCurveToFileFormat($partials))
         const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
-        const audioSample = (await recordSample()) as Blob
 
-        if (partialsFile !== undefined && dissonanceCurveFile !== undefined && audioSample !== undefined) {
-            const audioSampleFile = new BlobReader(audioSample)
+        if (partialsFile !== undefined && dissonanceCurveFile !== undefined) {
             const zipWriter = new ZipWriter(zipFileWriter)
 
             await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
             await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
-            await zipWriter.add(`${$sampleName}.wav`, audioSampleFile)
             await zipWriter.close()
 
             const zipFileBlob = await zipFileWriter.getData()
@@ -122,6 +80,34 @@
     {:else}
         <button on:click={playSample}>Play</button>
     {/if}
+
+    <h3>DISSONANCE CURVE</h3>
+
+    <h5>Frequency limits:</h5>
+    <div class="diss-curve-limits-container">
+        <div class="diss-curve-limit-input">
+            <label for="dissLimitMinFrequency">Min (Hz)</label>
+            <input type="number" bind:value={$dissLimitMinFrequency} id="dissLimitMinFrequency" />
+        </div>
+
+        <div class="diss-curve-limit-input">
+            <label for="dissLimitMaxFrequency">Max (Hz)</label>
+            <input type="number" bind:value={$dissLimitMaxFrequency} id="dissLimitMaxFrequency" />
+        </div>
+    </div>
+
+    <h5>Ampitude limits:</h5>
+    <div class="diss-curve-limits-container">
+        <div class="diss-curve-limit-input">
+            <label for="dissLimitMinAmplitude">Min</label>
+            <input type="number" bind:value={$dissLimitMinAmplitude} id="dissLimitMinAmplitude" />
+        </div>
+
+        <div class="diss-curve-limit-input">
+            <label for="dissLimitMaxAmplitude">Max</label>
+            <input type="number" max={1} min={0} step={0.01} bind:value={$dissLimitMaxAmplitude} id="dissLimitMaxAmplitude" />
+        </div>
+    </div>
 
     <h3>EXPORT</h3>
 
@@ -157,11 +143,23 @@
         margin-top: 36px;
         font-weight: 400;
     }
+    h5 {
+        margin: 8px 0px;
+    }
     label {
         display: block;
         font-size: small;
     }
     input {
+        width: 100%;
         margin-bottom: 18px;
+    }
+    .diss-curve-limits-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .diss-curve-limit-input {
+        width: 40%;
+        margin-right: 12px;
     }
 </style>
