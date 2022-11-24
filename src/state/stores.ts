@@ -11,7 +11,7 @@ export const pseudoOctave = writable(1200)
 
 export const dissLimitMinFrequency = writable(20)
 export const dissLimitMaxFrequency = writable(6000)
-export const dissLimitMinAmplitude = writable(0.1)
+export const dissLimitMinAmplitude = writable(0)
 export const dissLimitMaxAmplitude = writable(1)
 
 type TSampleRate = 44100 | 48000 | 96000
@@ -29,6 +29,7 @@ export const dissonanceCurve = derived(
     [partials, dissLimitMinFrequency, dissLimitMaxFrequency, dissLimitMinAmplitude, dissLimitMaxAmplitude],
     ([$partials, $dissLimitMinFrequency, $dissLimitMaxFrequency, $dissLimitMinAmplitude, $dissLimitMaxAmplitude]) => calcDissonanceCurve({
         partials: $partials,
+        points: 100,
         limits: {
             frequency: {
                 min: $dissLimitMinFrequency,

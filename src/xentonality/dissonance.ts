@@ -30,7 +30,7 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 
-export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCurveOptions): TDissonanceCurve => {
+export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCurveOptions): Promise<TDissonanceCurve> => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
 
@@ -38,7 +38,7 @@ export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCur
     const pronouncedPartials = partials.filter(
         ({ amplitude, frequency }) => withinLimit({ value: amplitude, limits: limits?.amplitude }) && withinLimit({ value: frequency, limits: limits?.frequency })
     )
-    
+
     const pseudoOctave = pronouncedPartials.length > 1
         ? {
             ratio: pronouncedPartials[1].ratio,
@@ -55,9 +55,9 @@ export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCur
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
 
 
-    for (let i = 0; i < numberOfPoints; i++) {
+    for (let i = 0; i < numberOfPoints * 4; i++) {
         const currentStep = {} as TPointX
-        currentStep.cents = sweepStep.cents * i
+        currentStep.cents = sweepStep.cents * i - pseudoOctave.cents
         currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
 
@@ -72,4 +72,7 @@ export const calcDissonanceCurve = ({ partials, points, limits }: TDissonanceCur
     const correctedDissonanceCurve = normalize(detrend(dissonanceCurve))
 
     return { curve: correctedDissonanceCurve, pseudoOctave: pseudoOctave }
+
+
+
 }

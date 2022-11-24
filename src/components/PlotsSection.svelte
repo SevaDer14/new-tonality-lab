@@ -4,6 +4,12 @@
     import type { PlotOptions } from 'highcharts'
     import { layout } from '../theme/layout'
 
+    // TODO: 2 diss curves 1 hi res within +- 1 p-octave, 1 low res for -1 p-octave to last octave in spectrum
+    // TODO: normalise each octave independently
+    // TODO: diss curve limits can be disabled, add limit bu ratio
+    // TODO: show value of fundamental on both charts
+    // TODO: Saving disscruve - both are in max resolution (1 point per cent)
+
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
     let windowWidth: number
@@ -18,15 +24,19 @@
                 yAxis: {
                     title: { text: 'Spectrum' },
                     gridLineWidth: 1,
-                    max: 0.999,
+                    max: 1,
+                    min: 0,
                     minortickInterval: 0.2,
-                    type: "logarithmic",
                 },
                 xAxis: {
-                    title: { text: 'Hz' },
+                    title: { text: 'Ratio to fundamental' },
                     gridLineWidth: 1,
-                    min: $partials[0].frequency,
-                    tickInterval: $partials[0].frequency,
+                    min: 0.5,
+                    max: $partials[$partials.length - 1].ratio + 2,
+                    startOnTick: false,
+                    endOnTick: false,
+                    tickInterval: 0.1,
+                    type: 'logarithmic',
                 },
                 plotOptions: {
                     series: {
@@ -41,9 +51,16 @@
                     {
                         type: 'column',
                         name: 'Partials',
-                        color: 'DodgerBlue',
+                        color: '#1E90FF',
                         pointWidth: 0.5,
-                        data: $partials.map((partial) => [partial.frequency, partial.amplitude]),
+                        data: $partials.map((partial) => [partial.ratio, partial.amplitude]),
+                    },
+                    {
+                        name: 'Dissonance Curve',
+                        type: 'area',
+                        color: '#000000',
+                        opacity: 0.25,
+                        data: $dissonanceCurve.curve.map((point) => [point.ratio, point.value * 0.3]),
                     },
                 ],
             }
@@ -55,6 +72,7 @@
                 yAxis: {
                     title: { text: 'Sethares Dissonance' },
                     gridLineWidth: 1,
+                    min: 0,
                     max: 1,
                     tickInterval: 0.2,
                 },
@@ -62,6 +80,7 @@
                     title: { text: 'cents' },
                     gridLineWidth: 1,
                     min: 0,
+                    max: 1200,
                     tickInterval: 100,
                 },
                 plotOptions: {
@@ -76,8 +95,12 @@
                 series: [
                     {
                         name: 'Dissonance Curve',
-                        type: 'line',
-                        color: 'DodgerBlue',
+                        type: 'area',
+                        marker: {
+                            enabled: false,
+                        },
+                        color: '#1E90FF',
+                        fillOpacity: 0.15,
                         data: $dissonanceCurve.curve.map((point) => [point.cents, point.value]),
                     },
                 ],
