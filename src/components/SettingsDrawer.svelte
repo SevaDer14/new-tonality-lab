@@ -1,7 +1,7 @@
 <script lang="ts">
     import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave, dissLimitMinFrequency, dissLimitMaxFrequency, dissLimitMinAmplitude, dissLimitMaxAmplitude } from '../state/stores.js'
     import Range from '../components/Range.svelte'
-    import { BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
+    import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
     import { AdditiveSynth } from '../xentonality/synth'
@@ -10,11 +10,13 @@
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
+    let recorderNode: MediaStreamAudioDestinationNode
     let processing = false
     let playing = false
 
     onMount(() => {
         audioCtx = new AudioContext()
+        recorderNode = audioCtx.createMediaStreamDestination()
         synth = new AdditiveSynth($partials, audioCtx)
         synth.connect(audioCtx.destination)
     })
@@ -35,18 +37,54 @@
         playing = false
     }
 
+    const recordSample = (): Promise<Blob> | undefined => {
+        const recorder = new MediaRecorder(recorderNode.stream)
+        let streamBlob: Blob
+
+        let recording = new Promise<Blob>((resolve) => {
+            setTimeout(() => {
+                recorder.stop()
+                synth.stop()
+                synth.disconnect()
+                synth.connect(audioCtx.destination)
+            }, $sampleDuration * 1000)
+
+            recorder.ondataavailable = (e) => {
+                streamBlob = new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' })
+                resolve(streamBlob)
+            }
+        })
+
+        synth.disconnect()
+        synth.connect(recorderNode)
+
+        synth.start()
+        recorder.start()
+
+        return recording
+    }
+
     const downloadFiles = async () => {
         processing = true
 
         const zipFileWriter = new BlobWriter()
         const partialsFile = new TextReader(parseCurveToFileFormat($partials))
         const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
+        const sample = await recordSample()
+
+        if (sample === undefined) {
+            processing = false
+            return
+        }
+
+        const sampleFile = new BlobReader(sample)
 
         if (partialsFile !== undefined && dissonanceCurveFile !== undefined) {
             const zipWriter = new ZipWriter(zipFileWriter)
 
             await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
             await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
+            await zipWriter.add(`${$sampleName}.wav`, sampleFile)
             await zipWriter.close()
 
             const zipFileBlob = await zipFileWriter.getData()

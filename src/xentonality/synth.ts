@@ -19,6 +19,7 @@ export class AdditiveSynth {
     private masterGain: GainNode
     private canPlay = false
     private isPlaying = false
+    private masterGainCompensation = 1
 
     public constructor(partials: TPartials, audioContext: AudioContext) {
         this.audioContext = audioContext
@@ -130,7 +131,6 @@ export class AdditiveSynth {
 
     private calculateMasterGainValue(partials: TPartials): number {
         let maxAmplitude = 0
-        console.log(partials)
 
         for (let i = 0; i < partials.length; i += 1) {
             maxAmplitude += partials[i].amplitude
@@ -138,7 +138,7 @@ export class AdditiveSynth {
 
         maxAmplitude = maxAmplitude > 1 ? maxAmplitude : 1
 
-        const masterGain = round(0.2 / maxAmplitude, 2)
+        const masterGain = round(this.masterGainCompensation / maxAmplitude, 2)
 
         return masterGain
     }
