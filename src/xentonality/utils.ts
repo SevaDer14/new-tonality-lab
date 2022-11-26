@@ -1,4 +1,6 @@
 import type { TPartials, TPlotCurve } from "./types"
+import type { AdditiveSynth } from "./synth";
+
 import { round } from 'lodash-es';
 
 
@@ -115,4 +117,30 @@ export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
     }
 
     return rows.join('\n')
+}
+
+// Not Used, can be baseline for recording user performance
+export const recordSample = ({ synth, audioContext, recorderNode, duration }: { synth: AdditiveSynth, audioContext: AudioContext, recorderNode: MediaStreamAudioDestinationNode, duration: number }): Promise<Blob> | undefined => {
+    const recorder = new MediaRecorder(recorderNode.stream)
+
+    const recording = new Promise<Blob>((resolve) => {
+        setTimeout(() => {
+            recorder.stop()
+            synth.stop()
+            synth.disconnect()
+            synth.connect(audioContext.destination)
+        }, duration)
+
+        recorder.ondataavailable = (e) => {
+            resolve(new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' }))
+        }
+    })
+
+    synth.disconnect()
+    synth.connect(recorderNode)
+
+    synth.start()
+    recorder.start()
+
+    return recording
 }
