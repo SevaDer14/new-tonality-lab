@@ -39,7 +39,7 @@
 		"highcharts": "^10.2.1",
 		"lodash": "^4.17.21",
 		"lodash-es": "^4.17.21",
-		"tone": "^14.7.77"
+		"wav-file-encoder": "^1.0.4"
 	},
 	"prettier": {
 		"trailingComma": "es5",

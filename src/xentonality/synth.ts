@@ -6,6 +6,7 @@ type AdditiveSynthOscillator = {
     gain: GainNode
     ratio: number
     frequency: number
+    phase: number
     amplitude: number
     loudness: number
 }
@@ -16,13 +17,15 @@ export class AdditiveSynth {
      */
     private audioContext: AudioContext
     private oscillators: AdditiveSynthOscillator[]
+    private sampleRate: number
     private masterGain: GainNode
     private canPlay = false
     private isPlaying = false
-    private masterGainCompensation = 1
+    private masterGainCompensation = 0.8
 
     public constructor(partials: TPartials, audioContext: AudioContext) {
         this.audioContext = audioContext
+        this.sampleRate = audioContext.sampleRate
         this.masterGain = this.audioContext.createGain();
         this.setMaterGain(this.calculateMasterGainValue(partials))
         this.oscillators = this.createOscillators(partials)
@@ -100,6 +103,27 @@ export class AdditiveSynth {
         });
     }
 
+    public async generateSample(duration: number, randomPhase = false): Promise<AudioBuffer> {
+        const sample = new Promise<AudioBuffer>((resolve) => {
+            const length = duration * this.sampleRate;
+            const audioBuffer: AudioBuffer = new AudioBuffer({ length, numberOfChannels: 1, sampleRate: this.sampleRate });
+            const channelData = audioBuffer.getChannelData(0);
+            const oscillatorPhases = this.oscillators.map(oscillator => randomPhase ? oscillator.phase : 0)
+
+            for (let p = 0; p < length; p++) {
+                for (let i = 0; i < this.oscillators.length; i++) {
+                    const omega = 2 * Math.PI * this.oscillators[i].frequency;
+
+                    channelData[p] += Math.sin(p / this.sampleRate * omega + oscillatorPhases[i]) * this.oscillators[i].amplitude * this.masterGain.gain.value;
+                }
+            }
+
+            resolve(audioBuffer)
+        })
+
+        return sample;
+    }
+
     private createOscillators(partials: TPartials): AdditiveSynthOscillator[] {
         if (!this.audioContext || !this.masterGain) return []
 
@@ -121,12 +145,13 @@ export class AdditiveSynth {
     private createOscillator(partial: TPartial, currentTime: number): AdditiveSynthOscillator {
         const node = this.audioContext.createOscillator()
         const gain = this.audioContext.createGain()
+        const phase = 2 * Math.PI * Math.random()
         node.frequency.setValueAtTime(partial.frequency, currentTime);
         gain.gain.value = partial.amplitude
         node.connect(gain)
         gain.connect(this.masterGain)
 
-        return { node: node, gain: gain, ...partial }
+        return { node, gain, phase, ...partial }
     }
 
     private calculateMasterGainValue(partials: TPartials): number {

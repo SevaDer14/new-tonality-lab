@@ -6,12 +6,12 @@
     import { layout } from '../theme/layout'
     import { AdditiveSynth } from '../xentonality/synth'
     import { onMount } from 'svelte'
-    import { parseCurveToFileFormat } from '../xentonality/utils'
+    import { parseCurveToFileFormat, generateWavFile } from '../xentonality/utils'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
     let recorderNode: MediaStreamAudioDestinationNode
-    let processing = false
+    let downloadingZip = false
     let playing = false
 
     onMount(() => {
@@ -37,66 +37,40 @@
         playing = false
     }
 
-    const recordSample = (): Promise<Blob> | undefined => {
-        const recorder = new MediaRecorder(recorderNode.stream)
-        let streamBlob: Blob
+    const downloadZip = () => {
+        downloadingZip = true
 
-        let recording = new Promise<Blob>((resolve) => {
-            setTimeout(() => {
-                recorder.stop()
-                synth.stop()
-                synth.disconnect()
-                synth.connect(audioCtx.destination)
-            }, $sampleDuration * 1000)
+        // need to give svelte time to update DOM before generating sample
+        // as it blocks the render thread
+        setTimeout(async () => {
+            const sampleBuffer = await synth.generateSample($sampleDuration)
+            const sampleBlob = generateWavFile(sampleBuffer, 1)
 
-            recorder.ondataavailable = (e) => {
-                streamBlob = new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' })
-                resolve(streamBlob)
+            const zipFileWriter = new BlobWriter()
+            const sampleFile = new BlobReader(sampleBlob)
+            const partialsFile = new TextReader(parseCurveToFileFormat($partials))
+            const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
+
+
+            if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
+                const zipWriter = new ZipWriter(zipFileWriter)
+
+                await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
+                await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
+                await zipWriter.add(`${$sampleName}.wav`, sampleFile)
+                await zipWriter.close()
+
+                const zipFileBlob = await zipFileWriter.getData()
+
+                const link = document.createElement('a')
+                link.href = URL.createObjectURL(zipFileBlob)
+                link.download = `${$sampleName}.zip`
+                link.click()
+                link.remove()
+
+                downloadingZip = false
             }
-        })
-
-        synth.disconnect()
-        synth.connect(recorderNode)
-
-        synth.start()
-        recorder.start()
-
-        return recording
-    }
-
-    const downloadFiles = async () => {
-        processing = true
-
-        const zipFileWriter = new BlobWriter()
-        const partialsFile = new TextReader(parseCurveToFileFormat($partials))
-        const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
-        const sample = await recordSample()
-
-        if (sample === undefined) {
-            processing = false
-            return
-        }
-
-        const sampleFile = new BlobReader(sample)
-
-        if (partialsFile !== undefined && dissonanceCurveFile !== undefined) {
-            const zipWriter = new ZipWriter(zipFileWriter)
-
-            await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
-            await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
-            await zipWriter.add(`${$sampleName}.wav`, sampleFile)
-            await zipWriter.close()
-
-            const zipFileBlob = await zipFileWriter.getData()
-
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(zipFileBlob)
-            link.download = `${$sampleName}.zip`
-            link.click()
-            link.remove()
-
-            processing = false
-        }
+        }, 10)
     }
 </script>
 
@@ -154,7 +128,7 @@
     <label for="Name">File name</label>
     <input bind:value={$sampleName} id="name" />
 
-    <button on:click={() => downloadFiles()}>{processing === true ? 'Processing...' : 'Download Files'}</button>
+    <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button>
 </div>
 
 <style>
@@ -173,6 +147,12 @@
         background-color: #2f82de;
         color: #ffffff;
         border-radius: 4px;
+    }
+    button:disabled {
+        background-color: #2f82de66;
+    }
+    button:disabled:hover {
+        background-color: #2f82de66;
     }
     button:hover {
         background-color: #458ddf;

@@ -1,5 +1,8 @@
 import type { TPartials, TPlotCurve } from "./types"
 import { round } from 'lodash-es';
+import type { AdditiveSynth } from "./synth";
+import * as WavFileEncoder from "wav-file-encoder";
+
 
 
 export const ratioToCents = (ratio: number): number => {
@@ -115,4 +118,38 @@ export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
     }
 
     return rows.join('\n')
+}
+
+// Not Used, can be baseline for recording user performance
+export const recordSample = ({ synth, audioContext, recorderNode, duration }: { synth: AdditiveSynth, audioContext: AudioContext, recorderNode: MediaStreamAudioDestinationNode, duration: number }): Promise<Blob> | undefined => {
+    const recorder = new MediaRecorder(recorderNode.stream)
+
+    const recording = new Promise<Blob>((resolve) => {
+        setTimeout(() => {
+            recorder.stop()
+            synth.stop()
+            synth.disconnect()
+            synth.connect(audioContext.destination)
+        }, duration)
+
+        recorder.ondataavailable = (e) => {
+            resolve(new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' }))
+        }
+    })
+
+    synth.disconnect()
+    synth.connect(recorderNode)
+
+    synth.start()
+    recorder.start()
+
+    return recording
+}
+
+
+
+export const generateWavFile = (audioBuffer: AudioBuffer, wavFileType: WavFileEncoder.WavFileType) => {
+    const wavFileData = WavFileEncoder.encodeWavFileFromAudioBuffer(audioBuffer, wavFileType);
+
+    return new Blob([wavFileData], { type: "audio/wav" });
 }
