@@ -6,7 +6,8 @@
     import { layout } from '../theme/layout'
     import { AdditiveSynth } from '../xentonality/synth'
     import { onMount } from 'svelte'
-    import { parseCurveToFileFormat, generateWavFile } from '../xentonality/utils'
+    import { parseCurveToFileFormat } from '../xentonality/utils'
+    import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -44,13 +45,13 @@
         // as it blocks the render thread
         setTimeout(async () => {
             const sampleBuffer = await synth.generateSample($sampleDuration)
-            const sampleBlob = generateWavFile(sampleBuffer, 1)
+            const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
+            const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
 
             const zipFileWriter = new BlobWriter()
             const sampleFile = new BlobReader(sampleBlob)
             const partialsFile = new TextReader(parseCurveToFileFormat($partials))
             const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
-
 
             if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
                 const zipWriter = new ZipWriter(zipFileWriter)

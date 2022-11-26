@@ -1,8 +1,7 @@
 import type { TPartials, TPlotCurve } from "./types"
-import { round } from 'lodash-es';
 import type { AdditiveSynth } from "./synth";
-import * as WavFileEncoder from "wav-file-encoder";
 
+import { round } from 'lodash-es';
 
 
 export const ratioToCents = (ratio: number): number => {
@@ -144,12 +143,4 @@ export const recordSample = ({ synth, audioContext, recorderNode, duration }: { 
     recorder.start()
 
     return recording
-}
-
-
-
-export const generateWavFile = (audioBuffer: AudioBuffer, wavFileType: WavFileEncoder.WavFileType) => {
-    const wavFileData = WavFileEncoder.encodeWavFileFromAudioBuffer(audioBuffer, wavFileType);
-
-    return new Blob([wavFileData], { type: "audio/wav" });
 }
