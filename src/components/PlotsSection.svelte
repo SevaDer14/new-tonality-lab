@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { partials, dissonanceCurve } from '../state/stores.js'
+    import { partials, dissonanceCurve, dissonanceCurveHighRes } from '../state/stores.js'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
     import { layout } from '../theme/layout'
+
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
@@ -10,24 +11,44 @@
     let windowHeight: number
 
     $: {
-        if ($partials && $dissonanceCurve) {
+        if ($partials && $dissonanceCurve && $dissonanceCurveHighRes) {
             spectrumChartConfig = {
+                chart: {
+                    zoomType: 'xy',
+                },
                 title: {
                     text: '',
                 },
-                yAxis: {
-                    title: { text: 'Spectrum' },
-                    gridLineWidth: 1,
-                    min: 0,
-                    max: 1,
-                    tickInterval: 0.2,
-                },
-                xAxis: {
-                    title: { text: 'Hz' },
-                    gridLineWidth: 1,
-                    min: $partials[0].frequency,
-                    tickInterval: $partials[0].frequency,
-                },
+                yAxis: [
+                    {
+                        title: { text: 'Spectrum' },
+                        type: 'logarithmic',
+                        gridLineWidth: 0.5,
+                        max: 0.99,
+                        minortickInterval: 0.1,
+                    },
+                    {
+                        title: { text: 'Roughness' },
+                        gridLineWidth: 0,
+                        max: 2,
+                        min: 0,
+                        tickInterval: 0.1,
+                        opposite: true,
+                    },
+                ],
+                xAxis: [
+                    {
+                        title: { text: 'Ratio to fundamental' },
+                        type: 'logarithmic',
+                        gridLineWidth: 1,
+                        min: 1 / $dissonanceCurve.pseudoOctave.ratio,
+                        max: $partials[$partials.length - 1].ratio + 2,
+                        startOnTick: false,
+                        endOnTick: false,
+                        tickInterval: 0.1,
+                        tickPositions: Math.ceil($partials[$partials.length - 1].ratio) <= 40 ? Array.from(Array(Math.ceil($partials[$partials.length - 1].ratio))).map((val, index) => Math.log10(index + 1)) : undefined,
+                    },
+                ],
                 plotOptions: {
                     series: {
                         type: 'line',
@@ -39,22 +60,35 @@
                 },
                 series: [
                     {
+                        yAxis: 0,
                         type: 'column',
                         name: 'Partials',
-                        color: 'DodgerBlue',
+                        color: '#1E90FF',
                         pointWidth: 0.5,
-                        data: $partials.map((partial) => [partial.frequency, partial.amplitude]),
+                        data: $partials.map((partial) => [partial.ratio, partial.amplitude]),
+                    },
+                    {
+                        yAxis: 1,
+                        name: 'Dissonance Curve',
+                        type: 'area',
+                        color: '#228B22',
+                        opacity: 0.25,
+                        data: $dissonanceCurve.curve.map((point) => [point.ratio, point.value]),
                     },
                 ],
             }
 
             dissonanceCurveChartConfig = {
+                chart: {
+                    zoomType: 'xy',
+                },
                 title: {
                     text: '',
                 },
                 yAxis: {
-                    title: { text: 'Sethares Dissonance' },
+                    title: { text: 'Roughness' },
                     gridLineWidth: 1,
+                    min: 0,
                     max: 1,
                     tickInterval: 0.2,
                 },
@@ -76,9 +110,13 @@
                 series: [
                     {
                         name: 'Dissonance Curve',
-                        type: 'line',
-                        color: 'DodgerBlue',
-                        data: $dissonanceCurve.curve.map((point) => [point.cents, point.value]),
+                        type: 'area',
+                        marker: {
+                            enabled: false,
+                        },
+                        color: '#1E90FF',
+                        fillOpacity: 0.15,
+                        data: $dissonanceCurveHighRes.curve.map((point) => [point.cents, point.value]),
                     },
                 ],
             }

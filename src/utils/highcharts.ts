@@ -13,7 +13,7 @@ export default (node: Options, config: TChartConfig) => {
     const chart = Highcharts.chart(node, config.chart);
 
     return {
-        update(config) {
+        update(config: any) {
             chart.update(config.chart, redraw, oneToOne);
             chart.setSize(config.width, config.height, true)
         },

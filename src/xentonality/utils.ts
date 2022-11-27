@@ -1,24 +1,28 @@
 import type { TPartials, TPlotCurve } from "./types"
+import type { AdditiveSynth } from "./synth";
+
 import { round } from 'lodash-es';
 
-// TODO: Untested
+
 export const ratioToCents = (ratio: number): number => {
-    return 1200 * Math.log2(ratio)
+    return ratio > 0 ? 1200 * Math.log2(ratio) : 0
 }
-// TODO: Untested
+
+
 export const centsToRatio = (cents: number): number => {
     return 2 ** (cents / 1200)
 }
 
+// rethink error handling
 export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
     let success = true
 
     if (integer && param.toFixed(0) !== param.toString()) {
-        console.warn(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
+        console.error(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
         success = false
     }
     if (!condition) {
-        console.warn(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
+        console.error(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
         success = false
     }
 
@@ -26,16 +30,16 @@ export const checkNumericParam = ({ param, integer = false, condition }: { param
 }
 
 
-
+// rethink error handling
 export const checkPartials = ({ partials, freqCondition, ampCondition }: { partials: TPartials, freqCondition?: (frequency: number) => boolean, ampCondition?: (amplitude: number) => boolean }): boolean => {
     let success = true
 
     if (ampCondition && partials.every(({ amplitude }) => ampCondition(amplitude))) {
-        console.warn(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
+        console.error(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
         success = false
     }
     if (freqCondition && partials.every(({ frequency }) => freqCondition(frequency))) {
-        console.warn(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
+        console.error(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
         success = false
     }
 
@@ -43,13 +47,17 @@ export const checkPartials = ({ partials, freqCondition, ampCondition }: { parti
 }
 
 
+export const withinLimit = ({ value, limits }: { value: number, limits?: { min?: number, max?: number } }) => {
+    if (limits === undefined) return true
+
+    const satisfiesMinLimit = limits.min ? value >= limits.min : true
+    const satisfiesMaxLimit = limits.max ? value <= limits.max : true
+
+    return satisfiesMinLimit && satisfiesMaxLimit
+}
 
 export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
-    if (profile === "equal") {
-        return ratio >= 1 ? 1 : 0
-    }
-
-    return ratio >= 1 ? 1 / ratio : 0 // --> defaults to harmonic profile
+    return ratio < 1 ? 0 : profile === "harmonic" ? 1 / ratio : 1
 }
 
 
@@ -84,4 +92,66 @@ export const normalize = (curve: TPlotCurve): TPlotCurve => {
     }
 
     return result
+}
+
+export const rowToString = (row: Array<number | string>) => {
+    if (row.length === 0) return ""
+
+    let result = `${row[0]}`
+
+    for (let i = 1; i < row.length; i += 1) {
+        result += `\t${row[i]}`
+    }
+
+    return result
+}
+
+export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
+    if (curve.length === 0) return ""
+
+    const headerRow = rowToString(Object.keys(curve[0]))
+    const rows = [headerRow]
+
+    for (let i = 0; i < curve.length; i += 1) {
+        rows.push(rowToString(Object.values(curve[i])))
+    }
+
+    return rows.join('\n')
+}
+
+// Not Used, can be baseline for recording user performance
+export const recordSample = ({ synth, audioContext, recorderNode, duration }: { synth: AdditiveSynth, audioContext: AudioContext, recorderNode: MediaStreamAudioDestinationNode, duration: number }): Promise<Blob> | undefined => {
+    const recorder = new MediaRecorder(recorderNode.stream)
+
+    const recording = new Promise<Blob>((resolve) => {
+        setTimeout(() => {
+            recorder.stop()
+            synth.stop()
+            synth.disconnect()
+            synth.connect(audioContext.destination)
+        }, duration)
+
+        recorder.ondataavailable = (e) => {
+            resolve(new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' }))
+        }
+    })
+
+    synth.disconnect()
+    synth.connect(recorderNode)
+
+    synth.start()
+    recorder.start()
+
+    return recording
+}
+
+// TODO untested
+export const isPowerOfNumber = (number: number, base: number): boolean => {
+    if (number - 1 < 0.001) {
+        return true;
+    };
+    if (number % base !== 0) {
+        return false;
+    }
+    return isPowerOfNumber(number / base, base);
 }

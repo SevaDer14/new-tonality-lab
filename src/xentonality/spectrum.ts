@@ -2,7 +2,7 @@ import type { TPartials, TSpectrumType } from "./types"
 import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 import { cloneDeep, round } from 'lodash-es'
 
-export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 1200, edo = 12, fundamental = 440, number = 1000 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -12,26 +12,27 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
         return partials
     }
 
-    // TODO: untested with pseudoOctave
     if (type === 'harmonic') {
         for (let i = 1; i <= number; i++) {
-            const amplitude = getAmplitude(profile, i)
             const frequency = round(fundamental * (pseudoOctaveRatio ** Math.log2(i)), 10)
             const ratio = frequency / fundamental
+            const amplitude = getAmplitude(profile, ratio)
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }
 
-    // TODO: untested
     if (type === 'edo') {
-        for (let i = 1; i <= number; i++) {
-            const amplitude = getAmplitude(profile, i)
-            const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(i) * edo) / edo))
-            const ratio = frequency / fundamental
-            partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+        let iteration = 1
+        while (partials.length < number) {
+            const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(iteration) * edo) / edo))
+            if (frequency !== partials[partials.length - 1]?.frequency) {
+                const ratio = frequency / fundamental
+                const amplitude = getAmplitude(profile, ratio)
+                partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+            }
+            iteration++
         }
     }
-
 
     return partials
 }
@@ -56,19 +57,29 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
 
 
 
-export const sumPartials = (...args: TPartials[]): TPartials => {
+export const sumPartials = (...spectrums: TPartials[]): TPartials => {
     const result = [] as TPartials
-    const partialGroups = cloneDeep(args) as TPartials[]
-    const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.frequency - b.frequency) as TPartials
+    const partials = cloneDeep(spectrums)
+    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
 
-    for (let i = 0; i < allPartials.length; i++) {
+    if (allPartials.length === 0) {
+        return result
+    }
+
+    result[0] = allPartials[0]
+    const fundamental = result[0].frequency
+
+    for (let i = 1; i < allPartials.length; i++) {
         if (result[result.length - 1] && allPartials[i].frequency === result[result.length - 1].frequency) {
+            const summedAmplitude = result[result.length - 1].amplitude + allPartials[i].amplitude
 
-            result[result.length - 1].amplitude += allPartials[i].amplitude
-            result[result.length - 1].loudness = setharesLoudness(result[result.length - 1].amplitude)
-
+            result[result.length - 1].amplitude = summedAmplitude
+            result[result.length - 1].loudness = setharesLoudness(summedAmplitude)
         } else {
-            result.push({ ...allPartials[i], ratio: i === 0 ? allPartials[i].ratio : allPartials[i].frequency / result[0].frequency })
+            result.push({
+                ...allPartials[i],
+                ratio: allPartials[i].frequency / fundamental,
+            })
         }
     }
 
@@ -76,14 +87,25 @@ export const sumPartials = (...args: TPartials[]): TPartials => {
 }
 
 
-// TODO: untested
-export const combinePartials = (...args: TPartials[]): TPartials => {
-    const result = [] as TPartials
-    const partialGroups = cloneDeep(args) as TPartials[]
-    const allPartials = partialGroups.flatMap(partialGroup => partialGroup).sort((a, b) => a.frequency - b.frequency) as TPartials
 
-    for (let i = 0; i < allPartials.length; i++) {
-        result.push({ ...allPartials[i], ratio: i === 0 ? allPartials[i].ratio : allPartials[i].frequency / result[0].frequency })
+export const combinePartials = (...spectrums: TPartials[]): TPartials => {
+    const result = [] as TPartials
+    const partials = cloneDeep(spectrums)
+    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
+
+    if (allPartials.length === 0) {
+        return result
+    }
+
+    result[0] = { ...allPartials[0], ratio: 1 } // TODO: non tested setting ratio of first to 1 do the same for sum partials
+    const fundamental = result[0].frequency
+
+    for (let i = 1; i < allPartials.length; i++) {
+
+        result[i] = {
+            ...allPartials[i],
+            ratio: allPartials[i].frequency / fundamental,
+        }
     }
 
     return result

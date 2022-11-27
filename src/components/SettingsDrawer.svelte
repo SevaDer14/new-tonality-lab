@@ -1,106 +1,85 @@
 <script lang="ts">
-    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave } from '../state/stores.js'
     import Range from '../components/Range.svelte'
-    import { BlobWriter, TextReader, BlobReader, ZipWriter } from '@zip.js/zip.js'
+    import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
+    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, edoSteps, pseudoOctave, dissCurveLimits, dissLimitMaxIndex } from '../state/stores.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
-    import type { PolySynth, Synth, SynthOptions } from 'tone'
-    import * as Tone from 'tone'
+    import { AdditiveSynth } from '../xentonality/synth'
+    import { parseCurveToFileFormat } from '../xentonality/utils'
+    import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
+    import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
     import { onMount } from 'svelte'
 
-    let synth: PolySynth<Synth<SynthOptions>>
-    let processing = false
+    let synth: AdditiveSynth
+    let audioCtx: AudioContext
+    let recorderNode: MediaStreamAudioDestinationNode
+    let downloadingZip = false
     let playing = false
 
     onMount(() => {
-        synth = new Tone.PolySynth(Tone.Synth).toDestination()
-        synth.set({ oscillator: { type: 'sine' } })
+        audioCtx = new AudioContext()
+        recorderNode = audioCtx.createMediaStreamDestination()
+        synth = new AdditiveSynth($partials, audioCtx)
+        synth.connect(audioCtx.destination)
     })
 
-    // TODO: untested, move to Utils?
-    const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
-        const toStringRow = (row: any[]) => {
-            let result = `${row[0]}`
-
-            for (let i = 1; i < row.length; i += 1) {
-                result += `\t${row[i]}`
-            }
-
-            return result
+    $: {
+        if (synth !== undefined) {
+            synth.updatePartials($partials)
         }
-
-        const headerRow = toStringRow(Object.keys(curve[0]))
-        const rows = [headerRow]
-
-        for (let i = 0; i < curve.length; i += 1) {
-            rows.push(toStringRow(Object.values(curve[i])))
-        }
-
-        return rows.join('\n')
     }
 
     const playSample = () => {
+        synth.start()
         playing = true
-        Tone.start()
-        $partials.forEach((partial) => {
-            Tone.Transport.scheduleOnce((time) => {
-                synth.triggerAttack(partial.frequency, time, partial.amplitude * 0.1)
-            }, '8n')
-        })
-        Tone.Transport.start()
     }
 
     const stopSample = () => {
-        synth.releaseAll()
-        Tone.Transport.stop()
+        synth.stop(audioCtx.currentTime)
         playing = false
     }
 
-    const recordSample = () => {
-        const recorder = new Tone.Recorder()
-        synth.disconnect()
-        synth.connect(recorder)
-        recorder.start()
-        playSample()
+    const downloadZip = () => {
+        downloadingZip = true
 
-        let recording = new Promise((resolve) =>
-            setTimeout(async () => {
-                let result = await recorder.stop()
-                stopSample()
-                synth.toDestination()
-                resolve(result)
-            }, $sampleDuration * 1000)
-        )
-        return recording
-    }
+        // need to give svelte time to update DOM before generating sample
+        // as it blocks the render thread
+        setTimeout(async () => {
+            const sampleBuffer = await synth.generateSample($sampleDuration)
+            const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
+            const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
 
-    const downloadFiles = async () => {
-        processing = true
+            const zipFileWriter = new BlobWriter()
+            const sampleFile = new BlobReader(sampleBlob)
+            const partialsFile = new TextReader(parseCurveToFileFormat($partials))
+            const dissonanceCurveFile = new TextReader(
+                parseCurveToFileFormat(
+                    calcDissonanceCurveMultipleOctaves({
+                        partials: $partials,
+                        limits: $dissCurveLimits,
+                    }).curve
+                )
+            )
 
-        const zipFileWriter = new BlobWriter()
-        const partialsFile = new TextReader(parseCurveToFileFormat($partials))
-        const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
-        const audioSample = (await recordSample()) as Blob
+            if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
+                const zipWriter = new ZipWriter(zipFileWriter)
 
-        if (partialsFile !== undefined && dissonanceCurveFile !== undefined && audioSample !== undefined) {
-            const audioSampleFile = new BlobReader(audioSample)
-            const zipWriter = new ZipWriter(zipFileWriter)
+                await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
+                await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
+                await zipWriter.add(`${$sampleName}.wav`, sampleFile)
+                await zipWriter.close()
 
-            await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
-            await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
-            await zipWriter.add(`${$sampleName}.wav`, audioSampleFile)
-            await zipWriter.close()
+                const zipFileBlob = await zipFileWriter.getData()
 
-            const zipFileBlob = await zipFileWriter.getData()
+                const link = document.createElement('a')
+                link.href = URL.createObjectURL(zipFileBlob)
+                link.download = `${$sampleName}.zip`
+                link.click()
+                link.remove()
 
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(zipFileBlob)
-            link.download = `${$sampleName}.zip`
-            link.click()
-            link.remove()
-
-            processing = false
-        }
+                downloadingZip = false
+            }
+        }, 10)
     }
 </script>
 
@@ -123,6 +102,11 @@
         <button on:click={playSample}>Play</button>
     {/if}
 
+    <h3>DISSONANCE CURVE</h3>
+
+    <label for="dissLimitMaxIndex">Max partials for calculation</label>
+    <input type="number" min={1} bind:value={$dissLimitMaxIndex} id="dissLimitMaxIndex" />
+
     <h3>EXPORT</h3>
 
     <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
@@ -130,7 +114,7 @@
     <label for="Name">File name</label>
     <input bind:value={$sampleName} id="name" />
 
-    <button on:click={() => downloadFiles()}>{processing === true ? 'Processing...' : 'Download Files'}</button>
+    <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button>
 </div>
 
 <style>
@@ -150,6 +134,12 @@
         color: #ffffff;
         border-radius: 4px;
     }
+    button:disabled {
+        background-color: #2f82de66;
+    }
+    button:disabled:hover {
+        background-color: #2f82de66;
+    }
     button:hover {
         background-color: #458ddf;
     }
@@ -162,6 +152,7 @@
         font-size: small;
     }
     input {
+        width: 100%;
         margin-bottom: 18px;
     }
 </style>
