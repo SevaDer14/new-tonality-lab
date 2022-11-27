@@ -1,13 +1,14 @@
 <script lang="ts">
-    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, dissonanceCurve, edoSteps, pseudoOctave, dissLimitMinFrequency, dissLimitMaxFrequency, dissLimitMinAmplitude, dissLimitMaxAmplitude } from '../state/stores.js'
     import Range from '../components/Range.svelte'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
+    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, edoSteps, pseudoOctave, dissCurveLimits, dissLimitMaxIndex } from '../state/stores.js'
     import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
     import { layout } from '../theme/layout'
     import { AdditiveSynth } from '../xentonality/synth'
-    import { onMount } from 'svelte'
     import { parseCurveToFileFormat } from '../xentonality/utils'
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
+    import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
+    import { onMount } from 'svelte'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -51,7 +52,14 @@
             const zipFileWriter = new BlobWriter()
             const sampleFile = new BlobReader(sampleBlob)
             const partialsFile = new TextReader(parseCurveToFileFormat($partials))
-            const dissonanceCurveFile = new TextReader(parseCurveToFileFormat($dissonanceCurve.curve))
+            const dissonanceCurveFile = new TextReader(
+                parseCurveToFileFormat(
+                    calcDissonanceCurveMultipleOctaves({
+                        partials: $partials,
+                        limits: $dissCurveLimits,
+                    }).curve
+                )
+            )
 
             if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
                 const zipWriter = new ZipWriter(zipFileWriter)
@@ -96,31 +104,8 @@
 
     <h3>DISSONANCE CURVE</h3>
 
-    <h5>Frequency limits:</h5>
-    <div class="diss-curve-limits-container">
-        <div class="diss-curve-limit-input">
-            <label for="dissLimitMinFrequency">Min (Hz)</label>
-            <input type="number" bind:value={$dissLimitMinFrequency} id="dissLimitMinFrequency" />
-        </div>
-
-        <div class="diss-curve-limit-input">
-            <label for="dissLimitMaxFrequency">Max (Hz)</label>
-            <input type="number" bind:value={$dissLimitMaxFrequency} id="dissLimitMaxFrequency" />
-        </div>
-    </div>
-
-    <h5>Ampitude limits:</h5>
-    <div class="diss-curve-limits-container">
-        <div class="diss-curve-limit-input">
-            <label for="dissLimitMinAmplitude">Min</label>
-            <input type="number" bind:value={$dissLimitMinAmplitude} id="dissLimitMinAmplitude" />
-        </div>
-
-        <div class="diss-curve-limit-input">
-            <label for="dissLimitMaxAmplitude">Max</label>
-            <input type="number" max={1} min={0} step={0.01} bind:value={$dissLimitMaxAmplitude} id="dissLimitMaxAmplitude" />
-        </div>
-    </div>
+    <label for="dissLimitMaxIndex">Max partials for calculation</label>
+    <input type="number" min={1} bind:value={$dissLimitMaxIndex} id="dissLimitMaxIndex" />
 
     <h3>EXPORT</h3>
 
@@ -162,9 +147,6 @@
         margin-top: 36px;
         font-weight: 400;
     }
-    h5 {
-        margin: 8px 0px;
-    }
     label {
         display: block;
         font-size: small;
@@ -172,13 +154,5 @@
     input {
         width: 100%;
         margin-bottom: 18px;
-    }
-    .diss-curve-limits-container {
-        display: flex;
-        justify-content: space-between;
-    }
-    .diss-curve-limit-input {
-        width: 40%;
-        margin-right: 12px;
     }
 </style>

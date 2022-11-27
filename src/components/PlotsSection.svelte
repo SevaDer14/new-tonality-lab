@@ -1,14 +1,9 @@
 <script lang="ts">
-    import { partials, dissonanceCurve } from '../state/stores.js'
+    import { partials, dissonanceCurve, dissonanceCurveHighRes } from '../state/stores.js'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
     import { layout } from '../theme/layout'
 
-    // TODO: 2 diss curves 1 hi res within +- 1 p-octave, 1 low res for -1 p-octave to last octave in spectrum
-    // TODO: normalise each octave independently
-    // TODO: diss curve limits can be disabled, add limit bu ratio
-    // TODO: show value of fundamental on both charts
-    // TODO: Saving disscruve - both are in max resolution (1 point per cent)
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
@@ -16,28 +11,44 @@
     let windowHeight: number
 
     $: {
-        if ($partials && $dissonanceCurve) {
+        if ($partials && $dissonanceCurve && $dissonanceCurveHighRes) {
             spectrumChartConfig = {
+                chart: {
+                    zoomType: 'xy',
+                },
                 title: {
                     text: '',
                 },
-                yAxis: {
-                    title: { text: 'Spectrum' },
-                    gridLineWidth: 1,
-                    max: 1,
-                    min: 0,
-                    minortickInterval: 0.2,
-                },
-                xAxis: {
-                    title: { text: 'Ratio to fundamental' },
-                    gridLineWidth: 1,
-                    min: 0.5,
-                    max: $partials[$partials.length - 1].ratio + 2,
-                    startOnTick: false,
-                    endOnTick: false,
-                    tickInterval: 0.1,
-                    type: 'logarithmic',
-                },
+                yAxis: [
+                    {
+                        title: { text: 'Spectrum' },
+                        type: 'logarithmic',
+                        gridLineWidth: 1,
+                        max: 0.99,
+                        minortickInterval: 0.2,
+                    },
+                    {
+                        title: { text: 'Roughness' },
+                        gridLineWidth: 0,
+                        max: 2,
+                        min: 0,
+                        tickInterval: 0.1,
+                        opposite: true,
+                    },
+                ],
+                xAxis: [
+                    {
+                        title: { text: 'Ratio to fundamental' },
+                        type: 'logarithmic',
+                        gridLineWidth: 1,
+                        min: 1 / $dissonanceCurve.pseudoOctave.ratio,
+                        max: $partials[$partials.length - 1].ratio + 2,
+                        startOnTick: false,
+                        endOnTick: false,
+                        tickInterval: 0.1,
+                        tickPositions: Math.ceil($partials[$partials.length - 1].ratio) <= 40 ? Array.from(Array(Math.ceil($partials[$partials.length - 1].ratio))).map((val, index) => Math.log10(index + 1)) : undefined,
+                    },
+                ],
                 plotOptions: {
                     series: {
                         type: 'line',
@@ -49,6 +60,7 @@
                 },
                 series: [
                     {
+                        yAxis: 0,
                         type: 'column',
                         name: 'Partials',
                         color: '#1E90FF',
@@ -56,21 +68,25 @@
                         data: $partials.map((partial) => [partial.ratio, partial.amplitude]),
                     },
                     {
+                        yAxis: 1,
                         name: 'Dissonance Curve',
                         type: 'area',
-                        color: '#000000',
+                        color: '#228B22',
                         opacity: 0.25,
-                        data: $dissonanceCurve.curve.map((point) => [point.ratio, point.value * 0.3]),
+                        data: $dissonanceCurve.curve.map((point) => [point.ratio, point.value]),
                     },
                 ],
             }
 
             dissonanceCurveChartConfig = {
+                chart: {
+                    zoomType: 'xy',
+                },
                 title: {
                     text: '',
                 },
                 yAxis: {
-                    title: { text: 'Sethares Dissonance' },
+                    title: { text: 'Roughness' },
                     gridLineWidth: 1,
                     min: 0,
                     max: 1,
@@ -80,7 +96,6 @@
                     title: { text: 'cents' },
                     gridLineWidth: 1,
                     min: 0,
-                    max: 1200,
                     tickInterval: 100,
                 },
                 plotOptions: {
@@ -101,7 +116,7 @@
                         },
                         color: '#1E90FF',
                         fillOpacity: 0.15,
-                        data: $dissonanceCurve.curve.map((point) => [point.cents, point.value]),
+                        data: $dissonanceCurveHighRes.curve.map((point) => [point.cents, point.value]),
                     },
                 ],
             }
