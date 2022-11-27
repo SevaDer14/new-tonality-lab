@@ -53,11 +53,13 @@ describe('Xentonality.Dissonance.intrinsicDissonance', () => {
     });
 })
 
-describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
+describe('Xentonality.Dissonance.calcDissonanceCurveMultipleOctaves', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
     it('returns diss curve for single partial', () => {
-        const testFunction = Dissonance.calcDissonanceCurve({ partials: Factory.partials({ ratios: [1], fundamental: 440 }), points: 10 }).curve
+        const testFunction = Dissonance.calcDissonanceCurveMultipleOctaves({ partials: Factory.partials({ ratios: [1], fundamental: 440 }), octaves: [0, 1], points: 10 }).curve
+        console.log(testFunction)
         const expectedFunction = diss_curve_440_1_partial
+        console.log(expectedFunction)
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     })
@@ -68,8 +70,9 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
         const faintPartial = Factory.partials({ ratios: [3], amplitude: 0.09, fundamental: 440 })
 
         const testSpectrum = Spectrum.combinePartials(goodPartial, hotPartial, faintPartial)
-        const dissCurve = Dissonance.calcDissonanceCurve({
+        const dissCurve = Dissonance.calcDissonanceCurveMultipleOctaves({
             partials: testSpectrum,
+            octaves: [0, 1],
             points: 10,
             limits: {
                 amplitude: {
@@ -90,8 +93,9 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
         const tooHighPartial = Factory.partials({ ratios: [1], amplitude: 1, fundamental: 6001 })
 
         const testSpectrum = Spectrum.combinePartials(tooLowPartial, goodPartial, tooHighPartial)
-        const dissCurve = Dissonance.calcDissonanceCurve({
+        const dissCurve = Dissonance.calcDissonanceCurveMultipleOctaves({
             partials: testSpectrum,
+            octaves: [0, 1],
             points: 10,
             limits: {
                 frequency: {
@@ -114,8 +118,9 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
         const faintPartial = Factory.partials({ ratios: [3], amplitude: 0.09, fundamental: 440 })
 
         const testSpectrum = Spectrum.combinePartials(tooLowPartial, goodPartial, tooHighPartial, faintPartial, hotPartial)
-        const dissCurve = Dissonance.calcDissonanceCurve({
+        const dissCurve = Dissonance.calcDissonanceCurveMultipleOctaves({
             partials: testSpectrum,
+            octaves: [0, 1],
             points: 10,
             limits: {
                 frequency: {
@@ -135,14 +140,14 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     })
 
     it('returns correct diss curve', () => {
-        const testFunction = Dissonance.calcDissonanceCurve({ partials: Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), points: 10 }).curve
+        const testFunction = Dissonance.calcDissonanceCurveMultipleOctaves({ partials: Factory.partials({ ratios: [1, 2, 3, 4], fundamental: 440 }), octaves: [0, 1], points: 10 }).curve
         const expectedFunction = diss_curve_440_4_harmonic
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     })
 
     it('returns diss curve with default number of points = cents in pseudo-octave', () => {
-        const dissCurve = Dissonance.calcDissonanceCurve({ partials: Factory.partials({ ratios: [1, 2.1], fundamental: 440 }) }).curve
+        const dissCurve = Dissonance.calcDissonanceCurveMultipleOctaves({ partials: Factory.partials({ ratios: [1, 2.1], fundamental: 440 }), octaves: [0, 1], }).curve
         const expectedStepInCents = 1
         const expectedNumberOfPoints = 1285
 
@@ -151,7 +156,7 @@ describe('Xentonality.Dissonance.calcDissonanceCurve', () => {
     })
 
     it('returns diss curve within the range of pseudo-octave with correct step', () => {
-        const dissCurve = Dissonance.calcDissonanceCurve({ partials: Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), points: 12 }).curve
+        const dissCurve = Dissonance.calcDissonanceCurveMultipleOctaves({ partials: Factory.partials({ ratios: [1, 2.1, 3.2, 4.3], fundamental: 440 }), points: 12, octaves: [0, 1], }).curve
         const expectedStepInCents = 116.76974486087978
 
         expect(dissCurve[0].cents).toEqual(0);

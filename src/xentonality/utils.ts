@@ -144,3 +144,14 @@ export const recordSample = ({ synth, audioContext, recorderNode, duration }: { 
 
     return recording
 }
+
+// TODO untested
+export const isPowerOfNumber = (number: number, base: number): boolean => {
+    if (number - 1 < 0.001) {
+        return true;
+    };
+    if (number % base !== 0) {
+        return false;
+    }
+    return isPowerOfNumber(number / base, base);
+}
