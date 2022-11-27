@@ -23,9 +23,9 @@
                     {
                         title: { text: 'Spectrum' },
                         type: 'logarithmic',
-                        gridLineWidth: 1,
+                        gridLineWidth: 0.5,
                         max: 0.99,
-                        minortickInterval: 0.2,
+                        minortickInterval: 0.1,
                     },
                     {
                         title: { text: 'Roughness' },

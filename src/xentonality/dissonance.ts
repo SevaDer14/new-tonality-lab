@@ -44,7 +44,7 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
         const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
         const combinedPartials = combinePartials(partials, sweepPartials)
         const dissonanceValue = intrinsicDissonance(combinedPartials)
-
+        console.log(partials)
         const dissonancePoint = { ...currentStep, value: dissonanceValue, } as TPlotPoint
         dissonanceCurve.push(dissonancePoint)
     }
@@ -63,13 +63,15 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
     const fundamental = partials[0].frequency
 
 
-    const partialsWithinLimits = partials.filter(
-        ({ amplitude, frequency }, index) =>
-            withinLimit({ value: amplitude, limits: limits?.amplitude }) &&
-            withinLimit({ value: frequency, limits: limits?.frequency }) &&
-            withinLimit({ value: index + 1, limits: limits?.index })
+    const partialsWithinLimits = combinePartials(
+        partials.filter(
+            ({ amplitude, frequency }, index) =>
+                withinLimit({ value: amplitude, limits: limits?.amplitude }) &&
+                withinLimit({ value: frequency, limits: limits?.frequency }) &&
+                withinLimit({ value: index + 1, limits: limits?.index })
+        )
     )
-
+    
     const pseudoOctave = partialsWithinLimits.length > 1
         ? {
             ratio: partialsWithinLimits[1].ratio,
@@ -84,7 +86,7 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
 
     const numberOfPoints = points ? points : Math.round(pseudoOctave.cents) + 1
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
-    const highestRatio = partialsWithinLimits[partialsWithinLimits.length - 1].ratio
+    const highestRatio = partialsWithinLimits.length > 1 ? partialsWithinLimits[partialsWithinLimits.length - 1].ratio : pseudoOctave.ratio
     // TODO refactor
     const spectrumOctaveRange = octaves
         ? octaves[1] - 1
@@ -92,10 +94,11 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
 
     for (let i = 0; i <= spectrumOctaveRange; i++) {
         // TODO refactor
-        const roughStartPoinCents = Math.ceil(i * pseudoOctave.cents + (octaves ? octaves[0] : -1) * pseudoOctave.cents)
+        const roughStartPointCents = Math.ceil(i * pseudoOctave.cents + (octaves ? octaves[0] : -1) * pseudoOctave.cents)
         const startPoint = {
-            cents: roughStartPoinCents < 0 ? roughStartPoinCents - 1 : roughStartPoinCents + 1
+            cents: roughStartPointCents === 0 ? roughStartPointCents : roughStartPointCents < 0 ? roughStartPointCents - 1 : roughStartPointCents + 1
         }
+
         dissonanceCurve.push(...calcDissonanceCurve({
             partials: partialsWithinLimits,
             numberOfPoints: numberOfPoints,

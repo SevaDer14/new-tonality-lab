@@ -97,7 +97,7 @@ export const combinePartials = (...spectrums: TPartials[]): TPartials => {
         return result
     }
 
-    result[0] = allPartials[0]
+    result[0] = { ...allPartials[0], ratio: 1 } // TODO: non tested setting ratio of first to 1 do the same for sum partials
     const fundamental = result[0].frequency
 
     for (let i = 1; i < allPartials.length; i++) {
