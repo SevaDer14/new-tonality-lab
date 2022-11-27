@@ -43,10 +43,10 @@ export const dissonanceCurveHighRes = derived(
 );
 
 export const dissonanceCurve = derived(
-    [partials, dissCurveLimits],
-    ([$partials, $dissCurveLimits]) => calcDissonanceCurveMultipleOctaves({
+    [partials, dissCurveLimits, pseudoOctave],
+    ([$partials, $dissCurveLimits, $pseudoOctave]) => calcDissonanceCurveMultipleOctaves({
         partials: $partials,
-        points: 100,
+        points: $pseudoOctave > 1200 ? Math.ceil($pseudoOctave / 12) : 100,
         limits: $dissCurveLimits
     })
 );
