@@ -44,7 +44,7 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
         const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
         const combinedPartials = combinePartials(partials, sweepPartials)
         const dissonanceValue = intrinsicDissonance(combinedPartials)
-        console.log(partials)
+
         const dissonancePoint = { ...currentStep, value: dissonanceValue, } as TPlotPoint
         dissonanceCurve.push(dissonancePoint)
     }

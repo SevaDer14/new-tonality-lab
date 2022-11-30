@@ -104,12 +104,15 @@ export class AdditiveSynth {
     }
 
     public async generateSample(duration: number, randomPhase = false): Promise<AudioBuffer> {
+        if (this.audioContext.state !== 'running') await this.audioContext.resume()
+        
         const sample = new Promise<AudioBuffer>((resolve) => {
             const length = duration * this.sampleRate;
             const audioBuffer: AudioBuffer = new AudioBuffer({ length, numberOfChannels: 1, sampleRate: this.sampleRate });
             const channelData = audioBuffer.getChannelData(0);
             const oscillatorPhases = this.oscillators.map(oscillator => randomPhase ? oscillator.phase : 0)
-
+            console.log(this.masterGain.gain.value)
+            console.log(this.oscillators.map(osc => osc.amplitude))
             for (let p = 0; p < length; p++) {
                 for (let i = 0; i < this.oscillators.length; i++) {
                     const omega = 2 * Math.PI * this.oscillators[i].frequency;
