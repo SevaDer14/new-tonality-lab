@@ -104,6 +104,8 @@ export class AdditiveSynth {
     }
 
     public async generateSample(duration: number, randomPhase = false): Promise<AudioBuffer> {
+        if (this.audioContext.state !== 'running') await this.audioContext.resume()
+        
         const sample = new Promise<AudioBuffer>((resolve) => {
             const length = duration * this.sampleRate;
             const audioBuffer: AudioBuffer = new AudioBuffer({ length, numberOfChannels: 1, sampleRate: this.sampleRate });
