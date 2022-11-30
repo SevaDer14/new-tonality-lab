@@ -111,8 +111,7 @@ export class AdditiveSynth {
             const audioBuffer: AudioBuffer = new AudioBuffer({ length, numberOfChannels: 1, sampleRate: this.sampleRate });
             const channelData = audioBuffer.getChannelData(0);
             const oscillatorPhases = this.oscillators.map(oscillator => randomPhase ? oscillator.phase : 0)
-            console.log(this.masterGain.gain.value)
-            console.log(this.oscillators.map(osc => osc.amplitude))
+
             for (let p = 0; p < length; p++) {
                 for (let i = 0; i < this.oscillators.length; i++) {
                     const omega = 2 * Math.PI * this.oscillators[i].frequency;
