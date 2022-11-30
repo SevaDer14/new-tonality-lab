@@ -57,9 +57,8 @@ describe('Xentonality.Dissonance.calcDissonanceCurveMultipleOctaves', () => {
     // WARNING: I assume fixtures are correct, but need manual testing to confirm that
     it('returns diss curve for single partial', () => {
         const testFunction = Dissonance.calcDissonanceCurveMultipleOctaves({ partials: Factory.partials({ ratios: [1], fundamental: 440 }), octaves: [0, 1], points: 10 }).curve
-        console.log(testFunction)
+
         const expectedFunction = diss_curve_440_1_partial
-        console.log(expectedFunction)
 
         expect(curvesEqual(testFunction, expectedFunction)).toEqual(true);
     })
