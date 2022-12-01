@@ -15,6 +15,7 @@
     let recorderNode: MediaStreamAudioDestinationNode
     let downloadingZip = false
     let playing = false
+    let randomPhaseExport = false
 
     onMount(() => {
         audioCtx = new AudioContext()
@@ -45,7 +46,7 @@
         // need to give svelte time to update DOM before generating sample
         // as it blocks the render thread
         setTimeout(async () => {
-            const sampleBuffer = await synth.generateSample($sampleDuration)
+            const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
             const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
             const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
 
@@ -108,6 +109,11 @@
     <input type="number" min={1} bind:value={$dissLimitMaxIndex} id="dissLimitMaxIndex" />
 
     <h3>EXPORT</h3>
+
+    <div style="display: flex;">
+        <input type="checkbox" style="width: 24px" id="paseRandom" name="phaseOfOscillators" bind:checked={randomPhaseExport} />
+        <label for="paseRandom" style="padding-top: 2px" >Random Phase</label>
+    </div>
 
     <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
 
