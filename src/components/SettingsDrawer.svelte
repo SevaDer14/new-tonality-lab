@@ -9,6 +9,7 @@
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
     import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
     import { onMount } from 'svelte'
+    import Contact from './Contact.svelte'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -121,6 +122,8 @@
     <input bind:value={$sampleName} id="name" />
 
     <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button>
+
+    <Contact />
 </div>
 
 <style>
