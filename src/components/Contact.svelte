@@ -10,7 +10,7 @@
     <div class="contact-item">
         <h3>Follow:</h3>
         <a href="https://twitter.com/new_tonality">Twitter</a>
-        <a href="https://www.youtube.com/channel/UCPDmqGWT3zj9m6EMznlEvEA">YouTube</a>
+        <a href="https://www.youtube.com/@new_tonality">YouTube</a>
     </div>    <div class="contact-item">
         <h3>Email:</h3>
         <p>info@newtonality.net</p>
