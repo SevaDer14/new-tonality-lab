@@ -8,7 +8,7 @@
 <!-- <PlotsSection /> -->
 <!-- </div> -->
 
-<h1 class="text-3xl font-bold underline">Hello Boi!</h1>
+<h1>Lab</h1>
 
 <style>
     /* .page {
