@@ -1,8 +1,9 @@
 <script lang="ts">
     import { page } from '$app/stores'
+    import MenuItem from './MenuItem.svelte'
 
-    const setActiveClass = (pageRouteId: string | null, routeId: string): string => {
-        return pageRouteId === null ? '' : pageRouteId === routeId ? 'text-white underline underline-offset-4' : 'text-white-65 hover:text-white'
+    const setActive = (pageRouteId: string | null, routeId: string): boolean => {
+        return pageRouteId === null ? false : pageRouteId === routeId
     }
 </script>
 
@@ -12,12 +13,8 @@
             <a href="/">NEW TONALITY</a>
         </h1>
         <ul class="flex">
-            <li class={`px-8 ${setActiveClass($page.routeId, 'lab')}`}>
-                <a href="/"> Lab </a>
-            </li>
-            <li class={`px-8 ${setActiveClass($page.routeId, 'about')}`}>
-                <a href="/about"> About </a>
-            </li>
+            <MenuItem href="/" active={setActive($page.routeId, 'lab')}>Lab</MenuItem>
+            <MenuItem href="/about" active={setActive($page.routeId, 'about')}>About</MenuItem>
         </ul>
     </nav>
 </header>
