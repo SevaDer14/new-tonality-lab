@@ -10,6 +10,7 @@
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
     import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
     import { onMount } from 'svelte'
+    import TextField from './TextField.svelte'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -91,8 +92,7 @@
 
     <Checkbox label="Random phase" onChange={(value) => (randomPhaseExport = value)} checked />
 
-    <label for="Name">File name</label>
-    <input bind:value={$sampleName} id="name" />
+    <TextField label="File name" initialValue={$sampleName} onInput={(value) => $sampleName = value} />
 
     <div class="flex mt-auto justify-center">
         {#if playing === true}
