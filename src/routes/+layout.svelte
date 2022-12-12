@@ -6,6 +6,8 @@
 
 <div class="font-fira-mono text-white bg-radial-gradient h-screen">
     <TopNav />
-    <slot />
+    <div class="container m-auto p-8 flex flex-wrap ">
+        <slot />
+    </div>
     <Footer />
 </div>

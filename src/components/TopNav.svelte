@@ -8,8 +8,8 @@
 </script>
 
 <header class="bg-white-5 py-4 border-b border-white-65 font-fjalla-one tracking-wider">
-    <nav class="container mx-auto flex justify-between items-center">
-        <h1 class="px-8 text-3xl text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-75">
+    <nav class="container mx-auto px-4 flex justify-between items-center">
+        <h1 class="text-3xl px-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-75">
             <a href="/">NEW TONALITY</a>
         </h1>
         <ul class="flex">
