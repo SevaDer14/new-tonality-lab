@@ -5,5 +5,5 @@
 </script>
 
 <Panel title="roughness profile">
-    <Range label="Max partials for calculation" min={0} max={20} onInput={(value) => ($dissLimitMaxIndex = value)} initialValue={$dissLimitMaxIndex} />
+    <Range label="Partial limit max" min={0} max={20} onInput={(value) => ($dissLimitMaxIndex = value)} initialValue={$dissLimitMaxIndex} />
 </Panel>

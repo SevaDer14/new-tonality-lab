@@ -8,6 +8,7 @@
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
     import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
     import { onMount } from 'svelte'
+    import Checkbox from './Checkbox.svelte'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -87,10 +88,7 @@
     <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
     <Range label="Note Frequency (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} />
 
-    <div style="display: flex;">
-        <input type="checkbox" style="width: 24px" id="paseRandom" name="phaseOfOscillators" bind:checked={randomPhaseExport} />
-        <label for="paseRandom" style="padding-top: 2px">Random Phase</label>
-    </div>
+    <Checkbox label="Random phase" onChange={(value) => (randomPhaseExport = value)} checked />
 
     <label for="Name">File name</label>
     <input bind:value={$sampleName} id="name" />

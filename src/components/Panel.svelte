@@ -12,7 +12,7 @@
         </div>
     {/if}
 
-    <div class="p-3">
+    <div class="py-3 px-6">
         <slot />
     </div>
 </div>

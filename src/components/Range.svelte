@@ -24,7 +24,7 @@
 
 <div class="flex py-2">
     <div class="flex flex-col max-w-full grow h-8">
-        <label class="text-white-65 text-xs" for={id}>{label}</label>
+        <label class="text-white-65 text-xs whitespace-nowrap" for={id}>{label}</label>
         <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} bind:value on:input={handleInput} {id} />
     </div>
     <input class="w-12 ml-1 bg-transparent pt-3 leading-4" type="number" {step} bind:value on:change={handleInput} />
