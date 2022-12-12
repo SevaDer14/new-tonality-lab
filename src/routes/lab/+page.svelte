@@ -11,8 +11,24 @@
 <!-- <PlotsSection /> -->
 <!-- </div> -->
 
-<Panel>
-    <h1>Lab</h1>
+<Panel title="generate">
+    <p>Controls</p>
+</Panel>
+
+<Panel title="tweak">
+    <p>Controls</p>
+</Panel>
+
+<Panel title="roughness profile">
+    <p>Controls</p>
+</Panel>
+
+<Panel title="export">
+    <p>Controls</p>
+</Panel>
+
+<Panel minWidth={1272} minHeight={650}>
+    <p>Graph</p>
 </Panel>
 
 <style>

@@ -5,7 +5,7 @@
     export let title: string | undefined = undefined
 </script>
 
-<div class="relative border-2 border-white-65 rounded-2xl" style={`min-width: ${minWidth}px; min-height: ${minHeight}px`}>
+<div class="relative border-2 border-white-65 rounded-2xl m-3" style={`width: ${minWidth}px; height: ${minHeight}px`}>
     {#if title}
         <div class="relative top-0 left-0 rounded-t-2xl border-b-2 border-white-65 px-6 bg-white-25">
             <h2 class="uppercase tracking-widest h-10 leading-10">{title}</h2>

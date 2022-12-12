@@ -6,7 +6,7 @@
     import MenuItem from './MenuItem.svelte'
 </script>
 
-<footer class="w-full fixed left-0 bottom-0 flex justify-center bg-white-5 py-4 border-t border-white-65">
+<footer class="w-full absolute left-0 bottom-0 flex justify-center bg-white-5 py-4 border-t border-white-65">
     <ul class="flex justify-center">
         <MenuItem href="/">
             <KoFiIcon />
