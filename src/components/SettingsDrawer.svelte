@@ -1,132 +1,132 @@
 <script lang="ts">
-    import Range from '../components/Range.svelte'
-    import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
-    import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, edoSteps, pseudoOctave, dissCurveLimits, dissLimitMaxIndex } from '../state/stores.js'
-    import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
-    import { layout } from '../theme/layout'
-    import { AdditiveSynth } from '../xentonality/synth'
-    import { parseCurveToFileFormat } from '../xentonality/utils'
-    import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
-    import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
-    import { onMount } from 'svelte'
-    import Contact from './Contact.svelte'
+    // import Range from '../components/Range.svelte'
+    // import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
+    // import { spectrumType, fundamental, numberOfPartials, sampleName, sampleDuration, partials, edoSteps, pseudoOctave, dissCurveLimits, dissLimitMaxIndex } from '../state/stores.js'
+    // import SpectrumTypeRadioGroup from './SpectrumTypeRadioGroup.svelte'
+    // import { layout } from '../theme/layout'
+    // import { AdditiveSynth } from '../xentonality/synth'
+    // import { parseCurveToFileFormat } from '../xentonality/utils'
+    // import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
+    // import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
+    // import { onMount } from 'svelte'
+    // import Contact from './Contact.svelte'
 
-    let synth: AdditiveSynth
-    let audioCtx: AudioContext
-    let recorderNode: MediaStreamAudioDestinationNode
-    let downloadingZip = false
-    let playing = false
-    let randomPhaseExport = false
+    // let synth: AdditiveSynth
+    // let audioCtx: AudioContext
+    // let recorderNode: MediaStreamAudioDestinationNode
+    // let downloadingZip = false
+    // let playing = false
+    // let randomPhaseExport = false
 
-    onMount(() => {
-        audioCtx = new AudioContext()
-        recorderNode = audioCtx.createMediaStreamDestination()
-        synth = new AdditiveSynth($partials, audioCtx)
-        synth.connect(audioCtx.destination)
-    })
+    // onMount(() => {
+    //     audioCtx = new AudioContext()
+    //     recorderNode = audioCtx.createMediaStreamDestination()
+    //     synth = new AdditiveSynth($partials, audioCtx)
+    //     synth.connect(audioCtx.destination)
+    // })
 
-    $: {
-        if (synth !== undefined) {
-            synth.updatePartials($partials)
-        }
-    }
+    // $: {
+    //     if (synth !== undefined) {
+    //         synth.updatePartials($partials)
+    //     }
+    // }
 
-    const playSample = () => {
-        synth.start()
-        playing = true
-    }
+    // const playSample = () => {
+    //     synth.start()
+    //     playing = true
+    // }
 
-    const stopSample = () => {
-        synth.stop(audioCtx.currentTime)
-        playing = false
-    }
+    // const stopSample = () => {
+    //     synth.stop(audioCtx.currentTime)
+    //     playing = false
+    // }
 
-    const downloadZip = () => {
-        downloadingZip = true
+    // const downloadZip = () => {
+    //     downloadingZip = true
 
-        // need to give svelte time to update DOM before generating sample
-        // as it blocks the render thread
-        setTimeout(async () => {
-            const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
-            const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
-            const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
+    //     // need to give svelte time to update DOM before generating sample
+    //     // as it blocks the render thread
+    //     setTimeout(async () => {
+    //         const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
+    //         const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
+    //         const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
 
-            const zipFileWriter = new BlobWriter()
-            const sampleFile = new BlobReader(sampleBlob)
-            const partialsFile = new TextReader(parseCurveToFileFormat($partials))
-            const dissonanceCurveFile = new TextReader(
-                parseCurveToFileFormat(
-                    calcDissonanceCurveMultipleOctaves({
-                        partials: $partials,
-                        limits: $dissCurveLimits,
-                    }).curve
-                )
-            )
+    //         const zipFileWriter = new BlobWriter()
+    //         const sampleFile = new BlobReader(sampleBlob)
+    //         const partialsFile = new TextReader(parseCurveToFileFormat($partials))
+    //         const dissonanceCurveFile = new TextReader(
+    //             parseCurveToFileFormat(
+    //                 calcDissonanceCurveMultipleOctaves({
+    //                     partials: $partials,
+    //                     limits: $dissCurveLimits,
+    //                 }).curve
+    //             )
+    //         )
 
-            if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
-                const zipWriter = new ZipWriter(zipFileWriter)
+    //         if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
+    //             const zipWriter = new ZipWriter(zipFileWriter)
 
-                await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
-                await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
-                await zipWriter.add(`${$sampleName}.wav`, sampleFile)
-                await zipWriter.close()
+    //             await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
+    //             await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
+    //             await zipWriter.add(`${$sampleName}.wav`, sampleFile)
+    //             await zipWriter.close()
 
-                const zipFileBlob = await zipFileWriter.getData()
+    //             const zipFileBlob = await zipFileWriter.getData()
 
-                const link = document.createElement('a')
-                link.href = URL.createObjectURL(zipFileBlob)
-                link.download = `${$sampleName}.zip`
-                link.click()
-                link.remove()
+    //             const link = document.createElement('a')
+    //             link.href = URL.createObjectURL(zipFileBlob)
+    //             link.download = `${$sampleName}.zip`
+    //             link.click()
+    //             link.remove()
 
-                downloadingZip = false
-            }
-        }, 10)
-    }
+    //             downloadingZip = false
+    //         }
+    //     }, 10)
+    // }
 </script>
 
-<div class="settings-menu" style="width: {layout.menuWidth}px">
-    <h3>SPECTRUM</h3>
+<!-- <div class="settings-menu" style="width: {layout.menuWidth}px"> -->
+    <!-- <h3>SPECTRUM</h3> -->
 
-    <Range label="Fundamental (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} />
-    <Range label="Number of Partials" min={1} max={20} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} />
-    <Range label="Pseudo-octave (cents)" min={100} max={2400} step={100} onInput={(value) => ($pseudoOctave = value)} initialValue={$pseudoOctave} />
+    <!-- <Range label="Fundamental (Hz)" min={55} max={880} onInput={(value) => ($fundamental = value)} initialValue={$fundamental} /> -->
+    <!-- <Range label="Number of Partials" min={1} max={20} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} /> -->
+    <!-- <Range label="Pseudo-octave (cents)" min={100} max={2400} step={100} onInput={(value) => ($pseudoOctave = value)} initialValue={$pseudoOctave} /> -->
 
-    <SpectrumTypeRadioGroup />
+    <!-- <SpectrumTypeRadioGroup /> -->
 
-    {#if $spectrumType === 'edo'}
+    <!-- {#if $spectrumType === 'edo'}
         <Range label="Edo steps" min={3} max={19} onInput={(value) => ($edoSteps = value)} initialValue={$edoSteps} />
-    {/if}
+    {/if} -->
 
-    {#if playing === true}
+    <!-- {#if playing === true}
         <button on:click={stopSample}>Stop</button>
     {:else}
         <button on:click={playSample}>Play</button>
-    {/if}
+    {/if} -->
 
-    <h3>DISSONANCE CURVE</h3>
+    <!-- <h3>DISSONANCE CURVE</h3> -->
 
-    <label for="dissLimitMaxIndex">Max partials for calculation</label>
-    <input type="number" min={1} bind:value={$dissLimitMaxIndex} id="dissLimitMaxIndex" />
+    <!-- <label for="dissLimitMaxIndex">Max partials for calculation</label> -->
+    <!-- <input type="number" min={1} bind:value={$dissLimitMaxIndex} id="dissLimitMaxIndex" /> -->
 
-    <h3>EXPORT</h3>
+    <!-- <h3>EXPORT</h3> -->
 
-    <div style="display: flex;">
+    <!-- <div style="display: flex;">
         <input type="checkbox" style="width: 24px" id="paseRandom" name="phaseOfOscillators" bind:checked={randomPhaseExport} />
         <label for="paseRandom" style="padding-top: 2px" >Random Phase</label>
-    </div>
+    </div> -->
 
-    <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
+    <!-- <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} /> -->
 
-    <label for="Name">File name</label>
-    <input bind:value={$sampleName} id="name" />
+    <!-- <label for="Name">File name</label>
+    <input bind:value={$sampleName} id="name" /> -->
 
-    <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button>
+    <!-- <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button> -->
 
-    <Contact />
-</div>
+    <!-- <Contact /> -->
+<!-- </div> -->
 
-<style>
+<!-- <style>
     .settings-menu {
         display: flex;
         flex-direction: column;
@@ -164,4 +164,4 @@
         width: 100%;
         margin-bottom: 18px;
     }
-</style>
+</style> -->

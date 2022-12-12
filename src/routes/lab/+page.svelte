@@ -1,9 +1,10 @@
 <script lang="ts">
     // import SettingsDrawer from '../../components/SettingsDrawer.svelte'
     // import PlotsSection from '../../components/PlotsSection.svelte'
-
-    import Panel from "../../components/Panel.svelte"
-
+    import ExportPanel from '../../components/ExportPanel.svelte'
+    import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
+    import GeneratePanel from '../../components/GeneratePanel.svelte'
+    import Panel from '../../components/Panel.svelte'
 </script>
 
 <!-- <div class="page"> -->
@@ -11,30 +12,18 @@
 <!-- <PlotsSection /> -->
 <!-- </div> -->
 
-<Panel title="generate">
-    <p>Controls</p>
-</Panel>
+<GeneratePanel />
 
 <Panel title="tweak">
-    <p>Controls</p>
+    <p style="margin-bottom: 12px">In development...</p>
+    <p>Will allow to tweak ratios and amplitudes of individual partilas</p>
 </Panel>
 
-<Panel title="roughness profile">
-    <p>Controls</p>
-</Panel>
+<RoughnessProfilePanel />
 
-<Panel title="export">
-    <p>Controls</p>
-</Panel>
+<ExportPanel />
 
-<Panel minWidth={1272} minHeight={650}>
-    <p>Graph</p>
+<Panel width={1272} height={650}>
+    <p style="margin-bottom: 12px">In development...</p>
+    <p>Will show generated spectrum and corresponding roughness profile</p>
 </Panel>
-
-<style>
-    /* .page {
-        display: flex;
-        width: 100%;
-        height: 100%;
-    } */
-</style>

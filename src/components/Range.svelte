@@ -1,47 +1,84 @@
 <script lang="ts">
-    import { debounce } from 'lodash-es'
-
     export let label = ''
-    export let hint = ''
     export let min: number
     export let max: number
     export let step = 1
     export let initialValue
     export let onInput: (arg: number) => any
 
+    let backgroundSize: string
     let value = initialValue as string
     const id = Math.random().toString()
+
+    $: {
+        if (value !== undefined) {
+            const val = Number(value)
+            backgroundSize = val < min ? '0% 100%' : val > max ? '100% 100%' : `${((val - min) * 100) / (max - min)}% 100%`
+        }
+    }
 
     const handleInput = (event: any) => {
         onInput(Number(event.target.value))
     }
 </script>
 
-<label for={id}>{label}</label>
-<div class="input-container">
-    <input type="range" {min} {max} {step} bind:value on:input={debounce(handleInput, 200)} {id} />
-    <input class="manual-input" type="number" {step} bind:value on:change={debounce(handleInput, 50)} />
+<div class="flex py-2">
+    <div class="flex flex-col max-w-full grow h-8">
+        <label class="text-white-65 text-xs" for={id}>{label}</label>
+        <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} bind:value on:input={handleInput} {id} />
+    </div>
+    <input class="w-12 ml-1 bg-transparent pt-3 leading-4" type="number" {step} bind:value on:change={handleInput} />
 </div>
-<p>{hint}</p>
 
 <style>
-    p {
-        margin-top: 0;
-        font-size: small;
-        color: rgb(0, 0, 0, 0.7);
-        padding-left: 4px;
+    input[type='range'] {
+        -webkit-appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.25);
+        background-image: linear-gradient(rgb(0, 189, 249), rgb(0, 189, 249));
+        background-repeat: no-repeat;
     }
-    label {
-        display: block;
-        font-size: small;
-        padding-left: 2px;
-        padding-top: 6px;
+    input[type='range']:focus {
+        outline: none;
     }
-    .input-container {
-        display: flex;
+    input[type='range']::-webkit-slider-runnable-track {
+        height: 4px;
+        cursor: pointer;
+        background: none;
+        opacity: 0.9;
     }
-    .manual-input {
-        max-width: 48px;
-        margin-left: 8px;
+    input[type='range']::-webkit-slider-thumb {
+        border: none;
+        height: 10px;
+        width: 10px;
+        border-radius: 5px;
+        background: #ffffff;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -3px;
+    }
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+    input[type='number']:focus {
+        outline: none;
+    }
+
+    input[type='range']::-moz-range-track {
+        height: 4px;
+        cursor: pointer;
+        background: none;
+        opacity: 0.9;
+    }
+    input[type='range']::-moz-range-thumb {
+        border: none;
+        height: 10px;
+        width: 10px;
+        border-radius: 5px;
+        background: #ffffff;
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -3px;
     }
 </style>
