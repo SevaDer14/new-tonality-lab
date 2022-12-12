@@ -1,6 +1,8 @@
 <script lang="ts">
     import Panel from './Panel.svelte'
     import Range from './Range.svelte'
+    import Checkbox from './Checkbox.svelte'
+    import Button from './Button.svelte'
     import { fundamental, sampleDuration, sampleName, partials, dissCurveLimits } from '../state/stores.js'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import { AdditiveSynth } from '../xentonality/synth'
@@ -8,7 +10,6 @@
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'
     import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
     import { onMount } from 'svelte'
-    import Checkbox from './Checkbox.svelte'
 
     let synth: AdditiveSynth
     let audioCtx: AudioContext
@@ -93,11 +94,13 @@
     <label for="Name">File name</label>
     <input bind:value={$sampleName} id="name" />
 
-    {#if playing === true}
-        <button on:click={stopSample}>Stop</button>
-    {:else}
-        <button on:click={playSample}>Play</button>
-    {/if}
+    <div class="flex mt-auto justify-center">
+        {#if playing === true}
+            <Button color="yellow" onClick={stopSample}>Stop</Button>
+        {:else}
+            <Button color="green" onClick={playSample}>Play</Button>
+        {/if}
 
-    <button on:click={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download Files'}</button>
+        <Button color="blue" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download'}</Button>
+    </div>
 </Panel>

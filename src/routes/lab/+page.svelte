@@ -15,8 +15,8 @@
 <GeneratePanel />
 
 <Panel title="tweak">
-    <p style="margin-bottom: 12px">In development...</p>
-    <p>Will allow to tweak ratios and amplitudes of individual partilas</p>
+    <p class="mb-3 text-white-65">In development...</p>
+    <p class="text-white-65">Will allow to tweak ratios and amplitudes of individual partilas</p>
 </Panel>
 
 <RoughnessProfilePanel />
@@ -24,6 +24,6 @@
 <ExportPanel />
 
 <Panel width={1272} height={650}>
-    <p style="margin-bottom: 12px">In development...</p>
-    <p>Will show generated spectrum and corresponding roughness profile</p>
+    <p class="mb-3 text-white-65">In development...</p>
+    <p class="text-white-65">Will show generated spectrum and corresponding roughness profile</p>
 </Panel>
