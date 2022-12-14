@@ -92,15 +92,15 @@
 
     <Checkbox label="Random phase" onChange={(value) => (randomPhaseExport = value)} checked />
 
-    <TextField label="File name" initialValue={$sampleName} onInput={(value) => $sampleName = value} />
+    <TextField label="File name" initialValue={$sampleName} onInput={(value) => ($sampleName = value)} />
 
     <div class="flex mt-auto justify-center">
         {#if playing === true}
-            <Button color="yellow" onClick={stopSample}>Stop</Button>
+            <Button class="text-yellow border-yellow-65 bg-yellow-5" onClick={stopSample}>Stop</Button>
         {:else}
-            <Button color="green" onClick={playSample}>Play</Button>
+            <Button class="text-green border-green-65 bg-green-5" onClick={playSample}>Play</Button>
         {/if}
 
-        <Button color="blue" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download'}</Button>
+        <Button class="text-blue border-blue-65 bg-blue-5" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing...' : 'Download'}</Button>
     </div>
 </Panel>

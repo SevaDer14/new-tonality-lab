@@ -2,9 +2,6 @@
 module.exports = {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {},
-  },
-  theme: {
     extend:
     {
       fontFamily: {
@@ -52,7 +49,7 @@ module.exports = {
           '25': 'rgba(255, 61, 177, 0.25)',
           '5': 'rgba(255, 61, 177, 0.05)',
         },
-      }
+      },
     },
   },
   plugins: [],

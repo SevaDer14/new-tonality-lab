@@ -21,7 +21,7 @@
         </div>
     </RadioGroup>
     
-    {#if $spectrumType === 'edo'}
-        <Range label="Edo steps" min={3} max={19} onInput={(value) => ($edoSteps = value)} initialValue={$edoSteps} />
-    {/if}
+
+        <Range disabled={$spectrumType !== 'edo'} label="Edo steps" min={3} max={19} onInput={(value) => ($edoSteps = value)} initialValue={$edoSteps} />
+
 </Panel>

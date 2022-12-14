@@ -5,6 +5,7 @@
     export let step = 1
     export let initialValue
     export let onInput: (arg: number) => any
+    export let disabled = false
 
     let backgroundSize: string
     let value = initialValue as string
@@ -22,12 +23,12 @@
     }
 </script>
 
-<div class="flex py-2">
+<div class="flex py-2" style={disabled ? "opacity: 0.25; pointer-events: none" : "opacity: 1"}>
     <div class="flex flex-col max-w-full grow h-8">
         <label class="text-white-65 text-xs whitespace-nowrap" for={id}>{label}</label>
-        <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} bind:value on:input={handleInput} {id} />
+        <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} {disabled} bind:value on:input={handleInput} {id} />
     </div>
-    <input class="w-12 ml-1 bg-transparent pt-3 leading-4" type="number" {step} bind:value on:change={handleInput} />
+    <input class="w-12 ml-1 bg-transparent pt-3 leading-4" type="number" {step} {disabled} bind:value on:change={handleInput} />
 </div>
 
 <style>
