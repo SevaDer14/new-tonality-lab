@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Panel from './Panel.svelte'
-    import Range from './Range.svelte'
+    import Panel from './basic/Panel.svelte'
+    import Range from './basic/Range.svelte'
     import { dissLimitMaxIndex } from '../state/stores.js'
 </script>
 

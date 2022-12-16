@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores'
-    import MenuItem from './MenuItem.svelte'
+    import MenuItem from './basic/MenuItem.svelte'
 
     const setActive = (pageRouteId: string | null, routeId: string): boolean => {
         return pageRouteId === null ? false : pageRouteId === routeId

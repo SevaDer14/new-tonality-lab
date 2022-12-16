@@ -3,7 +3,7 @@
     import YouTubeIcon from './icons/YouTubeIcon.svelte'
     import TwitterIcon from './icons/TwitterIcon.svelte'
     import MailIcon from './icons/MailIcon.svelte'
-    import MenuItem from './MenuItem.svelte'
+    import MenuItem from './basic/MenuItem.svelte'
     import BandcampIcon from './icons/BandcampIcon.svelte'
 </script>
 

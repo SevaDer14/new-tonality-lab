@@ -1,10 +1,10 @@
 <script lang="ts">
     // import SettingsDrawer from '../../components/SettingsDrawer.svelte'
-    import PlotsSection from '../../components/PlotsSection.svelte'
+    import PlotsSection from '../../components/GraphsPanel.svelte'
     import ExportPanel from '../../components/ExportPanel.svelte'
     import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
     import GeneratePanel from '../../components/GeneratePanel.svelte'
-    import Panel from '../../components/Panel.svelte'
+    import Panel from '../../components/basic/Panel.svelte'
 </script>
 
 <!-- <div class="page"> -->

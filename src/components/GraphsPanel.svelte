@@ -48,22 +48,16 @@
         },
     }
 
-    const chart = {
-        zoomType: 'xy',
-        backgroundColor: '#00000000',
-        height: 300,
-        style: {
-            fontFamily: 'monospace',
-        },
-    }
-
     const labels = {
         style: {
             color: colors.white[65],
         },
     }
 
-    const titleStyles = { color: '#FFF', 'letter-spacing': '0.3rem' }
+    const titleStyles = {
+        color: '#FFF',
+        'letter-spacing': '0.3rem',
+    }
 
     $: {
         if ($partials && $dissonanceCurve && $dissonanceCurveHighRes) {
@@ -85,11 +79,10 @@
                 yAxis: [
                     {
                         title: { text: 'Amplitude', style: titleStyles },
-                        type: 'logarithmic',
                         gridLineWidth: 1,
                         gridLineColor: colors.white[5],
                         gridLineDashStyle: 'dash',
-                        max: 0.99,
+                        max: 1,
                         minortickInterval: 0.1,
                         labels: labels,
                     },
@@ -118,7 +111,7 @@
                         endOnTick: false,
                         tickInterval: 0.1,
                         tickPositions: Math.ceil($partials[$partials.length - 1].ratio) <= 20 ? Array.from(Array(Math.ceil($partials[$partials.length - 1].ratio))).map((val, index) => Math.log10(index + 1)) : undefined,
-                        tickPosition: "inside",
+                        tickPosition: 'inside',
                         labels: labels,
                     },
                 ],
@@ -148,8 +141,8 @@
                         color: {
                             linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
                             stops: [
-                                [0, colors.blue[65]],
-                                [1, colors.blue[25]],
+                                [0, colors.white[65]],
+                                [1, colors.white[25]],
                             ],
                         },
                         opacity: 0.15,
@@ -193,7 +186,7 @@
                     gridLineDashStyle: 'dash',
                     min: 0,
                     tickInterval: 100,
-                    tickPosition: "inside",
+                    tickPosition: 'inside',
                     labels: labels,
                 },
                 plotOptions: {
@@ -239,22 +232,3 @@
         />
     </div>
 </div>
-
-<style>
-    /* .page {
-        display: flex;
-        width: 100%;
-        height: 100%;
-    }
-    .plots {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-    } */
-    /* .plot {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    } */
-</style>

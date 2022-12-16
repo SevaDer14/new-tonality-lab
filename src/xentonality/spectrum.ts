@@ -2,7 +2,7 @@ import type { TPartials, TSpectrumType } from "./types"
 import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 import { cloneDeep, round } from 'lodash-es'
 
-export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, slope?: number, pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -16,7 +16,7 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
         for (let i = 1; i <= number; i++) {
             const frequency = round(fundamental * (pseudoOctaveRatio ** Math.log2(i)), 10)
             const ratio = frequency / fundamental
-            const amplitude = getAmplitude(profile, ratio)
+            const amplitude = getAmplitude(slope, ratio)
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }
@@ -27,7 +27,7 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
             const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(iteration) * edo) / edo))
             if (frequency !== partials[partials.length - 1]?.frequency) {
                 const ratio = frequency / fundamental
-                const amplitude = getAmplitude(profile, ratio)
+                const amplitude = getAmplitude(slope, ratio)
                 partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
             }
             iteration++
