@@ -32,3 +32,44 @@ input[type="radio"]:checked:after {
     background-color: #FFFFFF;
 }
 
+.rich-text>h1 {
+    font-size: xx-large;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5em;
+    margin-top: 0.5em;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.rich-text>h2 {
+    font-size: x-large;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1em;
+    margin-top: 1.5em;
+}
+
+.rich-text>p {
+    font-size: normal;
+    margin-bottom: 1em;
+    line-height: 1.75rem;
+    word-break: break-word;
+}
+
+
+.rich-text>a,
+.rich-text>*>a {
+    font-size: inherit;
+    font-weight: inherit;
+    color: rgba(105, 255, 111, 1);
+    text-decoration: underline;
+}
+
+.rich-text>em,
+.rich-text>*>em {
+    font-weight: inherit;
+    color: rgba(255, 255, 255, 0.65)
+}
