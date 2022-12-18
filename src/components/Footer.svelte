@@ -5,6 +5,7 @@
     import MailIcon from './icons/MailIcon.svelte'
     import MenuItem from './basic/MenuItem.svelte'
     import BandcampIcon from './icons/BandcampIcon.svelte'
+    import GithubIcon from './icons/GithubIcon.svelte'
 </script>
 
 <footer class="w-full absolute left-0 bottom-0 flex justify-center bg-white-5 py-4 border-t border-white-65">
@@ -27,6 +28,10 @@
         
         <MenuItem href="mailto: info@newtonality.net">
             <MailIcon />
+        </MenuItem>
+
+        <MenuItem href="https://github.com/SevaDer14/new-tonality-lab">
+            <GithubIcon />   
         </MenuItem>
     </ul>
 </footer>

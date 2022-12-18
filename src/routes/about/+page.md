@@ -6,4 +6,6 @@ New Tonality project is aimed to popularize and advance ideas laid out by Sethar
 
 ## Support
 
-Support my work by spreading knowledge, using New Tonality tools in your music and donating on [Ko-Fi](https://ko-fi.com/newtonality) or sending BTC *bc1qzu3cscpaltcpqhe5pjrc3y64gux0ja6dtacvvw*. Also check out my music that I do as Offcast on [Bandcamp](https://offcast.bandcamp.com/album/redemption).
+Support my work by spreading knowledge, using New Tonality tools in your music and donating on [Ko-Fi](https://ko-fi.com/newtonality) or sending BTC. Also check out my music that I do as Offcast on [Bandcamp](https://offcast.bandcamp.com/album/redemption).
+
+BTC Address: *bc1qzu3cscpaltcpqhe5pjrc3y64gux0ja6dtacvvw*

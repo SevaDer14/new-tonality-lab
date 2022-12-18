@@ -5,8 +5,6 @@
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
-    let windowWidth: number
-    let windowHeight: number
 
     let colors = {
         transparent: 'rgba(255, 255, 255, 0)',
@@ -215,20 +213,15 @@
     }
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
-
-<div class="page">
-    <div class="plots">
-        <div
-            use:highcharts={{
-                chart: spectrumChartConfig,
-            }}
-        />
-        <div
-            class="plot"
-            use:highcharts={{
-                chart: dissonanceCurveChartConfig,
-            }}
-        />
-    </div>
+<div>
+    <div
+        use:highcharts={{
+            chart: spectrumChartConfig,
+        }}
+    />
+    <div
+        use:highcharts={{
+            chart: dissonanceCurveChartConfig,
+        }}
+    />
 </div>

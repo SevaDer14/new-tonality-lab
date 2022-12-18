@@ -64,7 +64,7 @@ input[type="radio"]:checked:after {
 .rich-text>*>a {
     font-size: inherit;
     font-weight: inherit;
-    color: rgba(105, 255, 111, 1);
+    color: rgba(0, 189, 249, 1);
     text-decoration: underline;
 }
 

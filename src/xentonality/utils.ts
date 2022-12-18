@@ -56,6 +56,7 @@ export const withinLimit = ({ value, limits }: { value: number, limits?: { min?:
     return satisfiesMinLimit && satisfiesMaxLimit
 }
 
+// TODO: Untested
 export const getAmplitude = (slope: number, ratio: number, ) => {
     return ratio < 1 ? 0 : slope === 0 ? 1 : ratio ** (-slope)
 }
