@@ -136,7 +136,7 @@ describe('Xentonality.Utils.detrend', () => {
     })
 })
 
-describe('Xentonality.Utils.normilize', () => {
+describe('Xentonality.Utils.normalize', () => {
     it('returns y = 1 for y = 2', () => {
         const testFunction = Utils.normalize(Factory.linearPlot({ a: 0, b: 2 }))
         const expectedFunction = Factory.linearPlot({ a: 0, b: 1 })

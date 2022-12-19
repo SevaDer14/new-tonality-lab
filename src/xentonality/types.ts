@@ -45,6 +45,7 @@ export type TDissonanceCurveMultipleOctavesOptions = {
     points?: number,
     sweepType?: TSweepType, // TODO not tested
     sweepHarmonicPartials?: number, // TODO not tested
+    detrended?: boolean, // TODO not tested
     limits?: {
         index?: TMinMax // TODO not tested
         frequency?: TMinMax

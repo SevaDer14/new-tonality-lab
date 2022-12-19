@@ -30,7 +30,7 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 // TODO non tested
-export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, startPoint, detrended = true, normalized = true, sweepType = 'same', sweepHarmonicPartials = 6 }: TDissonanceCurveOptions): TPlotCurve => {
+export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, startPoint, detrended = false, normalized = true, sweepType = 'same', sweepHarmonicPartials = 6 }: TDissonanceCurveOptions): TPlotCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
     const sweepSpectrum = sweepType === 'same' ? [...partials] : generatePartials({ type: 'harmonic', fundamental: fundamental, number: sweepHarmonicPartials, slope: 1 })
