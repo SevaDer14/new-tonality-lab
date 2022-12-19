@@ -38,7 +38,6 @@ export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 1
 }
 
 
-
 export const changeFundamental = ({ partials, fundamental }: { partials: TPartials, fundamental: number }): TPartials => {
     const newPartials = [] as TPartials
 

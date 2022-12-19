@@ -1,5 +1,5 @@
 import { writable, derived, readable } from 'svelte/store';
-import type { TSpectrumType } from 'src/xentonality/types';
+import type { TSpectrumType, TSweepType } from 'src/xentonality/types';
 import { generatePartials } from '../xentonality/spectrum'
 import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
 
@@ -18,6 +18,8 @@ export const amplitudeSlope = writable(1)
 
 export const dissLimitMinIndex = writable(0)
 export const dissLimitMaxIndex = writable(8)
+export const dissonanceCurveSweepType = writable<TSweepType>('same')
+export const dissonanceCurveSweepHarmonicPartials = writable(6)
 
 type TSampleRate = 44100 | 48000 | 96000
 export const sampleRate = readable<TSampleRate>(44100)
@@ -41,19 +43,23 @@ export const dissCurveLimits = derived(
 )
 
 export const dissonanceCurveHighRes = derived(
-    [partials, dissCurveLimits],
-    ([$partials, $dissCurveLimits]) => calcDissonanceCurveMultipleOctaves({
+    [partials, dissCurveLimits, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials],
+    ([$partials, $dissCurveLimits, $dissonanceCurveSweepType, $dissonanceCurveSweepHarmonicPartials]) => calcDissonanceCurveMultipleOctaves({
         partials: $partials,
+        sweepType: $dissonanceCurveSweepType,
+        sweepHarmonicPartials: $dissonanceCurveSweepHarmonicPartials,
         octaves: [0, 1],
         limits: $dissCurveLimits
     })
 );
 
 export const dissonanceCurve = derived(
-    [partials, dissCurveLimits, pseudoOctave],
-    ([$partials, $dissCurveLimits, $pseudoOctave]) => calcDissonanceCurveMultipleOctaves({
+    [partials, dissCurveLimits, pseudoOctave, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials],
+    ([$partials, $dissCurveLimits, $pseudoOctave, $dissonanceCurveSweepType, $dissonanceCurveSweepHarmonicPartials]) => calcDissonanceCurveMultipleOctaves({
         partials: $partials,
         points: $pseudoOctave > 1200 ? Math.ceil($pseudoOctave / 12) : 100,
+        sweepType: $dissonanceCurveSweepType,
+        sweepHarmonicPartials: $dissonanceCurveSweepHarmonicPartials,
         limits: $dissCurveLimits
     })
 );
