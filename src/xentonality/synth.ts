@@ -21,7 +21,7 @@ export class AdditiveSynth {
     private masterGain: GainNode
     private canPlay = false
     private isPlaying = false
-    private masterGainCompensation = 0.8
+    private masterGainCompensation = 0.2
 
     public constructor(partials: TPartials, audioContext: AudioContext) {
         this.audioContext = audioContext
@@ -105,9 +105,10 @@ export class AdditiveSynth {
 
     public async generateSample(duration: number, randomPhase = false): Promise<AudioBuffer> {
         if (this.audioContext.state !== 'running') await this.audioContext.resume()
-        
+
         const sample = new Promise<AudioBuffer>((resolve) => {
             const length = duration * this.sampleRate;
+            let maxAmplitudeValue = 0
             const audioBuffer: AudioBuffer = new AudioBuffer({ length, numberOfChannels: 1, sampleRate: this.sampleRate });
             const channelData = audioBuffer.getChannelData(0);
             const oscillatorPhases = this.oscillators.map(oscillator => randomPhase ? oscillator.phase : 0)
@@ -116,8 +117,18 @@ export class AdditiveSynth {
                 for (let i = 0; i < this.oscillators.length; i++) {
                     const omega = 2 * Math.PI * this.oscillators[i].frequency;
 
-                    channelData[p] += Math.sin(p / this.sampleRate * omega + oscillatorPhases[i]) * this.oscillators[i].amplitude * this.masterGain.gain.value;
+                    channelData[p] += Math.sin(p / this.sampleRate * omega + oscillatorPhases[i]) * this.oscillators[i].amplitude;
                 }
+
+                if (Math.abs(channelData[p]) > maxAmplitudeValue) {
+                    maxAmplitudeValue = Math.abs(channelData[p])
+                }
+            }
+
+            const normalizationValue = 0.7 / maxAmplitudeValue
+
+            for (let p = 0; p < length; p++) {
+                channelData[p] = channelData[p] * normalizationValue
             }
 
             resolve(audioBuffer)
@@ -160,7 +171,7 @@ export class AdditiveSynth {
         let maxAmplitude = 0
 
         for (let i = 0; i < partials.length; i += 1) {
-            maxAmplitude += partials[i].amplitude
+            maxAmplitude += partials[i].amplitude / (0.5 * i + 1)
         };
 
         maxAmplitude = maxAmplitude > 1 ? maxAmplitude : 1

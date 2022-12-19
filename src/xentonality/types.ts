@@ -26,10 +26,14 @@ export type TDissonanceCurve = { curve: TPlotCurve, pseudoOctave: TPointX }
 
 export type TMinMax = { min?: number, max?: number }
 
+export type TSweepType = 'same' | 'harmonic'
+
 export type TDissonanceCurveOptions = {
     partials: TPartials,
     numberOfPoints: number,
     sweepStep: Pick<TPointX, "cents">,
+    sweepType?: TSweepType, // TODO not tested
+    sweepHarmonicPartials?: number, // TODO not tested
     startPoint: Pick<TPointX, "cents">,
     detrended?: boolean,
     normalized?: boolean
@@ -39,6 +43,9 @@ export type TDissonanceCurveMultipleOctavesOptions = {
     partials: TPartials,
     octaves?: [number, number], // TODO not tested
     points?: number,
+    sweepType?: TSweepType, // TODO not tested
+    sweepHarmonicPartials?: number, // TODO not tested
+    detrended?: boolean, // TODO not tested
     limits?: {
         index?: TMinMax // TODO not tested
         frequency?: TMinMax
