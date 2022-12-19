@@ -24,5 +24,5 @@
     
     <Range disabled={$dissonanceCurveSweepType !== 'harmonic'} label="Number of sweep partials" min={1} max={20} onInput={(value) => ($dissonanceCurveSweepHarmonicPartials = value)} initialValue={$dissonanceCurveSweepHarmonicPartials} />
 
-    <Checkbox label="Detrend" onChange={(value) => $dissonanceCurveDetrend = value} />
+    <Checkbox label="Detrend" onChange={(value) => $dissonanceCurveDetrend = value} checked={$dissonanceCurveDetrend === true} />
 </Panel>
