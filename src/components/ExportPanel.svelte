@@ -4,7 +4,7 @@
     import Checkbox from './basic/Checkbox.svelte'
     import Button from './basic/Button.svelte'
     import TextField from './basic/TextField.svelte'
-    import { fundamental, sampleDuration, sampleName, partials, dissCurveLimits, notes } from '../state/stores.js'
+    import { fundamental, sampleDuration, sampleName, partials, dissonanceCurve, dissCurveLimits, notes } from '../state/stores.js'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import { AdditiveSynth } from '../xentonality/synth'
     import { parseCurveToFileFormat } from '../xentonality/utils'
@@ -37,7 +37,7 @@
     }
 
     const keyDownHandler = (event: KeyboardEvent) => {
-        if (event.key !== 'Enter') return
+        if (document.activeElement?.tagName !== 'BODY' || (event.key !== 'SPACE' && event.key !== ' ')) return
 
         if (playing === true) {
             releaseNote()
@@ -91,6 +91,7 @@
                     calcDissonanceCurveMultipleOctaves({
                         partials: $partials,
                         limits: $dissCurveLimits,
+                        pseudoOctave: $dissonanceCurve.pseudoOctave
                     }).curve
                 )
             )
@@ -137,6 +138,5 @@
 
         <Button class="text-blue border-blue-65 bg-blue-5" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing' : 'Download'}</Button>
     </div>
-    <p class="text-xs text-white-25 text-center">Press "Enter" to play or stop</p>
+    <p class="text-xs text-white-25 text-center">Press "Space" to play or stop</p>
 </Panel>
-

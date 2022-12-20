@@ -1,5 +1,6 @@
 <script lang="ts">
     export let title: string | undefined = undefined
+    export let maxContentHeight: string | undefined = undefined
 </script>
 
 <div class={`relative p-3 flex 2xl:basis-1/5 md:basis-1/2 basis-full flex-grow ${$$props.class}`} style={$$props.style}>
@@ -10,7 +11,7 @@
             </div>
         {/if}
 
-        <div class="rich-text py-3 px-6 flex flex-col flex-grow">
+        <div class="rich-text py-3 px-6 flex flex-col flex-grow overflow-y-auto" style={`max-height: ${maxContentHeight}`}>
             <slot />
         </div>
     </div>

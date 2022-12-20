@@ -41,7 +41,6 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
         currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
 
-        // TODO: Implement Harmonic Sweep, remember to round number of partials
         const sweepPartials = changeFundamental({ partials: sweepSpectrum, fundamental: currentStep.Hz })
         const combinedPartials = combinePartials(partials, sweepPartials)
         const dissonanceValue = intrinsicDissonance(combinedPartials)
@@ -59,10 +58,9 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
 
 
 // TODO non tested
-export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, limits, ...props }: TDissonanceCurveMultipleOctavesOptions): TDissonanceCurve => {
+export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, pseudoOctave, points, limits, ...props }: TDissonanceCurveMultipleOctavesOptions): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
-
 
     const partialsWithinLimits = combinePartials(
         partials.filter(
@@ -73,7 +71,7 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
         )
     )
 
-    const pseudoOctave = partialsWithinLimits.length > 1
+    pseudoOctave = pseudoOctave || partialsWithinLimits.length > 1
         ? {
             ratio: partialsWithinLimits[1].ratio,
             Hz: partialsWithinLimits[1].frequency - fundamental,
@@ -84,7 +82,7 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
             Hz: fundamental,
             cents: 1200,
         }
-
+        
     const numberOfPoints = points ? points : Math.round(pseudoOctave.cents) + 1
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
     const highestRatio = partialsWithinLimits.length > 1 ? partialsWithinLimits[partialsWithinLimits.length - 1].ratio : pseudoOctave.ratio
