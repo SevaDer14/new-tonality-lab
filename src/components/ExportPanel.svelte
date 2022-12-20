@@ -37,6 +37,7 @@
     }
 
     const keyDownHandler = (event: KeyboardEvent) => {
+        event.preventDefault()
         if (document.activeElement?.tagName !== 'BODY' || (event.key !== 'SPACE' && event.key !== ' ')) return
 
         if (playing === true) {
