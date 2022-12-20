@@ -24,6 +24,8 @@ export const dissLimitMaxIndex = writable(8)
 export const dissonanceCurveSweepType = writable<TSweepType>('same')
 export const dissonanceCurveDetrend = writable(false)
 export const dissonanceCurveSweepHarmonicPartials = writable(6)
+export const dissonanceCurveEDOMarks = writable(12)
+export const show12EDO = writable(false)
 
 type TSampleRate = 44100 | 48000 | 96000
 export const sampleRate = readable<TSampleRate>(44100)
