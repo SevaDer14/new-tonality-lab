@@ -3,12 +3,11 @@
     import Range from './basic/Range.svelte'
     import RadioGroup from './basic/RadioGroup.svelte'
     import Checkbox from './basic/Checkbox.svelte'
-    import { dissLimitMaxIndex, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
+    import { show12EDO, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
 </script>
 
 <Panel title="roughness profile">
     <Range label="Partial limit max" min={0} max={20} onInput={(value) => ($dissLimitMaxIndex = value)} initialValue={$dissLimitMaxIndex} />
-    
 
     <RadioGroup legend="Sweep type">
         <div class="flex items-center mb-1">
@@ -23,6 +22,10 @@
     </RadioGroup>
     
     <Range disabled={$dissonanceCurveSweepType !== 'harmonic'} label="Number of sweep partials" min={1} max={20} onInput={(value) => ($dissonanceCurveSweepHarmonicPartials = value)} initialValue={$dissonanceCurveSweepHarmonicPartials} />
+    
+    <Range label="Major tick interval (EDO)" min={3} max={24} onInput={(value) => ($dissonanceCurveEDOMarks = value)} initialValue={$dissonanceCurveEDOMarks} />
 
+    <Checkbox label="Show 12 EDO minor ticks" onChange={(value) => $show12EDO = value} checked={$show12EDO === true} />
+    
     <Checkbox label="Detrend" onChange={(value) => $dissonanceCurveDetrend = value} checked={$dissonanceCurveDetrend === true} />
 </Panel>

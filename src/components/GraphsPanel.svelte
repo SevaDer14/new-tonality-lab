@@ -1,10 +1,22 @@
 <script lang="ts">
-    import { partials, dissonanceCurve, dissonanceCurveHighRes } from '../state/stores.js'
+    import { partials, dissonanceCurve, show12EDO, dissonanceCurveHighRes, dissonanceCurveEDOMarks, pseudoOctave } from '../state/stores.js'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
+    import { round } from 'lodash'
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
+    let tooltip = {
+        backgroundColor: '#FFFFFF09',
+        borderRadius: 10,
+        borderWidth: 1,
+        style: {
+            color: '#FFFFFF',
+        },
+        formatter: function (): string {
+            return `${this.series.name} <br/> x: ${round(this.x, 2)} <br/> value: ${round(this.y, 2)}`
+        },
+    }
 
     let colors = {
         transparent: 'rgba(255, 255, 255, 0)',
@@ -68,6 +80,7 @@
                         fontFamily: 'monospace',
                     },
                 },
+                tooltip: tooltip,
                 title: {
                     text: '',
                 },
@@ -158,6 +171,7 @@
                         fontFamily: 'monospace',
                     },
                 },
+                tooltip: tooltip,
                 title: {
                     text: '',
                 },
@@ -179,11 +193,14 @@
                 },
                 xAxis: {
                     title: { text: 'cents', style: titleStyles },
+                    tickInterval: round($pseudoOctave / $dissonanceCurveEDOMarks, 2),
                     gridLineWidth: 1,
                     gridLineColor: colors.white[25],
                     gridLineDashStyle: 'dash',
+                    minorTickInterval: 100,
+                    minorGridLineWidth: $show12EDO ? 1 : 0,
+                    minorGridLineColor: colors.white[5],
                     min: 0,
-                    tickInterval: 100,
                     tickPosition: 'inside',
                     labels: labels,
                 },
