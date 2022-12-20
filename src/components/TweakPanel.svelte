@@ -18,9 +18,9 @@
     {#each $partials as partial, index}
         <Tweak
             index={index + 1}
-            ratio={partial.ratio}
+            ratio={$generatedPartials[index].ratio}
             disabled={!$tweaksEnabled}
-            amplitude={partial.amplitude}
+            amplitude={$generatedPartials[index].amplitude}
             initialValue={$tweaks[index]}
             ratioLimits={{
                 min: index > 0 ? -($generatedPartials[index].ratio - $generatedPartials[index - 1].ratio) + 0.01 : 0,
