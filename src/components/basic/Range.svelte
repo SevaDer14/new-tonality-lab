@@ -3,12 +3,12 @@
     export let min: number
     export let max: number
     export let step = 1
-    export let initialValue
+    export let initialValue: number | undefined
     export let onInput: (arg: number) => any
     export let disabled = false
 
     let backgroundSize: string
-    let value = initialValue as string
+    let value = initialValue || 0
     const id = Math.random().toString()
 
     $: {
@@ -23,7 +23,7 @@
     }
 </script>
 
-<div class="flex py-2" style={disabled ? "opacity: 0.25; pointer-events: none" : "opacity: 1"}>
+<div class={`flex py-2 ${$$props.class}`} style={disabled ? "opacity: 0.25; pointer-events: none" : "opacity: 1"}>
     <div class="flex flex-col max-w-full grow h-8">
         <label class="text-white-65 text-xs whitespace-nowrap" for={id}>{label}</label>
         <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} {disabled} bind:value on:input={handleInput} {id} />

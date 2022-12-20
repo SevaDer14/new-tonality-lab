@@ -28,6 +28,10 @@ export type TMinMax = { min?: number, max?: number }
 
 export type TSweepType = 'same' | 'harmonic'
 
+export type TTweak = { ratio: number, amplitude: number }
+
+export type TTweaks = TTweak[]
+
 export type TDissonanceCurveOptions = {
     partials: TPartials,
     numberOfPoints: number,
@@ -41,6 +45,7 @@ export type TDissonanceCurveOptions = {
 
 export type TDissonanceCurveMultipleOctavesOptions = {
     partials: TPartials,
+    pseudoOctave?: TPointX,
     octaves?: [number, number], // TODO not tested
     points?: number,
     sweepType?: TSweepType, // TODO not tested

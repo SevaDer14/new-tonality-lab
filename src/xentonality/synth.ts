@@ -66,8 +66,8 @@ export class AdditiveSynth {
             const length = partials.length >= this.oscillators.length ? partials.length : this.oscillators.length
             for (let i = 0; i < length; i += 1) {
                 if (this.oscillators[i] && partials[i]) {
-                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials[i].frequency, currentTime)
-                    this.oscillators[i].gain.gain.exponentialRampToValueAtTime(partials[i].amplitude, currentTime)
+                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials[i].frequency, currentTime + 0.1)
+                    this.oscillators[i].gain.gain.linearRampToValueAtTime(partials[i].amplitude, currentTime + 0.1)
                     this.oscillators[i].frequency = partials[i].frequency
                     this.oscillators[i].amplitude = partials[i].amplitude
                     this.oscillators[i].ratio = partials[i].ratio
@@ -90,7 +90,7 @@ export class AdditiveSynth {
     }
 
     public setMaterGain(value: number, currentTime = this.audioContext.currentTime) {
-        this.masterGain.gain.exponentialRampToValueAtTime(value, currentTime)
+        this.masterGain.gain.linearRampToValueAtTime(value, currentTime)
     }
 
     public getPartials() {

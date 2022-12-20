@@ -1,4 +1,4 @@
-import type { TPartials, TSpectrumType } from "./types"
+import type { TPartials, TSpectrumType, TTweaks } from "./types"
 import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 import { cloneDeep, round } from 'lodash-es'
 
@@ -35,6 +35,28 @@ export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 1
     }
 
     return partials
+}
+
+export const applyTweaks = ({ partials, tweaks }: { partials: TPartials, tweaks: TTweaks }): TPartials => {
+    let result = [] as TPartials
+    const fundamental = partials[0].frequency
+
+    for (let i = 0; i < partials.length; i++) {
+        if (tweaks[i] === undefined) {
+            result.push(partials[i])
+            continue
+        } else {
+            const ratio = round(partials[i].ratio + tweaks[i].ratio, 10)
+            let amplitude = round(partials[i].amplitude + tweaks[i].amplitude, 10)
+            amplitude = amplitude > 0 ? amplitude : 0
+            const frequency = ratio * fundamental
+            const loudness = setharesLoudness(amplitude)
+
+            result.push({ ratio, frequency, amplitude, loudness })
+        }
+    }
+
+    return result
 }
 
 

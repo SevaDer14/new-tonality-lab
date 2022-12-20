@@ -32,6 +32,28 @@ input[type="radio"]:checked:after {
     background-color: #FFFFFF;
 }
 
+/* SCROLLBAR */
+
+* {
+    scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 20px;
+    margin: 8px 0px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-radius: 3px;
+    border: none;
+}
+
 .rich-text>h1 {
     font-size: xx-large;
     font-weight: bold;
