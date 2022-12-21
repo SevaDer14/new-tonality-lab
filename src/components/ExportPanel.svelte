@@ -37,12 +37,12 @@
     }
 
     const keyDownHandler = (event: KeyboardEvent) => {
-        event.preventDefault()
         if (document.activeElement?.tagName !== 'BODY' || (event.key !== 'SPACE' && event.key !== ' ')) return
+        event.preventDefault()
 
         if (playing === true) {
             releaseNote()
-        } else {
+        } else { 
             playNote()
         }
     }
@@ -92,7 +92,7 @@
                     calcDissonanceCurveMultipleOctaves({
                         partials: $partials,
                         limits: $dissCurveLimits,
-                        pseudoOctave: $dissonanceCurve.pseudoOctave
+                        pseudoOctave: $dissonanceCurve.pseudoOctave,
                     }).curve
                 )
             )

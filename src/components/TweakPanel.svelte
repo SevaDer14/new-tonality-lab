@@ -24,7 +24,7 @@
             initialValue={$tweaks[index]}
             ratioLimits={{
                 min: index > 0 ? -($generatedPartials[index].ratio - $generatedPartials[index - 1].ratio) + 0.01 : 0,
-                max: index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : 1,
+                max: index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : $generatedPartials[index]?.ratio - $generatedPartials[index - 1].ratio,
             }}
             amplitudeLimits={{
                 min: -$generatedPartials[index].amplitude,
