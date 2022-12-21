@@ -76,6 +76,23 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
     return newPartials
 }
 
+export const shiftOnRatio = (partials: TPartials, shiftRatio: number) => {
+    const newPartials = [] as TPartials
+
+    const success = checkNumericParam({ param: shiftRatio, condition: shiftRatio > 0 })
+
+    if (!success) {
+        return newPartials
+    }
+
+    for (let i = 0; i < partials.length; i++) {
+        const newRatio = partials[i].ratio * shiftRatio
+        const newFrequency = partials[i].frequency * shiftRatio
+        newPartials.push({ ...partials[i], ratio: newRatio, frequency: newFrequency })
+    }
+
+    return newPartials
+}
 
 
 export const sumPartials = (...spectrums: TPartials[]): TPartials => {

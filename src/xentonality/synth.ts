@@ -64,10 +64,10 @@ export class AdditiveSynth {
             this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
         } else {
             const length = partials.length >= this.oscillators.length ? partials.length : this.oscillators.length
-            for (let i = 0; i < length; i += 1) {
+            for (let i = length - 1; i >= 0; i -= 1) {
                 if (this.oscillators[i] && partials[i]) {
-                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials[i].frequency, currentTime + 0.1)
-                    this.oscillators[i].gain.gain.linearRampToValueAtTime(partials[i].amplitude, currentTime + 0.1)
+                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials[i].frequency, currentTime + 0.05)
+                    this.oscillators[i].gain.gain.linearRampToValueAtTime(partials[i].amplitude, currentTime + 0.05)
                     this.oscillators[i].frequency = partials[i].frequency
                     this.oscillators[i].amplitude = partials[i].amplitude
                     this.oscillators[i].ratio = partials[i].ratio

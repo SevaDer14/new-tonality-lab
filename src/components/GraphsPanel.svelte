@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { partials, dissonanceCurve, show12EDO, dissonanceCurveHighRes, dissonanceCurveEDOMarks, pseudoOctave } from '../state/stores.js'
+    import { partials, sweepPartials, sweepRatio, showSweep, dissonanceCurve, show12EDO, dissonanceCurveHighRes, dissonanceCurveEDOMarks, pseudoOctave } from '../state/stores.js'
+    import { ratioToCents } from '../xentonality/utils'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
     import { round } from 'lodash'
@@ -137,13 +138,24 @@
                 },
                 series: [
                     {
+                        // Main Spectrum
                         yAxis: 0,
                         type: 'column',
                         name: 'Partials',
                         color: colors.green.DEFAULT,
-                        pointWidth: 2,
+                        pointWidth: $showSweep ? 3 : 2,
                         borderWidth: 0,
                         data: $partials.map((partial) => [partial.ratio, partial.amplitude]),
+                    },
+                    {
+                        // Sweep Spectrum
+                        yAxis: 0,
+                        type: 'column',
+                        name: 'Partials',
+                        color: colors.orange.DEFAULT,
+                        pointWidth: 2,
+                        borderWidth: 0,
+                        data: $showSweep ? $sweepPartials.map((partial) => [partial.ratio, partial.amplitude]) : [],
                     },
                     {
                         yAxis: 1,
@@ -223,6 +235,25 @@
                         color: colors.blue.DEFAULT,
                         fillOpacity: 0.15,
                         data: $dissonanceCurveHighRes.curve.map((point) => [point.cents, point.value]),
+                    },
+                    {
+                        // Sweep Spectrum Note Line
+                        yAxis: 0,
+                        type: 'column',
+                        name: 'Partials',
+                        color: colors.orange.DEFAULT,
+                        pointWidth: 2,
+                        borderWidth: 0,
+                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
+                    },
+                    {
+                        // Sweep Spectrum Note Ball
+                        yAxis: 0,
+                        type: 'scatter',
+                        name: 'Partials',
+                        color: colors.orange.DEFAULT,
+                        marker: { symbol: 'circle', radius: 4 },
+                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
                     },
                 ],
             }
