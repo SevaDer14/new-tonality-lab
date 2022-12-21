@@ -35,7 +35,7 @@ input[type="radio"]:checked:after {
 /* SCROLLBAR */
 
 * {
-    scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.05);
 }
 
 *::-webkit-scrollbar {
@@ -43,7 +43,7 @@ input[type="radio"]:checked:after {
 }
 
 *::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     margin: 8px 0px;
 }
