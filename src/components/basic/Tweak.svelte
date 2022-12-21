@@ -27,10 +27,10 @@
     }
 </script>
 
-<div class="flex">
-    <p class="mt-5 mr-2 text-xs">{index}:</p>
+<div class="flex" style="min-width: 250px">
+    <p class="mt-5 mr-1 text-xs">{index}:</p>
     <fieldset class="bg-white-5 mb-2 p-4 rounded-2xl relative w-full">
-        <legend class="w-full text-xs text-white-65 mb-4 relative top-5 flex justify-between">
+        <legend class="w-full whitespace-nowrap text-xs text-white-65 mb-4 relative top-5 flex justify-between">
             <p class="flex">
                 <span class={!ratioTweakValue ? '' : ratioTweakValue > 0 ? 'greater' : 'lower'}>
                     {`r: ${ratioTweakValue ? round(ratio + ratioTweakValue, 2) : ''}`}
