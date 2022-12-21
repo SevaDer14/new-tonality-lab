@@ -1,8 +1,8 @@
-import type { TPartials, TSpectrumType } from "./types"
+import type { TPartials, TSpectrumType, TTweaks } from "./types"
 import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
 import { cloneDeep, round } from 'lodash-es'
 
-export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, profile?: 'equal' | 'harmonic', pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
+export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, slope?: number, pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
     const partials = [] as TPartials
 
     const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
@@ -16,7 +16,7 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
         for (let i = 1; i <= number; i++) {
             const frequency = round(fundamental * (pseudoOctaveRatio ** Math.log2(i)), 10)
             const ratio = frequency / fundamental
-            const amplitude = getAmplitude(profile, ratio)
+            const amplitude = getAmplitude(slope, ratio)
             partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
         }
     }
@@ -27,7 +27,7 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
             const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(iteration) * edo) / edo))
             if (frequency !== partials[partials.length - 1]?.frequency) {
                 const ratio = frequency / fundamental
-                const amplitude = getAmplitude(profile, ratio)
+                const amplitude = getAmplitude(slope, ratio)
                 partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
             }
             iteration++
@@ -37,6 +37,27 @@ export const generatePartials = ({ type, profile = 'harmonic', pseudoOctave = 12
     return partials
 }
 
+export const applyTweaks = ({ partials, tweaks }: { partials: TPartials, tweaks: TTweaks }): TPartials => {
+    let result = [] as TPartials
+    const fundamental = partials[0].frequency
+
+    for (let i = 0; i < partials.length; i++) {
+        if (tweaks[i] === undefined) {
+            result.push(partials[i])
+            continue
+        } else {
+            const ratio = round(partials[i].ratio + tweaks[i].ratio, 10)
+            let amplitude = round(partials[i].amplitude + tweaks[i].amplitude, 10)
+            amplitude = amplitude > 0 ? amplitude : 0
+            const frequency = ratio * fundamental
+            const loudness = setharesLoudness(amplitude)
+
+            result.push({ ratio, frequency, amplitude, loudness })
+        }
+    }
+
+    return result
+}
 
 
 export const changeFundamental = ({ partials, fundamental }: { partials: TPartials, fundamental: number }): TPartials => {
@@ -55,6 +76,23 @@ export const changeFundamental = ({ partials, fundamental }: { partials: TPartia
     return newPartials
 }
 
+export const shiftOnRatio = (partials: TPartials, shiftRatio: number) => {
+    const newPartials = [] as TPartials
+
+    const success = checkNumericParam({ param: shiftRatio, condition: shiftRatio > 0 })
+
+    if (!success) {
+        return newPartials
+    }
+
+    for (let i = 0; i < partials.length; i++) {
+        const newRatio = partials[i].ratio * shiftRatio
+        const newFrequency = partials[i].frequency * shiftRatio
+        newPartials.push({ ...partials[i], ratio: newRatio, frequency: newFrequency })
+    }
+
+    return newPartials
+}
 
 
 export const sumPartials = (...spectrums: TPartials[]): TPartials => {

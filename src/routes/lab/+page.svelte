@@ -1,17 +1,20 @@
 <script lang="ts">
-    import SettingsDrawer from '../../components/SettingsDrawer.svelte'
-    import PlotsSection from '../../components/PlotsSection.svelte'
+    import PlotsSection from '../../components/GraphsPanel.svelte'
+    import ExportPanel from '../../components/ExportPanel.svelte'
+    import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
+    import GeneratePanel from '../../components/GeneratePanel.svelte'
+    import Panel from '../../components/basic/Panel.svelte'
+    import TweakPanel from '../../components/TweakPanel.svelte'
 </script>
 
-<div class="page">
-    <SettingsDrawer />
-    <PlotsSection />
-</div>
+<GeneratePanel />
 
-<style>
-    .page {
-        display: flex;
-        width: 100%;
-        height: 100%;
-    }
-</style>
+<TweakPanel />
+
+<RoughnessProfilePanel />
+
+<ExportPanel />
+
+<Panel class="min-w-full">
+    <PlotsSection />
+</Panel>

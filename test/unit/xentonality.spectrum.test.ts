@@ -26,12 +26,37 @@ describe('Xentonality.Spectrum.generatePartials', () => {
 
   it('returns 4 harmonic partials with harmonic amplitude profile', () => {
     const expectedOutcome = Factory.partials({ ratios: [1, 2, 3, 4] })
-    expect(Spectrum.generatePartials({ type: 'harmonic', number: 4 })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'harmonic', number: 4, slope: 1 })).toEqual(expectedOutcome);
   });
 
   it('returns 6 harmonic partials with equal amplitude profile', () => {
     const expectedOutcome = Factory.partials({ ratios: [1, 2, 3, 4, 5, 6], amplitude: 1 })
-    expect(Spectrum.generatePartials({ type: 'harmonic', number: 6, profile: 'equal' })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'harmonic', number: 6, slope: 0 })).toEqual(expectedOutcome);
+  });
+
+  it('returns 6 harmonic partials with 1 / n^2 amplitude profile', () => {
+    const expectedOutcome = [
+      {
+        ratio: 1,
+        frequency: 440,
+        amplitude: 1,
+        loudness: 78.84951607609639
+      },
+      {
+        ratio: 2,
+        frequency: 880,
+        amplitude: 0.25,
+        loudness: 51.94705311884243
+      },
+      {
+        ratio: 3,
+        frequency: 1320,
+        amplitude: 0.1111111111111111,
+        loudness: 40.69522123289769
+      },
+    ]
+
+    expect(Spectrum.generatePartials({ type: 'harmonic', number: 3, slope: 2 })).toEqual(expectedOutcome);
   });
 
   it('returns 4 harmonic partials with fundamental at 100Hz', () => {
@@ -46,22 +71,22 @@ describe('Xentonality.Spectrum.generatePartials', () => {
 
     const expectedOutcome = [partial1, partial2, partial3].flat()
 
-    expect(Spectrum.generatePartials({ type: 'harmonic', number: 3, pseudoOctave: 2400 })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'harmonic', number: 3, pseudoOctave: 2400, slope: 1 })).toEqual(expectedOutcome);
   });
 
   it('returns 10 partials of default 12 edo spectrum and harmonic amplitude profile', () => {
     const expectedOutcome = Fixture.edo12_1200PseudoOct_harmonicAmpProfile
-    expect(Spectrum.generatePartials({ type: 'edo', number: 10 })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'edo', number: 10, slope: 1 })).toEqual(expectedOutcome);
   });
 
   it('returns 10 partials of 7 edo spectrum and equal amplitude profile', () => {
     const expectedOutcome = Fixture.edo7_fund100_2400PseudoOct_equalAmpProfile
-    expect(Spectrum.generatePartials({ type: 'edo', fundamental: 100, edo: 7, number: 10, profile: 'equal', pseudoOctave: 2400 })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'edo', fundamental: 100, edo: 7, number: 10, slope: 0, pseudoOctave: 2400 })).toEqual(expectedOutcome);
   });
 
   it('returns 8 partials of 3 edo spectrum with no duplicates and harmonic amplitude profile', () => {
     const expectedOutcome = Fixture.edo3_fund100_harmAmpProfile
-    expect(Spectrum.generatePartials({ type: 'edo', edo: 3, number: 8, fundamental: 100 })).toEqual(expectedOutcome);
+    expect(Spectrum.generatePartials({ type: 'edo', edo: 3, number: 8, fundamental: 100, slope: 1 })).toEqual(expectedOutcome);
   });
 })
 

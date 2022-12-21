@@ -56,10 +56,10 @@ export const withinLimit = ({ value, limits }: { value: number, limits?: { min?:
     return satisfiesMinLimit && satisfiesMaxLimit
 }
 
-export const getAmplitude = (profile: 'equal' | 'harmonic', ratio: number) => {
-    return ratio < 1 ? 0 : profile === "harmonic" ? 1 / ratio : 1
+// TODO: Untested
+export const getAmplitude = (slope: number, ratio: number, ) => {
+    return ratio < 1 ? 0 : slope === 0 ? 1 : ratio ** (-slope)
 }
-
 
 
 export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)

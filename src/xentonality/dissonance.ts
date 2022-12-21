@@ -1,4 +1,4 @@
-import { changeFundamental, combinePartials } from "./spectrum"
+import { changeFundamental, combinePartials, generatePartials } from "./spectrum"
 import { centsToRatio, detrend, isPowerOfNumber, normalize, ratioToCents, withinLimit } from "./utils"
 import type { TDissonanceCurve, TDissonanceCurveOptions, TDissonanceCurveMultipleOctavesOptions, TPartials, TPlotCurve, TPlotPoint, TPointX } from "./types"
 
@@ -30,10 +30,10 @@ export const intrinsicDissonance = (partials: TPartials) => {
 
 
 // TODO non tested
-export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, startPoint, detrended = true, normalized = true }: TDissonanceCurveOptions): TPlotCurve => {
+export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, startPoint, detrended = true, normalized = true, sweepType = 'same', sweepHarmonicPartials = 6 }: TDissonanceCurveOptions): TPlotCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
-
+    const sweepSpectrum = sweepType === 'same' ? [...partials] : generatePartials({ type: 'harmonic', fundamental: fundamental, number: sweepHarmonicPartials, slope: 1 })
 
     for (let i = 0; i < numberOfPoints; i++) {
         const currentStep = {} as TPointX
@@ -41,7 +41,7 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
         currentStep.ratio = centsToRatio(currentStep.cents)
         currentStep.Hz = fundamental * currentStep.ratio
 
-        const sweepPartials = changeFundamental({ partials: partials, fundamental: currentStep.Hz })
+        const sweepPartials = changeFundamental({ partials: sweepSpectrum, fundamental: currentStep.Hz })
         const combinedPartials = combinePartials(partials, sweepPartials)
         const dissonanceValue = intrinsicDissonance(combinedPartials)
 
@@ -58,10 +58,9 @@ export const calcDissonanceCurve = ({ partials, numberOfPoints, sweepStep, start
 
 
 // TODO non tested
-export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, limits }: TDissonanceCurveMultipleOctavesOptions): TDissonanceCurve => {
+export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, pseudoOctave, points, limits, ...props }: TDissonanceCurveMultipleOctavesOptions): TDissonanceCurve => {
     const dissonanceCurve = [] as TPlotCurve
     const fundamental = partials[0].frequency
-
 
     const partialsWithinLimits = combinePartials(
         partials.filter(
@@ -71,8 +70,8 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
                 withinLimit({ value: index + 1, limits: limits?.index })
         )
     )
-    
-    const pseudoOctave = partialsWithinLimits.length > 1
+
+    pseudoOctave = pseudoOctave || (partialsWithinLimits.length > 1
         ? {
             ratio: partialsWithinLimits[1].ratio,
             Hz: partialsWithinLimits[1].frequency - fundamental,
@@ -82,8 +81,8 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
             ratio: 2,
             Hz: fundamental,
             cents: 1200,
-        }
-
+        })
+        
     const numberOfPoints = points ? points : Math.round(pseudoOctave.cents) + 1
     const sweepStep = { cents: points ? pseudoOctave.cents / (points - 1) : 1 }
     const highestRatio = partialsWithinLimits.length > 1 ? partialsWithinLimits[partialsWithinLimits.length - 1].ratio : pseudoOctave.ratio
@@ -105,6 +104,7 @@ export const calcDissonanceCurveMultipleOctaves = ({ partials, octaves, points, 
             sweepStep: sweepStep,
             startPoint: startPoint,
             normalized: false,
+            ...props,
         }))
     }
 

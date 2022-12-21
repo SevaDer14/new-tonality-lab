@@ -2,7 +2,7 @@ import { curvesEqual } from "./assertions";
 import * as Factory from "./factories"
 
 
-describe('Xentonality.Utils.detrend', () => {
+describe('Assertions.curvesEqual', () => {
     it('returns true for same zero functions', () => {
         expect(curvesEqual(Factory.zeroPlot, Factory.zeroPlot)).toEqual(true);
     });

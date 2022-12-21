@@ -64,47 +64,59 @@ describe('Xentonality.Utils.setharesLoudness', () => {
 
 describe('Xentonality.Utils.getAmplitude', () => {
     it('returns 0.5 for ratio 2 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", 2)).toEqual(0.5);
+        expect(Utils.getAmplitude(1, 2)).toEqual(0.5);
     });
 
     it('returns 0.2 for ratio 5 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", 5)).toEqual(0.2);
+        expect(Utils.getAmplitude(1, 5)).toEqual(0.2);
     });
 
     it('returns 0.3333333333333333 for ratio 3 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", 3)).toEqual(0.3333333333333333);
+        expect(Utils.getAmplitude(1, 3)).toEqual(0.3333333333333333);
+    });
+
+    it('returns 0.25 for ratio 2 and slope = 2 profile', () => {
+        expect(Utils.getAmplitude(2, 2)).toEqual(0.25);
+    });
+
+    it('returns 0.04 for ratio 5 and slope = 2 profile', () => {
+        expect(Utils.getAmplitude(2, 5)).toEqual(0.04);
+    });
+
+    it('returns 0.1111111111111111 for ratio 3 and slope = 2 profile', () => {
+        expect(Utils.getAmplitude(2, 3)).toEqual(0.1111111111111111);
     });
 
     it('returns 1 for ratio 5 and equal profile', () => {
-        expect(Utils.getAmplitude("equal", 5)).toEqual(1);
+        expect(Utils.getAmplitude(0, 5)).toEqual(1);
     });
 
     it('returns 1 for ratio 2 and equal profile', () => {
-        expect(Utils.getAmplitude("equal", 2)).toEqual(1)
+        expect(Utils.getAmplitude(0, 2)).toEqual(1)
     })
 
     it('returns 0 for ratio < 1 and equal profile', () => {
-        expect(Utils.getAmplitude("equal", 0.5)).toEqual(0)
+        expect(Utils.getAmplitude(0, 0.5)).toEqual(0)
     })
 
     it('returns 0 for ratio < 1 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", 0.5)).toEqual(0)
+        expect(Utils.getAmplitude(1, 0.5)).toEqual(0)
     })
 
     it('returns 0 for ratio < 0 and equal profile', () => {
-        expect(Utils.getAmplitude("equal", -0.5)).toEqual(0)
+        expect(Utils.getAmplitude(0, -0.5)).toEqual(0)
     })
 
     it('returns 0 for ratio < 0 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", -0.5)).toEqual(0)
+        expect(Utils.getAmplitude(1, -0.5)).toEqual(0)
     })
 
     it('returns 0 for ratio = 0 and equal profile', () => {
-        expect(Utils.getAmplitude("equal", 0)).toEqual(0)
+        expect(Utils.getAmplitude(0, 0)).toEqual(0)
     })
 
     it('returns 0 for ratio = 0 and harmonic profile', () => {
-        expect(Utils.getAmplitude("harmonic", 0)).toEqual(0)
+        expect(Utils.getAmplitude(1, 0)).toEqual(0)
     })
 })
 
@@ -124,7 +136,7 @@ describe('Xentonality.Utils.detrend', () => {
     })
 })
 
-describe('Xentonality.Utils.normilize', () => {
+describe('Xentonality.Utils.normalize', () => {
     it('returns y = 1 for y = 2', () => {
         const testFunction = Utils.normalize(Factory.linearPlot({ a: 0, b: 2 }))
         const expectedFunction = Factory.linearPlot({ a: 0, b: 1 })
