@@ -19,8 +19,8 @@ export const amplitudeSlope = writable(1)
 export const tweaks = writable<TTweaks>([])
 export const tweaksEnabled = writable(true)
 
-export const sweepRatio = writable(1.2)
-export const showSweep = writable(true)
+export const sweepRatio = writable(1)
+export const showSweep = writable(false)
 
 export const dissLimitMinIndex = writable(0)
 export const dissLimitMaxIndex = writable(8)
