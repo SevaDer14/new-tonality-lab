@@ -4,7 +4,7 @@
     import Checkbox from './basic/Checkbox.svelte'
     import Button from './basic/Button.svelte'
     import TextField from './basic/TextField.svelte'
-    import { fundamental, sampleDuration, sampleName, partials, dissonanceCurve, dissCurveLimits, notes } from '../state/stores.js'
+    import { fundamental, sampleDuration, sampleName, partials, synthPartials, dissonanceCurve, dissCurveLimits, notes } from '../state/stores.js'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import { AdditiveSynth } from '../xentonality/synth'
     import { parseCurveToFileFormat } from '../xentonality/utils'
@@ -24,7 +24,7 @@
     onMount(() => {
         audioCtx = new AudioContext()
         recorderNode = audioCtx.createMediaStreamDestination()
-        synth = new AdditiveSynth($partials, audioCtx)
+        synth = new AdditiveSynth($synthPartials, audioCtx)
         synth.connect(audioCtx.destination)
 
         document.addEventListener('keydown', keyDownHandler)
@@ -32,7 +32,7 @@
 
     $: {
         if (synth !== undefined) {
-            synth.updatePartials($partials)
+            synth.updatePartials($synthPartials)
         }
     }
 
