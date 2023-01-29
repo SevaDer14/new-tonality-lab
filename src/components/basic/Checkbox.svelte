@@ -10,7 +10,7 @@
     }
 </script>
 
-<div class="flex items-center my-2 relative">
+<div class={`flex items-center my-2 relative ${$$props.class}`}>
     <input type="checkbox" {id} name={`checkbox-${id}`} bind:checked on:change={handleChange} />
     <label for={id}>{label}</label>
     <div class="custom-checkbox" />
