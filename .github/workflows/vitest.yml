@@ -1,4 +1,4 @@
-name: Jest
+name: Vitest
 on:
   push:
     branches: [ develop, production ]
