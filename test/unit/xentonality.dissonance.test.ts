@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import * as Dissonance from '../../src/xentonality/dissonance';
 import * as Spectrum from '../../src/xentonality/spectrum';
 import * as Factory from './factories'

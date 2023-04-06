@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import * as Utils from "../../src/xentonality/utils"
 import * as Factory from "./factories"
 import { curvesEqual } from "./assertions"

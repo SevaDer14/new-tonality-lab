@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { curvesEqual } from "./assertions";
 import * as Factory from "./factories"
 
