@@ -19,6 +19,7 @@ export class AdditiveSynth {
     private oscillators: AdditiveSynthOscillator[]
     private sampleRate: number
     private masterGain: GainNode
+    private stereoPanner: StereoPannerNode
     private canPlay = false
     private isPlaying = false
     private masterGainCompensation = 0.2
@@ -27,16 +28,23 @@ export class AdditiveSynth {
         this.audioContext = audioContext
         this.sampleRate = audioContext.sampleRate
         this.masterGain = this.audioContext.createGain();
-        this.setMaterGain(this.calculateMasterGainValue(partials))
+        this.stereoPanner = this.audioContext.createStereoPanner()
+        this.setMasterGain(this.calculateMasterGainValue(partials))
         this.oscillators = this.createOscillators(partials)
     }
 
+    public setPan(pan: number) {
+        this.stereoPanner.pan.setValueAtTime(pan, this.audioContext.currentTime)
+    }
+
     public connect(dest: AudioNode) {
-        this.masterGain.connect(dest);
+        this.masterGain.connect(this.stereoPanner);
+        this.stereoPanner.connect(dest);
     }
 
     public disconnect() {
         this.masterGain.disconnect();
+        this.stereoPanner.disconnect();
     }
 
     public start(time = 0) {
@@ -61,7 +69,7 @@ export class AdditiveSynth {
 
         if (this.isPlaying === false) {
             this.oscillators = this.createOscillators(partials)
-            this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
+            this.setMasterGain(this.calculateMasterGainValue(this.oscillators))
         } else {
             const length = partials.length >= this.oscillators.length ? partials.length : this.oscillators.length
             for (let i = length - 1; i >= 0; i -= 1) {
@@ -85,11 +93,11 @@ export class AdditiveSynth {
                 }
             }
 
-            this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
+            this.setMasterGain(this.calculateMasterGainValue(this.oscillators))
         }
     }
 
-    public setMaterGain(value: number, currentTime = this.audioContext.currentTime) {
+    public setMasterGain(value: number, currentTime = this.audioContext.currentTime) {
         this.masterGain.gain.linearRampToValueAtTime(value, currentTime)
     }
 
@@ -156,15 +164,21 @@ export class AdditiveSynth {
     }
 
     private createOscillator(partial: TPartial, currentTime: number): AdditiveSynthOscillator {
-        const node = this.audioContext.createOscillator()
+        const randomSin = Math.random() * 2 - 1
+        const randomCos = Math.random() * 2 - 1
+        const phaseShiftedSineWave = this.audioContext.createPeriodicWave([0, randomSin], [0, randomCos]);
+
+        const oscillatorNode = this.audioContext.createOscillator()
+        oscillatorNode.setPeriodicWave(phaseShiftedSineWave);
+
         const gain = this.audioContext.createGain()
         const phase = 2 * Math.PI * Math.random()
-        node.frequency.setValueAtTime(partial.frequency, currentTime);
+        oscillatorNode.frequency.setValueAtTime(partial.frequency, currentTime);
         gain.gain.value = partial.amplitude
-        node.connect(gain)
+        oscillatorNode.connect(gain)
         gain.connect(this.masterGain)
 
-        return { node, gain, phase, ...partial }
+        return { node: oscillatorNode, gain, phase, ...partial }
     }
 
     private calculateMasterGainValue(partials: TPartials): number {

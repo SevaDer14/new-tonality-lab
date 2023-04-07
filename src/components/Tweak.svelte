@@ -2,6 +2,7 @@
     import { round } from 'lodash'
     import type { TTweak, TMinMax } from 'src/xentonality/types'
     import Range from './Range.svelte'
+    import Checkbox from './Checkbox.svelte'
 
     export let index: number
     export let disabled: boolean | undefined
@@ -28,7 +29,17 @@
 </script>
 
 <div class="flex" style="min-width: 250px">
-    <p class="mt-5 mr-1 text-xs">{index}:</p>
+    <p class="mt-5 mr-1 text-xs flex">
+        <Checkbox
+            class="my-0 -mr-1 items-baseline"
+            checked={true}
+            onChange={(checked) => {
+                disabled = !checked
+                if (onAmplitudeChange) onAmplitudeChange(checked === false ? -amplitude : amplitudeTweakValue || 0)
+            }}
+        />
+        {index}:
+    </p>
     <fieldset class="bg-white-5 mb-2 p-4 rounded-2xl relative w-full">
         <legend class="w-full whitespace-nowrap text-xs text-white-65 mb-4 relative top-5 flex justify-between">
             <p class="flex">

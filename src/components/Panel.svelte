@@ -1,6 +1,6 @@
 <script lang="ts">
     export let title: string | undefined = undefined
-    export let maxContentHeight: string | undefined = undefined
+    export let maxContentHeight: string | undefined = "400px"
 </script>
 
 <div class={`relative 2xl:p-2 sm:p-1 flex xl:basis-1/5 md:basis-1/2 basis-full flex-grow ${$$props.class}`} style={$$props.style}>
