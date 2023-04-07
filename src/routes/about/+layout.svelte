@@ -1,5 +1,5 @@
 <script>
-    import Panel from '../../components/basic/Panel.svelte'
+    import Panel from '../../components/Panel.svelte'
 </script>
 
 <Panel class="max-w-4xl" >

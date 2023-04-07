@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Panel from './basic/Panel.svelte'
-    import Range from './basic/Range.svelte'
-    import RadioGroup from './basic/RadioGroup.svelte'
-    import Checkbox from './basic/Checkbox.svelte'
+    import Panel from './Panel.svelte'
+    import Range from './Range.svelte'
+    import RadioGroup from './RadioGroup.svelte'
+    import Checkbox from './Checkbox.svelte'
     import { show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
     import { centsToRatio } from '../xentonality/utils'
 </script>

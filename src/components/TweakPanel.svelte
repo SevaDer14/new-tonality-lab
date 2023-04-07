@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Tweak from './basic/Tweak.svelte'
-    import Panel from './basic/Panel.svelte'
+    import Tweak from './Tweak.svelte'
+    import Panel from './Panel.svelte'
     import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores'
-    import Checkbox from './basic/Checkbox.svelte'
+    import Checkbox from './Checkbox.svelte'
 
     $: {
         $partials.forEach((partial, index) => {

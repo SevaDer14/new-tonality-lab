@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Panel from './basic/Panel.svelte'
-    import Range from './basic/Range.svelte'
-    import RadioGroup from './basic/RadioGroup.svelte'
+    import Panel from './Panel.svelte'
+    import Range from './Range.svelte'
+    import RadioGroup from './RadioGroup.svelte'
     import { numberOfPartials, pseudoOctave, edoSteps, spectrumType, amplitudeSlope } from '../state/stores.js'
 </script>
 

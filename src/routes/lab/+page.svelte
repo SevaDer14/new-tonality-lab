@@ -3,7 +3,7 @@
     import ExportPanel from '../../components/ExportPanel.svelte'
     import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
     import GeneratePanel from '../../components/GeneratePanel.svelte'
-    import Panel from '../../components/basic/Panel.svelte'
+    import Panel from '../../components/Panel.svelte'
     import TweakPanel from '../../components/TweakPanel.svelte'
 </script>
 
