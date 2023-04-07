@@ -1,6 +1,6 @@
 import { writable, derived, readable } from 'svelte/store';
 import type { TSpectrumType, TSweepType, TTweaks } from 'src/xentonality/types';
-import { generatePartials, applyTweaks, shiftOnRatio } from '../xentonality/spectrum'
+import { generatePartials, applyTweaks, shiftOnRatio, adjustAmplitude } from '../xentonality/spectrum'
 import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
 import { centsToRatio } from '../xentonality/utils';
 
@@ -18,9 +18,11 @@ export const pseudoOctave = writable(1200)
 export const amplitudeSlope = writable(1)
 export const tweaks = writable<TTweaks>([])
 export const tweaksEnabled = writable(true)
-
-export const sweepRatio = writable(1)
+export const mainPan = writable(0)
 export const showSweep = writable(false)
+export const sweepPan = writable(0)
+export const sweepAmplitude = writable(1)
+export const sweepRatio = writable(1)
 
 export const dissLimitMinIndex = writable(0)
 export const dissLimitMaxIndex = writable(8)
@@ -69,24 +71,20 @@ export const partials = derived(
 );
 
 export const sweepPartials = derived(
-    [partials, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials, sweepRatio, fundamental],
+    [sweepAmplitude, showSweep, partials, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials, sweepRatio, fundamental],
     ([
+        $sweepAmplitude,
+        $showSweep,
         $partials,
         $dissonanceCurveSweepType,
         $dissonanceCurveSweepHarmonicPartials,
         $sweepRatio,
         $fundamental
-    ]) => $dissonanceCurveSweepType === 'same'
-            ? shiftOnRatio($partials, $sweepRatio)
-            : shiftOnRatio(generatePartials({ type: 'harmonic', fundamental: $fundamental, number: $dissonanceCurveSweepHarmonicPartials, slope: 1 }), $sweepRatio)
+    ]) => !$showSweep ? [] : $dissonanceCurveSweepType === 'same'
+        ? adjustAmplitude(shiftOnRatio($partials, $sweepRatio), $sweepAmplitude)
+        : adjustAmplitude(shiftOnRatio(generatePartials({ type: 'harmonic', fundamental: $fundamental, number: $dissonanceCurveSweepHarmonicPartials, slope: 1 }), $sweepRatio), $sweepAmplitude)
 )
 
-export const synthPartials = derived(
-    [partials, sweepPartials, showSweep],
-    ([$partials, $sweepPartials, $showSweep]) => $showSweep
-        ? [...$partials, ...$sweepPartials]
-        : $partials
-)
 
 export const dissCurveLimits = derived(
     [dissLimitMinIndex, dissLimitMaxIndex],

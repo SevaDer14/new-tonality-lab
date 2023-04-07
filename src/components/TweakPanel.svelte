@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Tweak from './basic/Tweak.svelte'
-    import Panel from './basic/Panel.svelte'
+    import Tweak from './Tweak.svelte'
+    import Panel from './Panel.svelte'
     import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores'
-    import Checkbox from './basic/Checkbox.svelte'
+    import Checkbox from './Checkbox.svelte'
 
     $: {
         $partials.forEach((partial, index) => {
@@ -13,7 +13,7 @@
     }
 </script>
 
-<Panel title="tweak" maxContentHeight="400px">
+<Panel title="tweak" >
     <Checkbox label="Enable" checked={$tweaksEnabled} onChange={(value) => ($tweaksEnabled = value)} />
     {#each $partials as partial, index}
         <Tweak
@@ -24,7 +24,7 @@
             initialValue={$tweaks[index]}
             ratioLimits={{
                 min: index > 0 ? -($generatedPartials[index].ratio - $generatedPartials[index - 1].ratio) + 0.01 : 0,
-                max: index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : $generatedPartials[index]?.ratio - $generatedPartials[index - 1].ratio,
+                max: $generatedPartials.length <= 1 ? 1 : index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : $generatedPartials[index]?.ratio - $generatedPartials[index - 1].ratio,
             }}
             amplitudeLimits={{
                 min: -$generatedPartials[index].amplitude,

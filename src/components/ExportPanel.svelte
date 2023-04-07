@@ -1,10 +1,10 @@
 <script lang="ts">
-    import Panel from './basic/Panel.svelte'
-    import Range from './basic/Range.svelte'
-    import Checkbox from './basic/Checkbox.svelte'
-    import Button from './basic/Button.svelte'
-    import TextField from './basic/TextField.svelte'
-    import { fundamental, sampleDuration, sampleName, partials, synthPartials, dissonanceCurve, dissCurveLimits, notes } from '../state/stores.js'
+    import Panel from './Panel.svelte'
+    import Range from './Range.svelte'
+    import Checkbox from './Checkbox.svelte'
+    import Button from './Button.svelte'
+    import TextField from './TextField.svelte'
+    import { mainPan, sweepPan, fundamental, sampleDuration, sampleName, partials, sweepPartials, dissonanceCurve, dissCurveLimits, notes } from '../state/stores.js'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import { AdditiveSynth } from '../xentonality/synth'
     import { parseCurveToFileFormat } from '../xentonality/utils'
@@ -13,26 +13,31 @@
     import { onMount } from 'svelte'
 
     let synth: AdditiveSynth
+    let sweepSynth: AdditiveSynth
     let audioCtx: AudioContext
     let recorderNode: MediaStreamAudioDestinationNode
     let downloadingZip = false
     let playing = false
     let randomPhaseExport = true
-    let noteFrequencyC4 = true
-    let customNoteFrequency = $fundamental
+
 
     onMount(() => {
         audioCtx = new AudioContext()
         recorderNode = audioCtx.createMediaStreamDestination()
-        synth = new AdditiveSynth($synthPartials, audioCtx)
+        synth = new AdditiveSynth($partials, audioCtx)
+        sweepSynth = new AdditiveSynth($sweepPartials, audioCtx)
         synth.connect(audioCtx.destination)
+        sweepSynth.connect(audioCtx.destination)
 
         document.addEventListener('keydown', keyDownHandler)
     })
 
     $: {
         if (synth !== undefined) {
-            synth.updatePartials($synthPartials)
+            synth.updatePartials($partials)
+            sweepSynth.updatePartials($sweepPartials)
+            synth.setPan($mainPan)
+            sweepSynth.setPan($sweepPan)
         }
     }
 
@@ -42,35 +47,20 @@
 
         if (playing === true) {
             releaseNote()
-        } else { 
-            playNote()
-        }
-    }
-
-    const handleC4CheckboxChange = (value: boolean) => {
-        noteFrequencyC4 = value
-
-        if (value === true) {
-            $fundamental = $notes.C4
         } else {
-            handleFrequencyInput(customNoteFrequency)
-        }
-    }
-
-    const handleFrequencyInput = (value: number) => {
-        if (noteFrequencyC4 === false) {
-            $fundamental = value
-            customNoteFrequency = value
+            playNote()
         }
     }
 
     const playNote = () => {
         synth.start()
+        sweepSynth.start()
         playing = true
     }
 
     const releaseNote = () => {
         synth.stop(audioCtx.currentTime)
+        sweepSynth.stop(audioCtx.currentTime)
         playing = false
     }
 
@@ -78,7 +68,7 @@
         downloadingZip = true
 
         // need to give svelte time to update DOM before generating sample
-        // as it blocks the render thread
+        // as it blocks the render thread, need to refactor to Web Worker
         setTimeout(async () => {
             const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
             const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
@@ -121,10 +111,6 @@
 
 <Panel title="export">
     <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
-
-    <Checkbox label="Note C4 = 261.63 Hz" onChange={handleC4CheckboxChange} checked />
-
-    <Range label="Note Frequency (Hz)" disabled={noteFrequencyC4 === true} min={55} max={880} onInput={handleFrequencyInput} initialValue={$fundamental} />
 
     <Checkbox label="Random phase" onChange={(value) => (randomPhaseExport = value)} checked={randomPhaseExport === true} />
 
