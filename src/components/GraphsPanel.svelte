@@ -4,6 +4,7 @@
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
     import { round } from 'lodash'
+    import Panel from './Panel.svelte'
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
@@ -261,15 +262,17 @@
     }
 </script>
 
-<div>
-    <div
-        use:highcharts={{
-            chart: spectrumChartConfig,
-        }}
-    />
-    <div
-        use:highcharts={{
-            chart: dissonanceCurveChartConfig,
-        }}
-    />
-</div>
+<Panel maxContentHeight="auto">
+    <div class="min-w-full">
+        <div
+            use:highcharts={{
+                chart: spectrumChartConfig,
+            }}
+        />
+        <div
+            use:highcharts={{
+                chart: dissonanceCurveChartConfig,
+            }}
+        />
+    </div>
+</Panel>

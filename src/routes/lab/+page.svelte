@@ -1,5 +1,5 @@
 <script lang="ts">
-    import PlotsSection from '../../components/GraphsPanel.svelte'
+    import GraphsPanel from '../../components/GraphsPanel.svelte'
     import ExportPanel from '../../components/ExportPanel.svelte'
     import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
     import GeneratePanel from '../../components/GeneratePanel.svelte'
@@ -15,6 +15,4 @@
 
 <ExportPanel />
 
-<Panel class="min-w-full">
-    <PlotsSection />
-</Panel>
+<GraphsPanel />
