@@ -94,6 +94,24 @@ export const shiftOnRatio = (partials: TPartials, shiftRatio: number) => {
     return newPartials
 }
 
+export const adjustAmplitude = (partials: TPartials, multiplier: number) => {
+    const newPartials = [] as TPartials
+
+    const success = checkNumericParam({ param: multiplier, condition: multiplier > 0 })
+
+    if (!success) {
+        return newPartials
+    }
+
+    for (let i = 0; i < partials.length; i++) {
+        const amplitude = partials[i].amplitude * multiplier
+        const loudness = setharesLoudness(amplitude)
+        newPartials.push({ ...partials[i], amplitude, loudness })
+    }
+
+    return newPartials
+}
+
 
 export const sumPartials = (...spectrums: TPartials[]): TPartials => {
     const result = [] as TPartials

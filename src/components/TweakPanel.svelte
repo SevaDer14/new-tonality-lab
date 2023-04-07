@@ -13,7 +13,7 @@
     }
 </script>
 
-<Panel title="tweak" maxContentHeight="400px">
+<Panel title="tweak" >
     <Checkbox label="Enable" checked={$tweaksEnabled} onChange={(value) => ($tweaksEnabled = value)} />
     {#each $partials as partial, index}
         <Tweak

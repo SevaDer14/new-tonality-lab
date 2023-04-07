@@ -3,11 +3,11 @@
     import Range from './Range.svelte'
     import RadioGroup from './RadioGroup.svelte'
     import Checkbox from './Checkbox.svelte'
-    import { show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
+    import { sweepPan, sweepAmplitude, show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
     import { centsToRatio } from '../xentonality/utils'
 </script>
 
-<Panel title="roughness profile" maxContentHeight="400px">
+<Panel title="roughness profile">
     <Range label="Partial limit max" min={0} max={20} onInput={(value) => ($dissLimitMaxIndex = value)} initialValue={$dissLimitMaxIndex} />
 
     <RadioGroup legend="Sweep type">
@@ -25,8 +25,10 @@
     <Range disabled={$dissonanceCurveSweepType !== 'harmonic'} label="Number of sweep partials" min={1} max={20} onInput={(value) => ($dissonanceCurveSweepHarmonicPartials = value)} initialValue={$dissonanceCurveSweepHarmonicPartials} />
 
     <Checkbox label="Show sweep" onChange={(value) => ($showSweep = value)} checked={$showSweep === true} />
-    
-        <Range disabled={$showSweep === false} label="Sweep ratio" min={1} max={centsToRatio($pseudoOctave)} step={0.005} onInput={(value) => ($sweepRatio = value)} initialValue={$sweepRatio} />
+
+    <Range disabled={$showSweep === false} label="Sweep ratio" min={1} max={centsToRatio($pseudoOctave)} step={0.005} onInput={(value) => ($sweepRatio = value)} initialValue={$sweepRatio} />
+    <Range disabled={$showSweep === false} label="Sweep pan" min={-1} max={1} step={0.01} onInput={(value) => ($sweepPan = value)} initialValue={$sweepPan} />
+    <Range disabled={$showSweep === false} label="Sweep amplitude" min={0} max={1} step={0.01} onInput={(value) => ($sweepAmplitude = value)} initialValue={$sweepAmplitude} />
 
     <Range label="Major tick interval (EDO)" min={3} max={24} onInput={(value) => ($dissonanceCurveEDOMarks = value)} initialValue={$dissonanceCurveEDOMarks} />
 
