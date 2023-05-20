@@ -1,6 +1,3 @@
-// import type { TPartials, TPlotCurve } from "./types"
-// import type { AdditiveSynth } from "./synth";
-// import { round } from 'lodash-es';
 import { expect } from 'vitest'
 import type { PointSeriesValue } from './pointSeries'
 
@@ -16,9 +13,6 @@ export const assertPointSeriesFloatEquality = (pointSeries1: PointSeriesValue, p
         expect(point[1]).toBeCloseTo(pointSeries2[i][1])
     })
 }
-
-
-
 
 export const ratioToCents = (ratio: number): number => {
     return ratio > 0 ? 1200 * Math.log2(ratio) : 0

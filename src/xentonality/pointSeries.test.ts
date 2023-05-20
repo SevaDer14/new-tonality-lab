@@ -5,9 +5,6 @@ import { assertPointSeriesFloatEquality } from './utils'
 import { Series } from './series'
 
 describe('PointSeries:', () => {
-    const points_1: Point[] = [[1, 1], [2, 2], [3, 3]]
-    const points_2: Point[] = [[10, 10], [20, 20], [30, 30]]
-
     describe('constructor', () => {
         it('should construct point series with [] value', () => {
             const pointSeries = new PointSeries()
@@ -16,17 +13,17 @@ describe('PointSeries:', () => {
         })
 
         it('should construct series with [[1, 1], [2, 2], [3, 3]] value', () => {
-            const pointSeries = new PointSeries(points_1)
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]])
 
-            expect(pointSeries.value).toEqual(points_1)
+            expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
     })
 
     describe('getter', () => {
         it('should return correct value of the series', () => {
-            const pointSeries = new PointSeries(points_1)
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]])
 
-            expect(pointSeries.value).toEqual(points_1)
+            expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
 
         it('should return deep copy value', () => {
@@ -41,18 +38,18 @@ describe('PointSeries:', () => {
 
     describe('setter', () => {
         it('should set correct value', () => {
-            const series = new PointSeries(points_1)
-            series.value = points_2
+            const series = new PointSeries([[1, 1], [2, 2], [3, 3]])
+            series.value = [[10, 10], [20, 20], [30, 30]]
 
-            expect(series.value).toEqual(points_2)
+            expect(series.value).toEqual([[10, 10], [20, 20], [30, 30]])
         })
     })
 
     describe('.push', () => {
         it('should push to the end of series value', () => {
-            const pointSeries = new PointSeries(points_1).push([4, 4])
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]]).push([4, 4])
 
-            expect(pointSeries.value).toEqual([...points_1, [4, 4]])
+            expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3], [4, 4]])
         })
     })
 
@@ -74,33 +71,33 @@ describe('PointSeries:', () => {
         })
 
         it('should return series1 if including empty series', () => {
-            const pointSeries = new PointSeries(points_1).include([])
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]]).include([])
 
-            expect(pointSeries.value).toEqual(points_1)
+            expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
 
         it('should return series2 if including it into empty series', () => {
-            const pointSeries = new PointSeries([]).include(points_2)
+            const pointSeries = new PointSeries([]).include([[10, 10], [20, 20], [30, 30]])
 
-            expect(pointSeries.value).toEqual(points_2)
+            expect(pointSeries.value).toEqual([[10, 10], [20, 20], [30, 30]])
         })
 
         it('should return series1 if including it into itself', () => {
-            const pointSeries = new PointSeries(points_1).include(points_1)
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]]).include([[1, 1], [2, 2], [3, 3]])
 
-            expect(pointSeries.value).toEqual(points_1)
+            expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
 
         it('should return series1 if series2 is the same', () => {
-            const series_1 = new PointSeries(points_1)
+            const series_1 = new PointSeries([[1, 1], [2, 2], [3, 3]])
             const series_copy = new PointSeries(series_1.value)
             const result = series_1.include(series_copy.value)
 
-            expect(result.value).toEqual(points_1)
+            expect(result.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
 
         it('should include series2 to the end of series1', () => {
-            const pointSeries = new PointSeries(points_1).include(points_2)
+            const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]]).include([[10, 10], [20, 20], [30, 30]])
 
             expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3], [10, 10], [20, 20], [30, 30]])
         })
@@ -168,13 +165,13 @@ describe('PointSeries:', () => {
 
     describe('.transform', () => {
         it('should transform [[1, 1], [1, 1], [1, 1]]', () => {
-            const series = new PointSeries(points_1).transform(() => [1, 1])
+            const series = new PointSeries([[1, 1], [2, 2], [3, 3]]).transform(() => [1, 1])
 
             expect(series.value).toEqual([[1, 1], [1, 1], [1, 1]])
         })
 
         it('should transform to [[10, 100], [20, 200], [30, 300]]', () => {
-            const series = new PointSeries(points_1).transform((point) => [point[0] * 10, point[1] * 100])
+            const series = new PointSeries([[1, 1], [2, 2], [3, 3]]).transform((point) => [point[0] * 10, point[1] * 100])
 
             expect(series.value).toEqual([[10, 100], [20, 200], [30, 300]])
         })
@@ -206,7 +203,7 @@ describe('PointSeries:', () => {
         })
 
         it('should return two Series with values [1, 2, 3]', () => {
-            const result = new PointSeries(points_1).split()
+            const result = new PointSeries([[1, 1], [2, 2], [3, 3]]).split()
 
             expect(result).toEqual([new Series([1, 2, 3]), new Series([1, 2, 3]),])
         })

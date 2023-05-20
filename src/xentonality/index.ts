@@ -1,5 +1,5 @@
-export * from './dissonance'
+export * from './pointSeries'
 export * from './series'
 export * from './spectrum'
-export * from './types'
+export * from './synth'
 export * from './utils'

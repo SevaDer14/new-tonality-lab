@@ -3,12 +3,16 @@ import { PRECISION, Spectrum } from "./spectrum";
 import { PointSeries, type PointSeriesValue } from "./pointSeries";
 import { Series } from "./series";
 import { errors } from "./errorMessages";
-import * as Fixture from "../../test/fixtures/spectrum";
 import { round } from "lodash";
 
-describe('Spectrum:', () => {
-    const partials_1: PointSeriesValue = [[1, 1], [2, 1], [3, 1], [4, 1]]
+const Fixture = {
+    edo_12_1: [[1, 1], [2, 0.5], [2.9966141538, 0.3337099635], [4, 0.25], [5.0396841996, 0.1984251315], [5.9932283075, 0.1668549818], [7.1271897451, 0.140307756], [8, 0.125], [8.9796963865, 0.1113623398], [10.0793683992, 0.0992125657]],
+    edo_3_1: [[1, 1], [2, 1], [3.1748021039, 1], [4, 1], [5.0396841996, 1], [6.3496042079, 1], [8, 1], [10.0793683992, 1]],
+    stretch_harm_3: [[1, 1], [3, 1], [5.7045224947, 1], [9, 1]],
+    stretch_edo_11_fifth: [[1, 1], [1.5, 1], [1.8712897413, 1], [2.25, 1], [2.6074482829, 1], [2.8069346119, 1]],
+}
 
+describe('Spectrum:', () => {
     describe('constructor', () => {
         it('should construct spectrum with no partials', () => {
             const spectrum = new Spectrum()
@@ -26,9 +30,9 @@ describe('Spectrum:', () => {
 
     describe('getter', () => {
         it('should return a value of partials of the spectrum', () => {
-            const spectrum = new Spectrum(partials_1)
+            const spectrum = new Spectrum([[1, 1], [2, 1], [3, 1], [4, 1]])
 
-            expect(spectrum.partials).toEqual(partials_1)
+            expect(spectrum.partials).toEqual([[1, 1], [2, 1], [3, 1], [4, 1]])
         })
 
         it('should return deep copy partials', () => {
