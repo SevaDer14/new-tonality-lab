@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findTuning, Point2D, PointSeries, Series } from '../../src/xentonality'
+import { findTuning, Point2D, PointSeries, Series } from '.'
 import {
     createSeries,
     transformSeries,
@@ -13,7 +13,7 @@ import {
     toPointSeries,
     addColumn,
     createPointSeries,
-} from '../../src/xentonality'
+} from '.'
 
 const assertSeriesFloatEquality = (series1: Series, series2: Series) => {
     series1.forEach((point, i) => {

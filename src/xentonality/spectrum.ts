@@ -1,150 +1,131 @@
-import type { TPartials, TSpectrumType, TTweaks } from "./types"
-import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
-import { cloneDeep, round } from 'lodash-es'
+import { errors } from "./errorMessages"
+import { PointSeries, type Point, type PointSeriesValue } from "./pointSeries"
+import round from "lodash/round";
 
-export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, slope?: number, pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
-    const partials = [] as TPartials
+export const PRECISION = 10
 
-    const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
-    const pseudoOctaveRatio = centsToRatio(pseudoOctave)
+export type HarmonicSpectrumOptions = {
+    numberOfPartials: number,
+    amplitudeProfile?: number,
+}
 
-    if (!success) {
-        return partials
+export type EdoSpectrumOptions = HarmonicSpectrumOptions & {
+    steps: number,
+    ratioLimit?: number
+}
+
+export class Spectrum {
+    private _partials: PointSeries
+
+    constructor(partials?: PointSeriesValue) {
+        this._partials = new PointSeries(partials)
     }
 
-    if (type === 'harmonic') {
-        for (let i = 1; i <= number; i++) {
-            const frequency = round(fundamental * (pseudoOctaveRatio ** Math.log2(i)), 10)
-            const ratio = frequency / fundamental
-            const amplitude = getAmplitude(slope, ratio)
-            partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+    public get partials(): PointSeriesValue {
+        return JSON.parse(JSON.stringify(this._partials.value))
+    }
+
+    harmonic({ numberOfPartials, amplitudeProfile = 0 }: HarmonicSpectrumOptions) {
+        if (numberOfPartials < 0) throw new Error(errors.spectrum.negativeNumberOfPartials)
+        if (amplitudeProfile < 0) throw new Error(errors.spectrum.negativeAmplitudeProfile)
+        if (numberOfPartials !== Math.floor(numberOfPartials)) throw new Error(errors.spectrum.nonIntegerNumberOfPartials)
+
+        const generator = (i: number) => {
+            const ratio = i + 1
+            const amp = this.getAmplitude(amplitudeProfile, ratio)
+
+            return [ratio, amp] as Point
         }
+
+        this._partials.fill(numberOfPartials, generator)
+
+        return this
     }
 
-    if (type === 'edo') {
-        let iteration = 1
-        while (partials.length < number) {
-            const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(iteration) * edo) / edo))
-            if (frequency !== partials[partials.length - 1]?.frequency) {
-                const ratio = frequency / fundamental
-                const amplitude = getAmplitude(slope, ratio)
-                partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
+    edo({ numberOfPartials, amplitudeProfile = 0, steps, ratioLimit = 1000 }: EdoSpectrumOptions) {
+        if (numberOfPartials < 0) throw new Error(errors.spectrum.negativeNumberOfPartials)
+        if (amplitudeProfile < 0) throw new Error(errors.spectrum.negativeAmplitudeProfile)
+        if (numberOfPartials !== Math.floor(numberOfPartials)) throw new Error(errors.spectrum.nonIntegerNumberOfPartials)
+
+        this._partials = new PointSeries()
+        if (numberOfPartials === 0) return this
+
+        let i = 1
+        while (this._partials.value.length < numberOfPartials) {
+            const lastPartial = this._partials.value[this._partials.value.length - 1]
+            const lastPartialRatio = lastPartial ? lastPartial[0] : undefined
+
+            const ratio = round(2 ** (Math.round(Math.log2(i) * steps) / steps), PRECISION)
+
+            if (ratio > ratioLimit) break
+
+            if (lastPartialRatio === undefined || ratio !== lastPartialRatio) {
+                const amp = this.getAmplitude(amplitudeProfile, ratio)
+                this._partials.push([ratio, amp])
             }
-            iteration++
+
+            if (i === 1000000) throw new Error(errors.spectrum.probableInfiniteLoop)
+
+            i++
         }
+
+        return this
     }
 
-    return partials
-}
+    stretch(octaveRatio: number) {
+        if (octaveRatio <= 0) throw new Error(errors.spectrum.zeroOrNegativeOctaveRatio)
 
-export const applyTweaks = ({ partials, tweaks }: { partials: TPartials, tweaks: TTweaks }): TPartials => {
-    let result = [] as TPartials
-    const fundamental = partials[0].frequency
-
-    for (let i = 0; i < partials.length; i++) {
-        if (tweaks[i] === undefined) {
-            result.push(partials[i])
-            continue
-        } else {
-            const ratio = round(partials[i].ratio + tweaks[i].ratio, 10)
-            let amplitude = round(partials[i].amplitude + tweaks[i].amplitude, 10)
-            amplitude = amplitude > 0 ? amplitude : 0
-            const frequency = ratio * fundamental
-            const loudness = setharesLoudness(amplitude)
-
-            result.push({ ratio, frequency, amplitude, loudness })
+        const stretchX = (point: Point) => {
+            point[0] = round(point[0] ** Math.log2(octaveRatio), PRECISION)
+            return point
         }
+
+        this._partials.transform(stretchX)
+
+        return this
     }
 
-    return result
-}
+    include(partials: PointSeriesValue) {
+        this._partials.include(partials, { mode: "partials" })
 
-
-export const changeFundamental = ({ partials, fundamental }: { partials: TPartials, fundamental: number }): TPartials => {
-    const newPartials = [] as TPartials
-
-    const success = checkNumericParam({ param: fundamental, condition: fundamental > 0 })
-
-    if (!success) {
-        return newPartials
+        return this
     }
 
-    for (let i = 0; i < partials.length; i++) {
-        newPartials.push({ ...partials[i], frequency: partials[i].ratio * fundamental })
+    shift(shiftRatio: number) {
+        this._partials.transform((p) => [p[0] * shiftRatio, p[1]])
+
+        return this
     }
 
-    return newPartials
-}
+    shiftAndInclude(shiftRatio: number) {
+        const shiftedPartials = this.partials
 
-export const shiftOnRatio = (partials: TPartials, shiftRatio: number) => {
-    const newPartials = [] as TPartials
-
-    const success = checkNumericParam({ param: shiftRatio, condition: shiftRatio > 0 })
-
-    if (!success) {
-        return newPartials
-    }
-
-    for (let i = 0; i < partials.length; i++) {
-        const newRatio = partials[i].ratio * shiftRatio
-        const newFrequency = partials[i].frequency * shiftRatio
-        newPartials.push({ ...partials[i], ratio: newRatio, frequency: newFrequency })
-    }
-
-    return newPartials
-}
-
-
-export const sumPartials = (...spectrums: TPartials[]): TPartials => {
-    const result = [] as TPartials
-    const partials = cloneDeep(spectrums)
-    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
-
-    if (allPartials.length === 0) {
-        return result
-    }
-
-    result[0] = allPartials[0]
-    const fundamental = result[0].frequency
-
-    for (let i = 1; i < allPartials.length; i++) {
-        if (result[result.length - 1] && allPartials[i].frequency === result[result.length - 1].frequency) {
-            const summedAmplitude = result[result.length - 1].amplitude + allPartials[i].amplitude
-
-            result[result.length - 1].amplitude = summedAmplitude
-            result[result.length - 1].loudness = setharesLoudness(summedAmplitude)
-        } else {
-            result.push({
-                ...allPartials[i],
-                ratio: allPartials[i].frequency / fundamental,
-            })
+        for (let i = 0; i < this._partials.value.length; i++) {
+            shiftedPartials[i][0] = round(shiftedPartials[i][0] * shiftRatio, PRECISION)
         }
+
+        this.include(shiftedPartials)
+
+        return this
     }
 
-    return result
-}
+    tweak(tweaks: PointSeriesValue) {
+        this._partials.transform((p, i) => {
+            const tweak = tweaks[i]
+            
+            if (tweak === undefined) return p
+
+            if (tweak[0] <= 0) throw new Error(errors.spectrum.tweakRatioLessOrEqualZero)
+            if (tweak[1] < 0) throw new Error(errors.spectrum.tweakAmplitudeLessZero)
 
 
-
-export const combinePartials = (...spectrums: TPartials[]): TPartials => {
-    const result = [] as TPartials
-    const partials = cloneDeep(spectrums)
-    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
-
-    if (allPartials.length === 0) {
-        return result
+            return [round(tweak[0] * p[0], PRECISION), round(tweak[1] * p[1], PRECISION)]
+        })
     }
 
-    result[0] = { ...allPartials[0], ratio: 1 } // TODO: non tested setting ratio of first to 1 do the same for sum partials
-    const fundamental = result[0].frequency
+    private getAmplitude(slope: number, ratio: number): number {
+        if (ratio < 1) return 0
 
-    for (let i = 1; i < allPartials.length; i++) {
-
-        result[i] = {
-            ...allPartials[i],
-            ratio: allPartials[i].frequency / fundamental,
-        }
+        return slope === 0 ? 1 : round(ratio ** (-slope), 10)
     }
-
-    return result
 }

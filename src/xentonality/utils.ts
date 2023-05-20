@@ -1,7 +1,23 @@
-import type { TPartials, TPlotCurve } from "./types"
-import type { AdditiveSynth } from "./synth";
+// import type { TPartials, TPlotCurve } from "./types"
+// import type { AdditiveSynth } from "./synth";
+// import { round } from 'lodash-es';
+import { expect } from 'vitest'
+import type { PointSeriesValue } from './pointSeries'
 
-import { round } from 'lodash-es';
+export const assertArrayFloatEquality = (arr1: number[], arr2: number[]) => {
+    arr1.forEach((n, i) => {
+        expect(n).toBeCloseTo(arr2[i])
+    })
+}
+
+export const assertPointSeriesFloatEquality = (pointSeries1: PointSeriesValue, pointSeries2: PointSeriesValue) => {
+    pointSeries1.forEach((point, i) => {
+        expect(point[0]).toBeCloseTo(pointSeries2[i][0])
+        expect(point[1]).toBeCloseTo(pointSeries2[i][1])
+    })
+}
+
+
 
 
 export const ratioToCents = (ratio: number): number => {
@@ -13,145 +29,142 @@ export const centsToRatio = (cents: number): number => {
     return 2 ** (cents / 1200)
 }
 
-// rethink error handling
-export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
-    let success = true
 
-    if (integer && param.toFixed(0) !== param.toString()) {
-        console.error(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
-        success = false
-    }
-    if (!condition) {
-        console.error(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
-        success = false
-    }
+// export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
+//     let success = true
 
-    return success
-}
+//     if (integer && param.toFixed(0) !== param.toString()) {
+//         console.error(`ParamNotInteger: In checkNumericParam, param has value ${param}, while integer flag is ${integer}! Success = false`)
+//         success = false
+//     }
+//     if (!condition) {
+//         console.error(`ConditionViolation: In checkNumericParam, param value ${param} do not satisfy provided condition! Success = false`)
+//         success = false
+//     }
 
-
-// rethink error handling
-export const checkPartials = ({ partials, freqCondition, ampCondition }: { partials: TPartials, freqCondition?: (frequency: number) => boolean, ampCondition?: (amplitude: number) => boolean }): boolean => {
-    let success = true
-
-    if (ampCondition && partials.every(({ amplitude }) => ampCondition(amplitude))) {
-        console.error(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
-        success = false
-    }
-    if (freqCondition && partials.every(({ frequency }) => freqCondition(frequency))) {
-        console.error(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
-        success = false
-    }
-
-    return success
-}
+//     return success
+// }
 
 
-export const withinLimit = ({ value, limits }: { value: number, limits?: { min?: number, max?: number } }) => {
-    if (limits === undefined) return true
+// // rethink error handling
+// export const checkPartials = ({ partials, freqCondition, ampCondition }: { partials: TPartials, freqCondition?: (frequency: number) => boolean, ampCondition?: (amplitude: number) => boolean }): boolean => {
+//     let success = true
 
-    const satisfiesMinLimit = limits.min ? value >= limits.min : true
-    const satisfiesMaxLimit = limits.max ? value <= limits.max : true
+//     if (ampCondition && partials.every(({ amplitude }) => ampCondition(amplitude))) {
+//         console.error(`AmplitudeConditionNotSatisfied: In checkSpectrum, one of the amplitudes did not satisfy provided condition! Success = false`)
+//         success = false
+//     }
+//     if (freqCondition && partials.every(({ frequency }) => freqCondition(frequency))) {
+//         console.error(`FrequencyConditionNotSatisfied: In checkSpectrum, one of the frequencies did not satisfy provided condition! Success = false`)
+//         success = false
+//     }
 
-    return satisfiesMinLimit && satisfiesMaxLimit
-}
-
-// TODO: Untested
-export const getAmplitude = (slope: number, ratio: number, ) => {
-    return ratio < 1 ? 0 : slope === 0 ? 1 : ratio ** (-slope)
-}
+//     return success
+// }
 
 
-export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)
+// export const withinLimit = ({ value, limits }: { value: number, limits?: { min?: number, max?: number } }) => {
+//     if (limits === undefined) return true
+
+//     const satisfiesMinLimit = limits.min ? value >= limits.min : true
+//     const satisfiesMaxLimit = limits.max ? value <= limits.max : true
+
+//     return satisfiesMinLimit && satisfiesMaxLimit
+// }
 
 
 
-export const detrend = (curve: TPlotCurve): TPlotCurve => {
-    const result = [] as TPlotCurve
 
-    const slope = (curve[curve.length - 1].value - curve[0].value) / (curve[curve.length - 1].ratio - curve[0].ratio)
-
-    for (let i = 0; i < curve.length; i++) {
-        const trendLineValue = slope * (curve[i].ratio - curve[0].ratio) + curve[0].value // --> a(x - x0) + b equation of line going through first and last curve points
-        const detrendedValue = curve[i].value - trendLineValue
-        result.push({ ...curve[i], value: round(detrendedValue, 15) })
-    }
-
-    return result
-}
+// export const setharesLoudness = (amplitude: number): number => 0.25 * 2 ** Math.log10(2E8 * amplitude)
 
 
 
-export const normalize = (curve: TPlotCurve): TPlotCurve => {
-    const result = [] as TPlotCurve
+// export const detrend = (curve: TPlotCurve): TPlotCurve => {
+//     const result = [] as TPlotCurve
 
-    const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
+//     const slope = (curve[curve.length - 1].value - curve[0].value) / (curve[curve.length - 1].ratio - curve[0].ratio)
 
-    for (let i = 0; i < curve.length; i++) {
-        result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
-    }
+//     for (let i = 0; i < curve.length; i++) {
+//         const trendLineValue = slope * (curve[i].ratio - curve[0].ratio) + curve[0].value // --> a(x - x0) + b equation of line going through first and last curve points
+//         const detrendedValue = curve[i].value - trendLineValue
+//         result.push({ ...curve[i], value: round(detrendedValue, 15) })
+//     }
 
-    return result
-}
+//     return result
+// }
 
-export const rowToString = (row: Array<number | string>) => {
-    if (row.length === 0) return ""
 
-    let result = `${row[0]}`
 
-    for (let i = 1; i < row.length; i += 1) {
-        result += `\t${row[i]}`
-    }
+// export const normalize = (curve: TPlotCurve): TPlotCurve => {
+//     const result = [] as TPlotCurve
 
-    return result
-}
+//     const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
 
-export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
-    if (curve.length === 0) return ""
+//     for (let i = 0; i < curve.length; i++) {
+//         result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
+//     }
 
-    const headerRow = rowToString(Object.keys(curve[0]))
-    const rows = [headerRow]
+//     return result
+// }
 
-    for (let i = 0; i < curve.length; i += 1) {
-        rows.push(rowToString(Object.values(curve[i])))
-    }
+// export const rowToString = (row: Array<number | string>) => {
+//     if (row.length === 0) return ""
 
-    return rows.join('\n')
-}
+//     let result = `${row[0]}`
 
-// Not Used, can be baseline for recording user performance
-export const recordSample = ({ synth, audioContext, recorderNode, duration }: { synth: AdditiveSynth, audioContext: AudioContext, recorderNode: MediaStreamAudioDestinationNode, duration: number }): Promise<Blob> | undefined => {
-    const recorder = new MediaRecorder(recorderNode.stream)
+//     for (let i = 1; i < row.length; i += 1) {
+//         result += `\t${row[i]}`
+//     }
 
-    const recording = new Promise<Blob>((resolve) => {
-        setTimeout(() => {
-            recorder.stop()
-            synth.stop()
-            synth.disconnect()
-            synth.connect(audioContext.destination)
-        }, duration)
+//     return result
+// }
 
-        recorder.ondataavailable = (e) => {
-            resolve(new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' }))
-        }
-    })
+// export const parseCurveToFileFormat = (curve: { [key: string]: number }[]) => {
+//     if (curve.length === 0) return ""
 
-    synth.disconnect()
-    synth.connect(recorderNode)
+//     const headerRow = rowToString(Object.keys(curve[0]))
+//     const rows = [headerRow]
 
-    synth.start()
-    recorder.start()
+//     for (let i = 0; i < curve.length; i += 1) {
+//         rows.push(rowToString(Object.values(curve[i])))
+//     }
 
-    return recording
-}
+//     return rows.join('\n')
+// }
 
-// TODO untested
-export const isPowerOfNumber = (number: number, base: number): boolean => {
-    if (number - 1 < 0.001) {
-        return true;
-    };
-    if (number % base !== 0) {
-        return false;
-    }
-    return isPowerOfNumber(number / base, base);
-}
+// // Not Used, can be baseline for recording user performance
+// export const recordSample = ({ synth, audioContext, recorderNode, duration }: { synth: AdditiveSynth, audioContext: AudioContext, recorderNode: MediaStreamAudioDestinationNode, duration: number }): Promise<Blob> | undefined => {
+//     const recorder = new MediaRecorder(recorderNode.stream)
+
+//     const recording = new Promise<Blob>((resolve) => {
+//         setTimeout(() => {
+//             recorder.stop()
+//             synth.stop()
+//             synth.disconnect()
+//             synth.connect(audioContext.destination)
+//         }, duration)
+
+//         recorder.ondataavailable = (e) => {
+//             resolve(new Blob([e.data], { type: 'audio/wav; codecs=MS_PCM' }))
+//         }
+//     })
+
+//     synth.disconnect()
+//     synth.connect(recorderNode)
+
+//     synth.start()
+//     recorder.start()
+
+//     return recording
+// }
+
+// // TODO untested
+// export const isPowerOfNumber = (number: number, base: number): boolean => {
+//     if (number - 1 < 0.001) {
+//         return true;
+//     };
+//     if (number % base !== 0) {
+//         return false;
+//     }
+//     return isPowerOfNumber(number / base, base);
+// }
