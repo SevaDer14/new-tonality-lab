@@ -1,19 +1,3 @@
-import { expect } from 'vitest'
-import type { PointSeriesValue } from './pointSeries'
-
-export const assertArrayFloatEquality = (arr1: number[], arr2: number[]) => {
-    arr1.forEach((n, i) => {
-        expect(n).toBeCloseTo(arr2[i])
-    })
-}
-
-export const assertPointSeriesFloatEquality = (pointSeries1: PointSeriesValue, pointSeries2: PointSeriesValue) => {
-    pointSeries1.forEach((point, i) => {
-        expect(point[0]).toBeCloseTo(pointSeries2[i][0])
-        expect(point[1]).toBeCloseTo(pointSeries2[i][1])
-    })
-}
-
 export const ratioToCents = (ratio: number): number => {
     return ratio > 0 ? 1200 * Math.log2(ratio) : 0
 }

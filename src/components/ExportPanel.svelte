@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Panel from './basic/Panel.svelte'
     import Range from './basic/Range.svelte'
     import Checkbox from './basic/Checkbox.svelte'
@@ -140,4 +140,4 @@
         <Button class="text-blue border-blue-65 bg-blue-5" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing' : 'Download'}</Button>
     </div>
     <p class="text-xs text-white-25 text-center">Press "Space" to play or stop</p>
-</Panel>
+</Panel> -->

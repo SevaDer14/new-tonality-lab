@@ -1,5 +1,6 @@
 export * from './pointSeries'
 export * from './series'
-export * from './spectrum'
+export * from './partials'
 export * from './synth'
 export * from './utils'
+export * from './spectrum'

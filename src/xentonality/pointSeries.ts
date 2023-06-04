@@ -8,11 +8,11 @@ export class PointSeries {
     private _value: PointSeriesValue
 
     constructor(pointSeries?: PointSeriesValue) {
-        this._value = pointSeries !== undefined ? [...pointSeries] : []
+        this._value = pointSeries !== undefined ? structuredClone(pointSeries) : []
     }
 
     public get value() {
-        return JSON.parse(JSON.stringify([...this._value]));
+        return this._value;
     }
 
     public set value(val: PointSeriesValue) {
@@ -79,6 +79,8 @@ export class PointSeries {
     */
     fill(length: number, generator: (i: number) => Point) {
         if (length < 0) throw new Error("Series length must be greater or equal to zero!")
+        
+        this._value = []
 
         for (let i = 0; i < length; i++) {
             this._value[i] = generator(i);
@@ -136,4 +138,17 @@ export class PointSeries {
 
         return [seriesX, seriesY]
     }
+
+    // FINILIZE AND TEST
+    // normalize() {
+    //     const result = [] as TPlotCurve
+    
+    //     const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
+    
+    //     for (let i = 0; i < curve.length; i++) {
+    //         result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
+    //     }
+    
+    //     return result
+    // }
 }

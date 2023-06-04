@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { PointSeries, type Point, type PointSeriesValue } from './pointSeries'
 import { errors } from './errorMessages'
-import { assertPointSeriesFloatEquality } from './utils'
 import { Series } from './series'
+
+export const assertPointSeriesFloatEquality = (pointSeries1: PointSeriesValue, pointSeries2: PointSeriesValue) => {
+    pointSeries1.forEach((point, i) => {
+        expect(point[0]).toBeCloseTo(pointSeries2[i][0])
+        expect(point[1]).toBeCloseTo(pointSeries2[i][1])
+    })
+}
 
 describe('PointSeries:', () => {
     describe('constructor', () => {
@@ -17,6 +23,15 @@ describe('PointSeries:', () => {
 
             expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
         })
+
+        it('should construct deep copy of provided value', () => {
+            const series_1 = new PointSeries([[1, 1], [2, 1], [3, 1]])
+            const series_2 = new PointSeries(series_1.value)
+
+            series_2.transform((p) => p.reverse() as Point)
+
+            expect(series_1.value).toEqual([[1, 1], [2, 1], [3, 1]])
+        })
     })
 
     describe('getter', () => {
@@ -24,15 +39,6 @@ describe('PointSeries:', () => {
             const pointSeries = new PointSeries([[1, 1], [2, 2], [3, 3]])
 
             expect(pointSeries.value).toEqual([[1, 1], [2, 2], [3, 3]])
-        })
-
-        it('should return deep copy value', () => {
-            const series_1 = new PointSeries([[1, 1], [2, 1], [3, 1]])
-            const series_2 = new PointSeries(series_1.value)
-
-            series_2.transform((p) => p.reverse() as Point)
-
-            expect(series_1.value).toEqual([[1, 1], [2, 1], [3, 1]])
         })
     })
 
@@ -156,6 +162,12 @@ describe('PointSeries:', () => {
             const series = new PointSeries().fill(3, (i) => [i * 2, 2.1 ** Math.log2(i + 1)])
 
             assertPointSeriesFloatEquality(series.value, [[0, 1], [2, 2.1], [4, 3.241]])
+        })
+
+        it('should override original spectrum', () => {
+            const series = new PointSeries([[1, 1], [1, 1], [1, 1]]).fill(1, () => [10, 10])
+
+            expect(series.value).toEqual([[10, 10]])
         })
 
         it('should throw error if length is less than zero', () => {

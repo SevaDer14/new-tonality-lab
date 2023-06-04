@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { Series } from './series'
 import { errors } from './errorMessages'
-import { assertArrayFloatEquality } from './utils'
+
+
+export const assertArrayFloatEquality = (arr1: number[], arr2: number[]) => {
+    arr1.forEach((n, i) => {
+        expect(n).toBeCloseTo(arr2[i])
+    })
+}
 
 describe('Series:', () => {
     describe('constructor', () => {
@@ -18,11 +24,12 @@ describe('Series:', () => {
         })
 
         it('constructed series should not be a reference', () => {
-            const input = [1, 2, 3]
-            const series = new Series(input)
-            input.reverse()
+            const series_1 = new Series([1, 2, 3])
+            const series_2 = new Series(series_1.value)
 
-            expect(series.value).toEqual([1, 2, 3])
+            series_2.transform((p) => p * 2)
+
+            expect(series_1.value).toEqual([1, 2, 3])
         })
     })
 

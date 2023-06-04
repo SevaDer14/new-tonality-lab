@@ -1,11 +1,11 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Tweak from './basic/Tweak.svelte'
     import Panel from './basic/Panel.svelte'
-    import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores'
+    import { spectrum, tweaks, tweaksEnabled } from '../state/stores'
     import Checkbox from './basic/Checkbox.svelte'
 
     $: {
-        $partials.forEach((partial, index) => {
+        $spectrum.partials.forEach((partial, index) => {
             if ($tweaks[index] === undefined) {
                 $tweaks.push({ ratio: 0, amplitude: 0 })
             }
@@ -40,4 +40,4 @@
             }}
         />
     {/each}
-</Panel>
+</Panel> -->

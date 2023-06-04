@@ -10,7 +10,7 @@ export class Series {
     }
 
     public get value() {
-        return JSON.parse(JSON.stringify(this._value));
+        return this._value
     }
 
     public set value(val: SeriesValue) {

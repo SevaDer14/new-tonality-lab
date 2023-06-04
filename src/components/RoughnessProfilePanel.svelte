@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
     import Panel from './basic/Panel.svelte'
     import Range from './basic/Range.svelte'
     import RadioGroup from './basic/RadioGroup.svelte'
@@ -33,4 +33,4 @@
     <Checkbox label="Show 12 EDO minor ticks" onChange={(value) => ($show12EDO = value)} checked={$show12EDO === true} />
 
     <Checkbox label="Detrend" onChange={(value) => ($dissonanceCurveDetrend = value)} checked={$dissonanceCurveDetrend === true} />
-</Panel>
+</Panel> -->
