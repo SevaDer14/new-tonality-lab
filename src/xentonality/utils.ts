@@ -7,6 +7,9 @@ export const centsToRatio = (cents: number): number => {
     return 2 ** (cents / 1200)
 }
 
+// TODO: Untested
+export function round(n: number, precision = 10) { return parseFloat(n.toFixed(precision)) }
+
 
 // export const checkNumericParam = ({ param, integer = false, condition }: { param: number, integer?: boolean, condition?: boolean }): boolean => {
 //     let success = true

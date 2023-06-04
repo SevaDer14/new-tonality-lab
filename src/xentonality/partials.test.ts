@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { PRECISION, Partials } from "./partials";
+import { Partials } from "./partials";
 import { PointSeries, type PointSeriesValue } from "./pointSeries";
 import { Series } from "./series";
 import { errors } from "./errorMessages";
-import { round } from "lodash";
+import { round } from "./utils";
 
 const Fixture = {
     edo_12_1: [[1, 1], [2, 0.5], [2.9966141538, 0.3337099635], [4, 0.25], [5.0396841996, 0.1984251315], [5.9932283075, 0.1668549818], [7.1271897451, 0.140307756], [8, 0.125], [8.9796963865, 0.1113623398], [10.0793683992, 0.0992125657]],
@@ -65,7 +65,7 @@ describe('Partials:', () => {
             const partials = new Partials().generate({ type: "harmonic", numberOfPartials: 3, amplitudeProfile: 1 })
 
             const ratios = new Series().fill(3, (i) => i + 1).value
-            const amplitudes = new Series(ratios).transform((n) => round(1 / n, PRECISION)).value
+            const amplitudes = new Series(ratios).transform((n) => round(1 / n)).value
             const expectedPartials = new PointSeries().merge(ratios, amplitudes).value
 
             expect(partials.value).toEqual(expectedPartials)

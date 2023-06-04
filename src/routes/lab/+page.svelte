@@ -5,8 +5,6 @@
     import GeneratePanel from '../../components/GeneratePanel.svelte'
     import Panel from '../../components/basic/Panel.svelte'
     import TweakPanel from '../../components/TweakPanel.svelte'
-    import { spectrum } from "../../state/stores";
-    import { partial } from 'lodash'
 </script>
 
 <GeneratePanel />

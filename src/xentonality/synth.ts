@@ -1,4 +1,4 @@
-import { round } from "lodash";
+import { round } from "./utils";
 import type { TPartial, TPartials } from "./types";
 
 type AdditiveSynthOscillator = {
