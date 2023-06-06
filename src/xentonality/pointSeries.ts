@@ -139,6 +139,14 @@ export class PointSeries {
         return [seriesX, seriesY]
     }
 
+    getX(): Series {
+        return this.split()[0]
+    }
+
+    getY(): Series {
+        return this.split()[1]
+    }
+
     // FINILIZE AND TEST
     // normalize() {
     //     const result = [] as TPlotCurve

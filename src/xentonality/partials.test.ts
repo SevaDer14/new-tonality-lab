@@ -17,22 +17,22 @@ describe('Partials:', () => {
         it('should construct partials with no partials', () => {
             const partials = new Partials()
 
-            expect(partials.value).toEqual([])
+            expect(partials.series.value).toEqual([])
         })
 
         it('should construct partials with [[1, 1], [2, 0.5]] partials', () => {
             const partials = new Partials([[1, 1], [2, 0.5]])
 
-            expect(partials.value).toEqual([[1, 1], [2, 0.5]])
+            expect(partials.series.value).toEqual([[1, 1], [2, 0.5]])
         })
 
         it('should construct deep copy of provided partials', () => {
             const partials_1 = new Partials([[1, 1], [2, 1], [3, 1]])
-            const partials_2 = new Partials(partials_1.value)
+            const partials_2 = new Partials(partials_1.series.value)
 
             partials_2.stretch(4)
 
-            expect(partials_1.value).toEqual([[1, 1], [2, 1], [3, 1]])
+            expect(partials_1.series.value).toEqual([[1, 1], [2, 1], [3, 1]])
         })
     })
 
@@ -40,7 +40,7 @@ describe('Partials:', () => {
         it('should return a value of partials of the partials', () => {
             const partials = new Partials([[1, 1], [2, 1], [3, 1], [4, 1]])
 
-            expect(partials.value).toEqual([[1, 1], [2, 1], [3, 1], [4, 1]])
+            expect(partials.series.value).toEqual([[1, 1], [2, 1], [3, 1], [4, 1]])
         })
     })
 
@@ -48,7 +48,7 @@ describe('Partials:', () => {
         it('should construct harmonic partials with 0 partials', () => {
             const partials = new Partials().generate({ type: "harmonic", numberOfPartials: 0 })
 
-            expect(partials.value).toEqual([])
+            expect(partials.series.value).toEqual([])
         })
 
         it('should construct harmonic partials with 4 partials and default equal amplitudes', () => {
@@ -58,7 +58,7 @@ describe('Partials:', () => {
             const amplitudes = new Series().fill(4, () => 1).value
             const expectedPartials = new PointSeries().merge(ratios, amplitudes).value
 
-            expect(partials.value).toEqual(expectedPartials)
+            expect(partials.series.value).toEqual(expectedPartials)
         })
 
         it('should construct harmonic partials with 3 partials and log amplitude profile', () => {
@@ -68,7 +68,7 @@ describe('Partials:', () => {
             const amplitudes = new Series(ratios).transform((n) => round(1 / n)).value
             const expectedPartials = new PointSeries().merge(ratios, amplitudes).value
 
-            expect(partials.value).toEqual(expectedPartials)
+            expect(partials.series.value).toEqual(expectedPartials)
         })
 
         it('should throw less than 1 octave ratio error if octaveRatio is 1', () => {
@@ -102,14 +102,14 @@ describe('Partials:', () => {
             const expectedOutcome = Fixture.edo_12_1
             const partials = new Partials().generate({ type: "equalTemperament", steps: 12, numberOfPartials: 10, amplitudeProfile: 1 })
 
-            expect(partials.value).toEqual(expectedOutcome);
+            expect(partials.series.value).toEqual(expectedOutcome);
         });
 
         it('returns 8 partials of 3 edo partials with no duplicates and default equal amplitude profile', () => {
             const expectedOutcome = Fixture.edo_3_1
             const partials = new Partials().generate({ type: "equalTemperament", steps: 3, numberOfPartials: 8 })
 
-            expect(partials.value).toEqual(expectedOutcome);
+            expect(partials.series.value).toEqual(expectedOutcome);
         });
 
         it('should throw less than 1 octave ratio error if octaveRatio is 1', () => {
@@ -142,19 +142,19 @@ describe('Partials:', () => {
         it('should do nothing with empty partials', () => {
             const partials = new Partials().stretch(3)
 
-            expect(partials.value).toEqual([])
+            expect(partials.series.value).toEqual([])
         })
 
         it('should stretch octave to octave + fifth', () => {
             const partials = new Partials().generate({ type: "harmonic", numberOfPartials: 4 }).stretch(3)
 
-            expect(partials.value).toEqual(Fixture.stretch_harm_3)
+            expect(partials.series.value).toEqual(Fixture.stretch_harm_3)
         })
 
         it('should shrink octave to fifth', () => {
             const partials = new Partials().generate({ type: "equalTemperament", steps: 11, numberOfPartials: 6 }).stretch(3 / 2)
 
-            expect(partials.value).toEqual(Fixture.stretch_edo_11_fifth)
+            expect(partials.series.value).toEqual(Fixture.stretch_edo_11_fifth)
         })
 
         it('should throw error if octave ratio is 0', () => {
@@ -175,16 +175,16 @@ describe('Partials:', () => {
             const partials_1 = new Partials()
             const partials_2 = new Partials()
 
-            partials_1.include(partials_2.value)
+            partials_1.include(partials_2.series.value)
 
-            expect(partials_1.value).toEqual([])
+            expect(partials_1.series.value).toEqual([])
         })
 
         it('should return original partials if included partials is empty', () => {
             const partials_1 = new Partials().generate({ type: "harmonic", numberOfPartials: 3 }).include([])
             const expectedOutcome = [[1, 1], [2, 1], [3, 1]]
 
-            expect(partials_1.value).toEqual(expectedOutcome)
+            expect(partials_1.series.value).toEqual(expectedOutcome)
         })
 
         it('should return included partials if original partials is empty', () => {
@@ -192,18 +192,18 @@ describe('Partials:', () => {
             const partials_2 = new Partials().generate({ type: "harmonic", numberOfPartials: 3 })
             const expectedOutcome = [[1, 1], [2, 1], [3, 1]]
 
-            partials_1.include(partials_2.value)
+            partials_1.include(partials_2.series.value)
 
-            expect(partials_1.value).toEqual(expectedOutcome)
+            expect(partials_1.series.value).toEqual(expectedOutcome)
         })
 
         it('should not change partials if including itself', () => {
             const harmonic = new Partials().generate({ type: "harmonic", numberOfPartials: 3 })
             const expectedOutcome = [[1, 1], [2, 1], [3, 1]]
 
-            harmonic.include(harmonic.value)
+            harmonic.include(harmonic.series.value)
 
-            expect(harmonic.value).toEqual(expectedOutcome)
+            expect(harmonic.series.value).toEqual(expectedOutcome)
         })
 
         it('should not change partials if including equal one', () => {
@@ -211,35 +211,35 @@ describe('Partials:', () => {
             const harmonic_2 = new Partials().generate({ type: "harmonic", numberOfPartials: 3 })
             const expectedOutcome = [[1, 1], [2, 1], [3, 1]]
 
-            harmonic_1.include(harmonic_2.value)
+            harmonic_1.include(harmonic_2.series.value)
 
-            expect(harmonic_1.value).toEqual(expectedOutcome)
+            expect(harmonic_1.series.value).toEqual(expectedOutcome)
         })
 
         it('should include new partials to the end', () => {
             const partials_1 = new Partials([[1, 1], [2, 1], [3, 1]])
             const partials_2 = new Partials([[10, 10], [20, 10], [30, 10]])
 
-            partials_1.include(partials_2.value)
+            partials_1.include(partials_2.series.value)
 
-            expect(partials_1.value).toEqual([[1, 1], [2, 1], [3, 1], [10, 10], [20, 10], [30, 10]])
+            expect(partials_1.series.value).toEqual([[1, 1], [2, 1], [3, 1], [10, 10], [20, 10], [30, 10]])
         })
 
         it('should not change partials of the partials that is included', () => {
             const partials_1 = new Partials([[1, 1], [2, 1], [3, 1]])
             const partials_2 = new Partials([[10, 10], [20, 10], [30, 10]])
 
-            partials_1.include(partials_2.value)
+            partials_1.include(partials_2.series.value)
 
-            expect(partials_2.value).toEqual([[10, 10], [20, 10], [30, 10]])
+            expect(partials_2.series.value).toEqual([[10, 10], [20, 10], [30, 10]])
         })
 
         it('should include harmonic and stretched partials without duplicate partials', () => {
             const harmonic = new Partials().generate({ type: "harmonic", numberOfPartials: 3 })
             const stretched = new Partials([[1, 1], [2, 1], [3, 1]]).stretch(2.1)
-            harmonic.include(stretched.value)
+            harmonic.include(stretched.series.value)
 
-            expect(harmonic.value).toEqual([[1, 1], [2, 1], [2.1, 1], [3, 1], [3.2411975292, 1]])
+            expect(harmonic.series.value).toEqual([[1, 1], [2, 1], [2.1, 1], [3, 1], [3.2411975292, 1]])
         })
 
 
@@ -247,9 +247,9 @@ describe('Partials:', () => {
             const partials_1 = new Partials([[1, 1], [2, 0.5], [3, 0.33], [4, 0.6]])
             const partials_2 = new Partials([[1.1, 0.1], [2.2, 1], [3, 1], [4, 0.5]])
 
-            partials_1.include(partials_2.value)
+            partials_1.include(partials_2.series.value)
 
-            expect(partials_1.value).toEqual([[1, 1], [1.1, 0.1], [2, 0.5], [2.2, 1], [3, 1], [4, 0.6]])
+            expect(partials_1.series.value).toEqual([[1, 1], [1.1, 0.1], [2, 0.5], [2.2, 1], [3, 1], [4, 0.6]])
         })
     })
 
@@ -258,14 +258,14 @@ describe('Partials:', () => {
             const harmonic = new Partials()
             harmonic.shift(2)
 
-            expect(harmonic.value).toEqual([])
+            expect(harmonic.series.value).toEqual([])
         })
 
         it('should shift partials on the ratio', () => {
             const harmonic = new Partials().generate({ type: "harmonic", numberOfPartials: 3 })
             harmonic.shift(2)
 
-            expect(harmonic.value).toEqual([[2, 1], [4, 1], [6, 1]])
+            expect(harmonic.series.value).toEqual([[2, 1], [4, 1], [6, 1]])
         })
     })
 
@@ -275,7 +275,7 @@ describe('Partials:', () => {
     //         partials.shiftAndInclude(1.1)
 
 
-    //         expect(partials.value).toEqual([[1, 1], [1.1, 1], [2, 0.5], [2.2, 0.5], [3, 0.3333333333], [3.3, 0.3333333333]])
+    //         expect(partials.series.value).toEqual([[1, 1], [1.1, 1], [2, 0.5], [2.2, 0.5], [3, 0.3333333333], [3.3, 0.3333333333]])
     //     })
 
     //     it('should add fifth of the same partials', () => {
@@ -283,7 +283,7 @@ describe('Partials:', () => {
     //         partials.shiftAndInclude(1.5)
 
 
-    //         expect(partials.value).toEqual([[1, 1], [1.5, 1], [2, 0.5], [3, 0.5], [4.5, 0.3333333333]])
+    //         expect(partials.series.value).toEqual([[1, 1], [1.5, 1], [2, 0.5], [3, 0.5], [4.5, 0.3333333333]])
     //     })
 
     //     it('should add octave + fifth of the same partials', () => {
@@ -291,7 +291,7 @@ describe('Partials:', () => {
     //         partials.shiftAndInclude(3)
 
 
-    //         expect(partials.value).toEqual([[1, 1], [2, 0.5], [3, 1], [6, 0.5], [9, 0.3333333333]])
+    //         expect(partials.series.value).toEqual([[1, 1], [2, 0.5], [3, 1], [6, 0.5], [9, 0.3333333333]])
     //     })
     // })
 
@@ -302,7 +302,7 @@ describe('Partials:', () => {
             partials.tweak(tweaks)
 
 
-            expect(partials.value).toEqual([[0.5, 0], [2, 1], [6, 2]])
+            expect(partials.series.value).toEqual([[0.5, 0], [2, 1], [6, 2]])
         })
 
         it('should apply tweaks to only first partial', () => {
@@ -310,7 +310,7 @@ describe('Partials:', () => {
             const tweaks: PointSeriesValue = [[0.9, 0.9]]
             partials.tweak(tweaks)
 
-            expect(partials.value).toEqual([[0.9, 0.9], [2, 1], [3, 1]])
+            expect(partials.series.value).toEqual([[0.9, 0.9], [2, 1], [3, 1]])
         })
 
         it('should not throw error if amplitude tweak is 0', () => {
@@ -318,7 +318,7 @@ describe('Partials:', () => {
             const tweaks: PointSeriesValue = [[1, 1], [1, 0]]
             partials.tweak(tweaks)
 
-            expect(partials.value).toEqual([[1, 1], [2, 0], [3, 1]])
+            expect(partials.series.value).toEqual([[1, 1], [2, 0], [3, 1]])
         })
 
         it('should throw error if ratio tweak is 0', () => {

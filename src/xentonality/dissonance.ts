@@ -15,8 +15,8 @@ export const calcDissonanceCurve = (spectrum: Spectrum, fundamental: number, { s
     const step = 1 / pointDensity
     const numberOfPoints = (max - min) / step
 
-    const sweep = sweepSpectrum ? new Spectrum(sweepSpectrum.partials) : new Spectrum(spectrum.partials)
-    const stationary = new Spectrum(spectrum.partials).shift(fundamental)
+    const sweep = sweepSpectrum ? new Spectrum(sweepSpectrum.partials) : new Spectrum(spectrum.partials.value)
+    const stationary = new Spectrum(spectrum.partials.value).shift(fundamental)
 
     for (let i = 0; i < numberOfPoints; i++) {
         const currentStep = step * i + 1

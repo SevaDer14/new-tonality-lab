@@ -37,12 +37,12 @@
 
 <Panel title="tweak" maxContentHeight="400px">
     <Checkbox label="Enable" checked={tweaksEnabled} onChange={handleDisable} />
-    {#each $spectrum.partials.value as partial, index}
+    {#each $spectrum.partials.series.value as partial, index}
         <Tweak
             index={index + 1}
-            ratio={$spectrum.nonTweakedPartials.value[index][0]}
+            ratio={$spectrum.nonTweakedPartials.series.value[index][0]}
             disabled={!tweaksEnabled}
-            amplitude={$spectrum.nonTweakedPartials.value[index][1]}
+            amplitude={$spectrum.nonTweakedPartials.series.value[index][1]}
             initialValue={$spectrum.tweaks[index]}
             onRatioChange={index !== 0
                 ? (value) => {

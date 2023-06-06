@@ -41,7 +41,7 @@ export class Spectrum {
     }
 
     tweak(newTweaks: PointSeriesValue) {
-        if (newTweaks.length !== this._nonTweakedPartials.value.length) throw new Error(errors.spectrum.tweaksShouldHaveTheSameLengthAsSpectrum)
+        if (newTweaks.length !== this._nonTweakedPartials.series.value.length) throw new Error(errors.spectrum.tweaksShouldHaveTheSameLengthAsSpectrum)
 
         this._tweaks = newTweaks
         this._partials = this.applyTweaks()
@@ -53,7 +53,7 @@ export class Spectrum {
         Object.assign(this._options, newOptions)
         this._nonTweakedPartials.generate(this._options)
 
-        this._nonTweakedPartials.value.forEach((partial, index) => {
+        this._nonTweakedPartials.series.value.forEach((partial, index) => {
             if (this._tweaks[index] === undefined) {
                 this._tweaks.push([1, 1])
             }
@@ -65,6 +65,6 @@ export class Spectrum {
     }
 
     private applyTweaks(): Partials {
-        return new Partials(this._nonTweakedPartials.value).tweak(this._tweaks)
+        return new Partials(this._nonTweakedPartials.series.value).tweak(this._tweaks)
     }
 }

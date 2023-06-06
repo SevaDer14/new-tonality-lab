@@ -51,4 +51,9 @@ export class Series {
 
         return this
     }
+
+    // UNTESTED
+    max() {
+        return this._value.reduce((a, b) => Math.max(a, b), -Infinity)
+    }
 }

@@ -19,7 +19,7 @@ export class Partials {
         this._partials = new PointSeries(partials)
     }
 
-    public get partials(): PointSeries {
+    public get series(): PointSeries {
         return this._partials
     }
 
