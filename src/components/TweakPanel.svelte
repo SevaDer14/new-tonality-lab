@@ -1,43 +1,57 @@
-<!-- <script lang="ts">
+<script lang="ts">
     import Tweak from './basic/Tweak.svelte'
     import Panel from './basic/Panel.svelte'
-    import { spectrum, tweaks, tweaksEnabled } from '../state/stores'
+    import { spectrum } from '../state/stores'
     import Checkbox from './basic/Checkbox.svelte'
+    import type { PointSeriesValue } from 'src/xentonality'
 
     $: {
-        $spectrum.partials.forEach((partial, index) => {
-            if ($tweaks[index] === undefined) {
-                $tweaks.push({ ratio: 0, amplitude: 0 })
-            }
-        })
+        if (tweaks !== undefined && tweaksEnabled !== undefined) {
+            applyTweaks()
+        }
+    }
+
+    let tweaksEnabled = true
+    let tweaks: PointSeriesValue = $spectrum.tweaks
+
+    function applyTweaks() {
+        if (tweaksEnabled === true) {
+            spectrum.tweak(tweaks)
+        } else {
+            spectrum.tweak(tweaks.map(() => [1, 1]))
+        }
+    }
+
+    function handleDisable(value: boolean) {
+        tweaksEnabled = value
+    }
+
+    function setTweakRatio(index: number, ratio: number) {
+        tweaks[index][0] = ratio
+    }
+
+    function setTweakAmp(index: number, amplitude: number) {
+        tweaks[index][1] = amplitude
     }
 </script>
 
 <Panel title="tweak" maxContentHeight="400px">
-    <Checkbox label="Enable" checked={$tweaksEnabled} onChange={(value) => ($tweaksEnabled = value)} />
-    {#each $partials as partial, index}
+    <Checkbox label="Enable" checked={tweaksEnabled} onChange={handleDisable} />
+    {#each $spectrum.partials as partial, index}
         <Tweak
             index={index + 1}
-            ratio={$generatedPartials[index].ratio}
-            disabled={!$tweaksEnabled}
-            amplitude={$generatedPartials[index].amplitude}
-            initialValue={$tweaks[index]}
-            ratioLimits={{
-                min: index > 0 ? -($generatedPartials[index].ratio - $generatedPartials[index - 1].ratio) + 0.01 : 0,
-                max: index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : $generatedPartials[index]?.ratio - $generatedPartials[index - 1].ratio,
-            }}
-            amplitudeLimits={{
-                min: -$generatedPartials[index].amplitude,
-                max: 1 - $generatedPartials[index].amplitude,
-            }}
+            ratio={$spectrum.nonTweakedPartials.value[index][0]}
+            disabled={!tweaksEnabled}
+            amplitude={$spectrum.nonTweakedPartials.value[index][1]}
+            initialValue={$spectrum.tweaks[index]}
             onRatioChange={index !== 0
                 ? (value) => {
-                      $tweaks[index].ratio = value
+                      setTweakRatio(index, value)
                   }
                 : undefined}
             onAmplitudeChange={(value) => {
-                $tweaks[index].amplitude = value
+                setTweakAmp(index, value)
             }}
         />
     {/each}
-</Panel> -->
+</Panel>

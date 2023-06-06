@@ -112,13 +112,6 @@ describe('Partials:', () => {
             expect(partials.value).toEqual(expectedOutcome);
         });
 
-        it('returns total of 10 partials for 3-EDO if ratio is limited to 16', () => {
-            const partials = new Partials().generate({ type: "equalTemperament", steps: 3, numberOfPartials: 1000, ratioLimit: 16 })
-
-            expect(partials.value.length).toEqual(10);
-            expect(partials.value[partials.value.length - 1][0]).toEqual(16);
-        });
-
         it('should throw less than 1 octave ratio error if octaveRatio is 1', () => {
             expect(() => new Partials().generate({ type: "harmonic", numberOfPartials: 10, octaveRatio: 1 }))
                 .toThrowError(errors.partials.lessThanOneOctaveRatio)

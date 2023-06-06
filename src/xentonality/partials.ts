@@ -1,9 +1,6 @@
 import { errors } from "./errorMessages"
 import { PointSeries, type Point, type PointSeriesValue } from "./pointSeries"
-
-export const PRECISION = 10
-
-function round(n: number) { return parseFloat(n.toFixed(PRECISION)) }
+import { round } from "./utils"
 
 export type SpectrumTypes = "harmonic" | "equalTemperament"
 
@@ -13,7 +10,6 @@ export type PartialsGenerateOptions = {
     amplitudeProfile?: number,
     octaveRatio?: number,
     steps?: number,
-    ratioLimit?: number
 }
 
 export class Partials {
@@ -27,7 +23,7 @@ export class Partials {
         return this._partials.value
     }
 
-    generate({ type, numberOfPartials, amplitudeProfile = 0, steps = 12, ratioLimit = 1000, octaveRatio = 2 }: PartialsGenerateOptions) {
+    generate({ type, numberOfPartials, amplitudeProfile = 0, steps = 12, octaveRatio = 2 }: PartialsGenerateOptions) {
         if (numberOfPartials < 0) throw new Error(errors.partials.negativeNumberOfPartials)
         if (amplitudeProfile < 0) throw new Error(errors.partials.negativeAmplitudeProfile)
         if (numberOfPartials !== Math.floor(numberOfPartials)) throw new Error(errors.partials.nonIntegerNumberOfPartials)
@@ -47,8 +43,6 @@ export class Partials {
             const previousPartialRatio = previousPartial ? previousPartial[0] : undefined
 
             const ratio = round(octaveRatio ** exponent(i))
-
-            if (ratio > ratioLimit) break
 
             if (previousPartialRatio === undefined || ratio !== previousPartialRatio) {
                 const amp = this.getAmplitude(amplitudeProfile, ratio)
@@ -114,6 +108,8 @@ export class Partials {
 
             return [round(tweak[0] * p[0]), round(tweak[1] * p[1])]
         })
+
+        return this
     }
 
     private getAmplitude(slope: number, ratio: number): number {

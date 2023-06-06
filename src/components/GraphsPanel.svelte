@@ -1,10 +1,11 @@
 <script lang="ts">
-    // import { partials, sweepPartials, sweepRatio, showSweep, dissonanceCurve, show12EDO, dissonanceCurveHighRes, dissonanceCurveEDOMarks, pseudoOctave } from '../state/stores.js'
     import { spectrum, showSweep } from '../state/stores'
     import { ratioToCents } from '../xentonality/utils'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
-    import { round } from 'lodash'
+    import { round } from '../xentonality/utils'
+    import { partial } from 'lodash'
+    import { colors } from '../theme/colors'
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
@@ -17,46 +18,6 @@
         },
         formatter: function (): string {
             return `${this.series.name} <br/> x: ${round(this.x, 2)} <br/> value: ${round(this.y, 2)}`
-        },
-    }
-
-    let colors = {
-        transparent: 'rgba(255, 255, 255, 0)',
-        white: {
-            DEFAULT: 'rgba(255, 255, 255, 1)',
-            '65': 'rgba(255, 255, 255, 0.65)',
-            '25': 'rgba(255, 255, 255, 0.25)',
-            '5': 'rgba(255, 255, 255, 0.05)',
-        },
-        blue: {
-            DEFAULT: 'rgba(0, 189, 249, 1)',
-            '65': 'rgba(0, 189, 249, 0.65)',
-            '25': 'rgba(0, 189, 249, 0.25)',
-            '5': 'rgba(0, 189, 249, 0.05)',
-        },
-        green: {
-            DEFAULT: 'rgba(105, 255, 111, 1)',
-            '65': 'rgba(105, 255, 111, 0.65)',
-            '25': 'rgba(105, 255, 111, 0.25)',
-            '5': 'rgba(105, 255, 111, 0.05)',
-        },
-        yellow: {
-            DEFAULT: 'rgba(255, 230, 0, 1)',
-            '65': 'rgba(255, 230, 0, 0.65)',
-            '25': 'rgba(255, 230, 0, 0.25)',
-            '5': 'rgba(255, 230, 0, 0.05)',
-        },
-        orange: {
-            DEFAULT: 'rgba(255, 177, 61, 1)',
-            '65': 'rgba(255, 177, 61, 0.65)',
-            '25': 'rgba(255, 177, 61, 0.25)',
-            '5': 'rgba(255, 177, 61, 0.05)',
-        },
-        pink: {
-            DEFAULT: 'rgba(255, 61, 177, 1)',
-            '65': 'rgba(255, 61, 177, 0.65)',
-            '25': 'rgba(255, 61, 177, 0.25)',
-            '5': 'rgba(255, 61, 177, 0.05)',
         },
     }
 
@@ -99,17 +60,17 @@
                         minortickInterval: 0.1,
                         labels: labels,
                     },
-                    {
-                        title: { text: '' },
-                        gridLineWidth: 0,
-                        max: 2,
-                        min: 0,
-                        tickInterval: 0.1,
-                        opposite: true,
-                        labels: {
-                            enabled: false,
-                        },
-                    },
+                    // {
+                    //     title: { text: '' },
+                    //     gridLineWidth: 0,
+                    //     max: 2,
+                    //     min: 0,
+                    //     tickInterval: 0.1,
+                    //     opposite: true,
+                    //     labels: {
+                    //         enabled: false,
+                    //     },
+                    // },
                 ],
                 xAxis: [
                     {
@@ -144,7 +105,7 @@
                         yAxis: 0,
                         type: 'column',
                         name: 'Partials',
-                        color: colors.green.DEFAULT,
+                        color: colors.green[100],
                         pointWidth: $showSweep ? 3 : 2,
                         borderWidth: 0,
                         data: $spectrum.partials,
@@ -154,7 +115,7 @@
                     //     yAxis: 0,
                     //     type: 'column',
                     //     name: 'Partials',
-                    //     color: colors.orange.DEFAULT,
+                    //     color: colors.orange[100],
                     //     pointWidth: 2,
                     //     borderWidth: 0,
                     //     data: $showSweep ? $sweepPartials.map((partial) => [partial.ratio, partial.amplitude]) : [],
@@ -234,7 +195,7 @@
             //             marker: {
             //                 enabled: false,
             //             },
-            //             color: colors.blue.DEFAULT,
+            //             color: colors.blue[100],
             //             fillOpacity: 0.15,
             //             data: $dissonanceCurveHighRes.curve.map((point) => [point.cents, point.value]),
             //         },
@@ -243,7 +204,7 @@
             //             yAxis: 0,
             //             type: 'column',
             //             name: 'Partials',
-            //             color: colors.orange.DEFAULT,
+            //             color: colors.orange[100],
             //             pointWidth: 2,
             //             borderWidth: 0,
             //             data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
@@ -253,7 +214,7 @@
             //             yAxis: 0,
             //             type: 'scatter',
             //             name: 'Partials',
-            //             color: colors.orange.DEFAULT,
+            //             color: colors.orange[100],
             //             marker: { symbol: 'circle', radius: 4 },
             //             data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
             //         },

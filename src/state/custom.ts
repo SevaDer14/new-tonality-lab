@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { Spectrum, type SpectrumOptions } from '../xentonality';
+import { Spectrum, type PointSeriesValue, type SpectrumOptions } from '../xentonality';
 
 export function createSpectrum(defaultOptions: SpectrumOptions) {
     let spectrum = new Spectrum(defaultOptions)
@@ -10,8 +10,13 @@ export function createSpectrum(defaultOptions: SpectrumOptions) {
         update(() => spectrum.recalculate(newOptions))
     }
 
+    function tweak(newTweaks: PointSeriesValue) {
+        update(() => spectrum.tweak(newTweaks))
+    }
+
     return {
         subscribe,
         recalculate,
+        tweak,
     }
 }

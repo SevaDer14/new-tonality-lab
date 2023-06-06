@@ -11,5 +11,8 @@ export const errors = {
         lessThanOneOctaveRatio: "Octave ratio should be greater than one!",
         tweakRatioLessOrEqualZero: "Value for ratio tweak should be greater than zero!",
         tweakAmplitudeLessZero: "Value for amplitude tweak should be greater or equal zero!",
+    },
+    spectrum: {
+        tweaksShouldHaveTheSameLengthAsSpectrum: "Length of tweaks should be the same as the number of partials!"
     }
 }

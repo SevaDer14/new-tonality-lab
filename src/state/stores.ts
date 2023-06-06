@@ -38,7 +38,6 @@ export const spectrum = createSpectrum({
     amplitudeProfile: 1,
     octaveRatio: 2,
     steps: 12,
-    ratioLimit: 1000,
 })
 // export const sweepSpectrum = createSpectrum()
 
