@@ -7,6 +7,8 @@
     import { partial } from 'lodash'
     import { colors } from '../theme/colors'
 
+    $: console.log($spectrum.partials)
+
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
     let tooltip = {
@@ -17,7 +19,7 @@
             color: '#FFFFFF',
         },
         formatter: function (): string {
-            return `${this.series.name} <br/> x: ${round(this.x, 2)} <br/> value: ${round(this.y, 2)}`
+            return `${this.series.name} <br/> ratio: ${round(this.x, 2)} <br/> amp: ${round(this.y, 2)}`
         },
     }
 
@@ -79,12 +81,12 @@
                         gridLineWidth: 1,
                         gridLineColor: colors.white[25],
                         gridLineDashStyle: 'dash',
-                        min: 1 / $spectrum.options.octaveRatio,
-                        max: $spectrum.partials[$spectrum.partials.length - 1][0] + 2,
+                        min: 0.5,
+                        max: 6,
                         startOnTick: false,
                         endOnTick: false,
                         tickInterval: 0.1,
-                        tickPositions: Math.ceil($spectrum.partials[$spectrum.partials.length - 1][0]) <= 20 ? Array.from(Array(Math.ceil($spectrum.partials[$spectrum.partials.length - 1][0]))).map((val, index) => Math.log10(index + 1)) : undefined,
+                        tickPositions: Math.ceil($spectrum.partials.value[$spectrum.partials.value.length - 1][0]) <= 20 ? Array.from(Array(Math.ceil($spectrum.partials.value[$spectrum.partials.value.length - 1][0]))).map((val, index) => Math.log10(index + 1)) : undefined,
                         tickPosition: 'inside',
                         labels: labels,
                     },
@@ -108,7 +110,7 @@
                         color: colors.green[100],
                         pointWidth: $showSweep ? 3 : 2,
                         borderWidth: 0,
-                        data: $spectrum.partials,
+                        data: $spectrum.partials.value,
                     },
                     // {
                     //     // Sweep Spectrum

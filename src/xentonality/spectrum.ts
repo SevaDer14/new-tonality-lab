@@ -14,7 +14,7 @@ export class Spectrum {
     private _partials: Partials
 
     public get partials() {
-        return this._partials.value;
+        return this._partials;
     }
 
     public get options() {

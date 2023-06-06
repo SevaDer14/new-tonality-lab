@@ -53,7 +53,7 @@
         </legend>
 
         {#if onRatioChange !== undefined}
-            <Range class="py-0" label="Ratio" {disabled} min={0.01} max={2} step={0.01} initialValue={initialValue[0]} onInput={handleRatioChange} />
+            <Range class="py-0" label="Ratio" {disabled} min={0.1} max={1.5} step={0.005} initialValue={initialValue[0]} onInput={handleRatioChange} />
         {/if}
         {#if onAmplitudeChange !== undefined}
             <Range class="py-0" label="Amplitude" {disabled} min={0} max={1 / amplitude} step={0.01} initialValue={initialValue[1]} onInput={handleAmplitudeChange} />

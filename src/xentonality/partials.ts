@@ -19,8 +19,8 @@ export class Partials {
         this._partials = new PointSeries(partials)
     }
 
-    public get value(): PointSeriesValue {
-        return this._partials.value
+    public get partials(): PointSeries {
+        return this._partials
     }
 
     generate({ type, numberOfPartials, amplitudeProfile = 0, steps = 12, octaveRatio = 2 }: PartialsGenerateOptions) {
