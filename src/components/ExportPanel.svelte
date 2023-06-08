@@ -21,6 +21,7 @@
     let noteFrequencyC4 = true
     let customNoteFrequency = $fundamental
 
+
     onMount(() => {
         audioCtx = new AudioContext()
         recorderNode = audioCtx.createMediaStreamDestination()
@@ -47,15 +48,15 @@
         }
     }
 
-    const handleC4CheckboxChange = (value: boolean) => {
-        noteFrequencyC4 = value
+    // const handleC4CheckboxChange = (value: boolean) => {
+    //     noteFrequencyC4 = value
 
-        if (value === true) {
-            $fundamental = $notes.C4
-        } else {
-            handleFrequencyInput(customNoteFrequency)
-        }
-    }
+    //     if (value === true) {
+    //         $fundamental = $notes.C4
+    //     } else {
+    //         handleFrequencyInput(customNoteFrequency)
+    //     }
+    // }
 
     const handleFrequencyInput = (value: number) => {
         if (noteFrequencyC4 === false) {
@@ -74,49 +75,49 @@
         playing = false
     }
 
-    const downloadZip = () => {
-        downloadingZip = true
+    // const downloadZip = () => {
+    //     downloadingZip = true
 
-        // need to give svelte time to update DOM before generating sample
-        // as it blocks the render thread
-        setTimeout(async () => {
-            const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
-            const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
-            const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
+    //     // need to give svelte time to update DOM before generating sample
+    //     // as it blocks the render thread
+    //     setTimeout(async () => {
+    //         const sampleBuffer = await synth.generateSample($sampleDuration, randomPhaseExport)
+    //         const wavFileData = encodeWavFileFromAudioBuffer(sampleBuffer, 1 /*32 bit floaing point*/)
+    //         const sampleBlob = new Blob([wavFileData], { type: 'audio/wav' })
 
-            const zipFileWriter = new BlobWriter()
-            const sampleFile = new BlobReader(sampleBlob)
-            const partialsFile = new TextReader(parseCurveToFileFormat($partials))
-            const dissonanceCurveFile = new TextReader(
-                parseCurveToFileFormat(
-                    calcDissonanceCurveMultipleOctaves({
-                        partials: $partials,
-                        limits: $dissCurveLimits,
-                        pseudoOctave: $dissonanceCurve.pseudoOctave,
-                    }).curve
-                )
-            )
+    //         const zipFileWriter = new BlobWriter()
+    //         const sampleFile = new BlobReader(sampleBlob)
+    //         const partialsFile = new TextReader(parseCurveToFileFormat($partials))
+    //         const dissonanceCurveFile = new TextReader(
+    //             parseCurveToFileFormat(
+    //                 calcDissonanceCurveMultipleOctaves({
+    //                     partials: $partials,
+    //                     limits: $dissCurveLimits,
+    //                     pseudoOctave: $dissonanceCurve.pseudoOctave,
+    //                 }).curve
+    //             )
+    //         )
 
-            if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
-                const zipWriter = new ZipWriter(zipFileWriter)
+    //         if (partialsFile !== undefined && dissonanceCurveFile !== undefined && sampleFile !== undefined) {
+    //             const zipWriter = new ZipWriter(zipFileWriter)
 
-                await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
-                await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
-                await zipWriter.add(`${$sampleName}.wav`, sampleFile)
-                await zipWriter.close()
+    //             await zipWriter.add(`${$sampleName}_spectrum.txt`, partialsFile)
+    //             await zipWriter.add(`${$sampleName}_dissonance_curve.txt`, dissonanceCurveFile)
+    //             await zipWriter.add(`${$sampleName}.wav`, sampleFile)
+    //             await zipWriter.close()
 
-                const zipFileBlob = await zipFileWriter.getData()
+    //             const zipFileBlob = await zipFileWriter.getData()
 
-                const link = document.createElement('a')
-                link.href = URL.createObjectURL(zipFileBlob)
-                link.download = `${$sampleName}.zip`
-                link.click()
-                link.remove()
+    //             const link = document.createElement('a')
+    //             link.href = URL.createObjectURL(zipFileBlob)
+    //             link.download = `${$sampleName}.zip`
+    //             link.click()
+    //             link.remove()
 
-                downloadingZip = false
-            }
-        }, 10)
-    }
+    //             downloadingZip = false
+    //         }
+    //     }, 10)
+    // }
 </script>
 
 <Panel title="export">

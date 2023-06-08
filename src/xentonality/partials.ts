@@ -23,6 +23,14 @@ export class Partials {
         return this._partials
     }
 
+    public get length(): number {
+        return this._partials.value.length
+    }
+
+    get(index: number) {
+        return this._partials.value[index]
+    }
+
     generate({ type, numberOfPartials, amplitudeProfile = 0, steps = 12, octaveRatio = 2 }: PartialsGenerateOptions) {
         if (numberOfPartials < 0) throw new Error(errors.partials.negativeNumberOfPartials)
         if (amplitudeProfile < 0) throw new Error(errors.partials.negativeAmplitudeProfile)

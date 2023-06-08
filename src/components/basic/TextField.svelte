@@ -11,7 +11,7 @@
     }
 </script>
 
-<div class="flex items-center bg-white-5 border-b-2 border-white-25 py-1 px-2 my-4 w-full">
+<div class={`flex items-center bg-white-5 border-b-2 border-white-25 py-1 px-2 my-4 w-full ${$$props.class}`}>
     <label class="text-xs text-white-65 whitespace-nowrap mr-4" for={id}>{label}</label>
     <input class="bg-transparent min-w-0" bind:value={value} {id} on:input={handleInput} />
 </div>

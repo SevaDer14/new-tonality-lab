@@ -1,34 +1,34 @@
+import { Partials } from "./partials";
+import type { Point, PointSeriesValue } from "./pointSeries";
 import { round } from "./utils";
-import type { TPartial, TPartials } from "./types";
 
 type AdditiveSynthOscillator = {
     node: OscillatorNode
     gain: GainNode
-    ratio: number
-    frequency: number
     phase: number
-    amplitude: number
-    loudness: number
+    partial: Point
 }
 
 export class AdditiveSynth {
     /**
-     * Given an array of Partials and AudioContext constructs an additive synth
+     * Given Partials and AudioContext constructs an additive synth
      */
     private audioContext: AudioContext
     private oscillators: AdditiveSynthOscillator[]
+    private partials: Partials
     private sampleRate: number
     private masterGain: GainNode
-    private canPlay = false
-    private isPlaying = false
+    public isPlaying = false
     private masterGainCompensation = 0.2
+    private note = 440
 
-    public constructor(partials: TPartials, audioContext: AudioContext) {
+    public constructor(partials: Partials, audioContext: AudioContext) {
         this.audioContext = audioContext
         this.sampleRate = audioContext.sampleRate
         this.masterGain = this.audioContext.createGain();
-        this.setMaterGain(this.calculateMasterGainValue(partials))
-        this.oscillators = this.createOscillators(partials)
+        this.partials = new Partials(partials.series.value)
+        this.oscillators = this.createOscillators(this.partials, this.note)
+        this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
     }
 
     public connect(dest: AudioNode) {
@@ -39,48 +39,46 @@ export class AdditiveSynth {
         this.masterGain.disconnect();
     }
 
-    public start(time = 0) {
-        if (this.isPlaying === true) return
+    public play(note: number | undefined, time = 0) {
+        if (note === undefined) return
+        this.stop()
 
-        if (this.canPlay === false) this.rebuildOscillators()
+        this.note = note
 
-        this.isPlaying = true
+        this.oscillators = this.createOscillators(this.partials, this.note)
+        this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
 
         this.oscillators.forEach(({ node }) => node.start(time));
+
+        this.isPlaying = true
     }
 
     public stop(time = 0) {
         if (this.isPlaying === false) return
         this.oscillators.forEach(({ node }) => node.stop(time));
-        this.canPlay = false // need to rebuild oscillators
         this.isPlaying = false
     }
 
-    public updatePartials(partials: TPartials) {
+    public updatePartials(partials: Partials) {
         const currentTime = this.audioContext.currentTime
+        this.partials = partials
 
-        if (this.isPlaying === false) {
-            this.oscillators = this.createOscillators(partials)
-            this.setMaterGain(this.calculateMasterGainValue(this.oscillators))
-        } else {
+        if (this.isPlaying === true) {
             const length = partials.length >= this.oscillators.length ? partials.length : this.oscillators.length
             for (let i = length - 1; i >= 0; i -= 1) {
-                if (this.oscillators[i] && partials[i]) {
-                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials[i].frequency, currentTime + 0.05)
-                    this.oscillators[i].gain.gain.linearRampToValueAtTime(partials[i].amplitude, currentTime + 0.05)
-                    this.oscillators[i].frequency = partials[i].frequency
-                    this.oscillators[i].amplitude = partials[i].amplitude
-                    this.oscillators[i].ratio = partials[i].ratio
-                    this.oscillators[i].loudness = partials[i].loudness
+                if (this.oscillators[i] && partials.get(i)) {
+                    this.oscillators[i].node.frequency.exponentialRampToValueAtTime(partials.get(i)[0] * this.note, currentTime + 0.05)
+                    this.oscillators[i].gain.gain.linearRampToValueAtTime(partials.get(i)[1], currentTime + 0.05)
+                    this.oscillators[i].partial = partials.get(i)
                 }
 
-                if (this.oscillators[i] && !partials[i]) {
+                if (this.oscillators[i] && !partials.get(i)) {
                     this.oscillators[i].node.stop()
                     this.oscillators.splice(i, 1)
                 }
 
-                if (!this.oscillators[i] && partials[i]) {
-                    this.oscillators[i] = this.createOscillator(partials[i], currentTime)
+                if (!this.oscillators[i] && partials.get(i)) {
+                    this.oscillators[i] = this.createOscillator(partials.get(i), this.note, currentTime)
                     this.oscillators[i].node.start()
                 }
             }
@@ -93,13 +91,13 @@ export class AdditiveSynth {
         this.masterGain.gain.linearRampToValueAtTime(value, currentTime)
     }
 
-    public getPartials() {
-        return this.oscillators.map(({ node, gain }, index) => ({ index: index, frequency: node.frequency.value, gain: gain.gain.value }))
+    public getPartials(): PointSeriesValue {
+        return this.partials.series.value
     }
 
     public setFrequencyAtTime(note: number, time = this.audioContext.currentTime) {
-        this.oscillators.forEach(({ node, ratio }) => {
-            node.frequency.setValueAtTime(note * ratio, time);
+        this.oscillators.forEach(({ node, partial }) => {
+            node.frequency.setValueAtTime(note * partial[0], time);
         });
     }
 
@@ -115,9 +113,9 @@ export class AdditiveSynth {
 
             for (let p = 0; p < length; p++) {
                 for (let i = 0; i < this.oscillators.length; i++) {
-                    const omega = 2 * Math.PI * this.oscillators[i].frequency;
+                    const omega = 2 * Math.PI * this.oscillators[i].partial[0];
 
-                    channelData[p] += Math.sin(p / this.sampleRate * omega + oscillatorPhases[i]) * this.oscillators[i].amplitude;
+                    channelData[p] += Math.sin(p / this.sampleRate * omega + oscillatorPhases[i]) * this.oscillators[i].partial[1];
                 }
 
                 if (Math.abs(channelData[p]) > maxAmplitudeValue) {
@@ -137,7 +135,7 @@ export class AdditiveSynth {
         return sample;
     }
 
-    private createOscillators(partials: TPartials): AdditiveSynthOscillator[] {
+    private createOscillators(partials: Partials, note: number): AdditiveSynthOscillator[] {
         if (!this.audioContext || !this.masterGain) return []
 
         // eslint-disable-next-line prefer-const
@@ -145,33 +143,33 @@ export class AdditiveSynth {
         const currentTime = this.audioContext.currentTime
 
         for (let i = 0; i < partials.length; i += 1) {
-            if (partials[i].frequency < 20 || partials[i].frequency > 20000) continue
+            const partial = partials.get(i)
 
-            oscillators[i] = this.createOscillator(partials[i], currentTime)
+            if (partial[0] > 20000) continue
+
+            oscillators[i] = this.createOscillator(partial, note, currentTime)
         };
-
-        this.canPlay = true
 
         return oscillators
     }
 
-    private createOscillator(partial: TPartial, currentTime: number): AdditiveSynthOscillator {
+    private createOscillator(partial: Point, note: number, currentTime: number): AdditiveSynthOscillator {
         const node = this.audioContext.createOscillator()
         const gain = this.audioContext.createGain()
         const phase = 2 * Math.PI * Math.random()
-        node.frequency.setValueAtTime(partial.frequency, currentTime);
-        gain.gain.value = partial.amplitude
+        node.frequency.setValueAtTime(partial[0] * note, currentTime);
+        gain.gain.value = partial[1]
         node.connect(gain)
         gain.connect(this.masterGain)
 
-        return { node, gain, phase, ...partial }
+        return { node, gain, phase, partial: partial }
     }
 
-    private calculateMasterGainValue(partials: TPartials): number {
+    private calculateMasterGainValue(oscillators: AdditiveSynthOscillator[]): number {
         let maxAmplitude = 0
 
-        for (let i = 0; i < partials.length; i += 1) {
-            maxAmplitude += partials[i].amplitude / (0.5 * i + 1)
+        for (let i = 0; i < oscillators.length; i += 1) {
+            maxAmplitude += oscillators[i].partial[1] / (0.1 * i + 1)
         };
 
         maxAmplitude = maxAmplitude > 1 ? maxAmplitude : 1
@@ -179,16 +177,5 @@ export class AdditiveSynth {
         const masterGain = round(this.masterGainCompensation / maxAmplitude, 2)
 
         return masterGain
-    }
-
-    private rebuildOscillators() {
-        const partials = this.oscillators.map(({ ratio, frequency, amplitude, loudness }) => ({
-            ratio: ratio,
-            frequency: frequency,
-            amplitude: amplitude,
-            loudness: loudness,
-        }))
-
-        this.oscillators = this.createOscillators(partials)
     }
 }

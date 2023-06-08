@@ -1,6 +1,6 @@
-import { round } from "lodash"
+import { round } from "./utils"
 import { PointSeries } from "./pointSeries"
-import { PRECISION, Spectrum } from "./partials"
+import { Spectrum } from "./spectrum"
 
 export type DissonanceCurveOptions = {
     sweepSpectrum?: Spectrum,
@@ -50,7 +50,7 @@ export const calcDissonance = (stationary: Spectrum, sweep: Spectrum): number =>
         }
     }
 
-    return round(dissonance, PRECISION)
+    return round(dissonance)
 }
 
 // UNTESTED
