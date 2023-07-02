@@ -1,6 +1,6 @@
 export * from './pointSeries'
 export * from './series'
 export * from './partials'
-export * from './synth'
+export * from './oscillatorBank'
 export * from './utils'
 export * from './spectrum'
