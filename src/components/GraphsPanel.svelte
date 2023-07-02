@@ -118,7 +118,7 @@
                         gridLineWidth: 1,
                         gridLineColor: colors.white[25],
                         gridLineDashStyle: 'dash',
-                        min: 1 / $dissonanceCurve.pseudoOctave.ratio,
+                        min: 0.8,
                         max: $partials[$partials.length - 1].ratio + 2,
                         startOnTick: false,
                         endOnTick: false,
@@ -245,7 +245,7 @@
                         color: colors.orange.DEFAULT,
                         pointWidth: 2,
                         borderWidth: 0,
-                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
+                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0]] : [],
                     },
                     {
                         // Sweep Spectrum Note Ball
@@ -254,7 +254,7 @@
                         name: 'Partials',
                         color: colors.orange.DEFAULT,
                         marker: { symbol: 'circle', radius: 4 },
-                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
+                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0]] : [],
                     },
                 ],
             }
