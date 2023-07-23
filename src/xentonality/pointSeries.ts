@@ -1,5 +1,6 @@
 import { errors } from "./errorMessages";
 import { Series, type SeriesValue } from "./series";
+import { round } from "./utils";
 
 export type Point = [number, number]
 export type PointSeriesValue = Point[]
@@ -147,16 +148,11 @@ export class PointSeries {
         return this.split()[1]
     }
 
-    // FINILIZE AND TEST
-    // normalize() {
-    //     const result = [] as TPlotCurve
-    
-    //     const mainExtremum = curve.reduce((a, b) => { return Math.abs(a.value) > Math.abs(b.value) ? a : b });
-    
-    //     for (let i = 0; i < curve.length; i++) {
-    //         result.push({ ...curve[i], value: round(curve[i].value / Math.abs(mainExtremum.value), 15) })
-    //     }
-    
-    //     return result
-    // }
+    normalize() {
+        const maxRoughness = Math.abs(this._value.reduce((a, b) => { return Math.abs(a[1]) > Math.abs(b[1]) ? a : b })[1]);
+
+        for (let i = 0; i < this._value.length; i++) {
+            this._value[i][1] = round(this.value[i][1] / maxRoughness)
+        }
+    }
 }

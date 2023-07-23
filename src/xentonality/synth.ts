@@ -26,7 +26,7 @@ export class AdditiveSynth {
     public constructor({ spectrum, audioContext, voices = 6 }: AdditiveSynthConstructorOptions) {
         this._voices = voices
 
-        this._tuning = new Tuning(spectrum)
+        this._tuning = new Tuning(spectrum.partials)
 
         this._oscillatorBanks = []
 
@@ -67,7 +67,7 @@ export class AdditiveSynth {
     }
 
     update(spectrum: Spectrum) {
-        this._tuning.update(spectrum)
+        this._tuning.update(spectrum.partials)
         this._oscillatorBanks.forEach(bank => bank.updatePartials(spectrum.partials))
         this._keyboard.update(this._tuning, this._baseFrequency)
     }

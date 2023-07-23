@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { spectrum, showSweep } from '../state/stores'
-    import { ratioToCents } from '../xentonality/utils'
+    import { spectrum, showSweep, roughness } from '../state/stores'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
     import { round } from '../xentonality/utils'
-    import { partial } from 'lodash'
     import { colors } from '../theme/colors'
 
     let spectrumChartConfig: PlotOptions
@@ -63,17 +61,17 @@
                         minortickInterval: 0.1,
                         labels: labels,
                     },
-                    // {
-                    //     title: { text: '' },
-                    //     gridLineWidth: 0,
-                    //     max: 2,
-                    //     min: 0,
-                    //     tickInterval: 0.1,
-                    //     opposite: true,
-                    //     labels: {
-                    //         enabled: false,
-                    //     },
-                    // },
+                    {
+                        title: { text: '' },
+                        gridLineWidth: 0,
+                        max: 2,
+                        min: 0,
+                        tickInterval: 0.1,
+                        opposite: true,
+                        labels: {
+                            enabled: false,
+                        },
+                    },
                 ],
                 xAxis: [
                     {
@@ -82,7 +80,7 @@
                         gridLineWidth: 1,
                         gridLineColor: colors.white[25],
                         gridLineDashStyle: 'dash',
-                        min: 0.5,
+                        min: $roughness.limits[0],
                         max: maxSpectrumRatio + 1,
                         startOnTick: false,
                         endOnTick: false,
@@ -122,20 +120,20 @@
                     //     borderWidth: 0,
                     //     data: $showSweep ? $sweepPartials.map((partial) => [partial.ratio, partial.amplitude]) : [],
                     // },
-                    // {
-                    //     yAxis: 1,
-                    //     name: 'Dissonance Curve',
-                    //     type: 'area',
-                    //     color: {
-                    //         linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-                    //         stops: [
-                    //             [0, colors.white[65]],
-                    //             [1, colors.white[25]],
-                    //         ],
-                    //     },
-                    //     opacity: 0.15,
-                    //     data: $dissonanceCurve.curve.map((point) => [point.ratio, point.value]),
-                    // },
+                    {
+                        yAxis: 1,
+                        name: 'Roughness',
+                        type: 'area',
+                        color: {
+                            linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+                            stops: [
+                                [0, colors.white[65]],
+                                [1, colors.white[25]],
+                            ],
+                        },
+                        opacity: 0.15,
+                        data: $roughness.profile.value,
+                    },
                 ],
             }
 

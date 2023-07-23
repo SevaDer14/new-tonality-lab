@@ -1,5 +1,5 @@
+import type { Partials } from "./partials"
 import type { SeriesValue } from "./series"
-import type { Spectrum } from "./spectrum"
 import { round } from "./utils"
 
 export type Ratio = {
@@ -22,8 +22,8 @@ export class Tuning {
     private _octave: Ratio | undefined
 
 
-    constructor(spectrum: Spectrum) {
-        const { octave, intervals } = this.findTuning(spectrum)
+    constructor(partials: Partials) {
+        const { octave, intervals } = this.findTuning(partials)
         this._octave = octave
         this._intervals = intervals
     }
@@ -36,8 +36,8 @@ export class Tuning {
         return this._octave
     }
 
-    update(spectrum: Spectrum) {
-        const { octave, intervals } = this.findTuning(spectrum)
+    update(partials: Partials) {
+        const { octave, intervals } = this.findTuning(partials)
         this._octave = octave
         this._intervals = intervals
     }
@@ -56,19 +56,19 @@ export class Tuning {
     /**
     * Finds all intervals in a given series
     */
-    private getAllIntervals(spectrum: Spectrum): Interval[] {
-        const partials = spectrum.partials.series.value
+    private getAllIntervals(partials: Partials): Interval[] {
+        const partialSeries = partials.series.value
         let intervals = [] as Interval[]
 
         for (let i = 0; i < partials.length; i += 1) {
             for (let j = i + 1; j < partials.length; j += 1) {
-                const decimal = partials[j][0] / partials[i][0]
+                const decimal = partialSeries[j][0] / partialSeries[i][0]
                 const index = this.findIntervalIndexByDecimal(intervals, decimal)
 
                 if (index !== -1) {
                     intervals[index].repeats += 1
                 } else {
-                    const ratio = `${partials[j]}/${partials[i]}`
+                    const ratio = `${partialSeries[j]}/${partialSeries[i]}`
                     intervals.push({ ratio, decimal, repeats: 1 })
                 }
             }
@@ -109,8 +109,8 @@ export class Tuning {
     /**
     * Returns octave and corresponding intervals for the array of intervals
     */
-    private findTuning(spectrum: Spectrum): { octave?: Ratio, intervals: Interval[] } {
-        const intervals = this.getAllIntervals(spectrum)
+    private findTuning(partials: Partials): { octave?: Ratio, intervals: Interval[] } {
+        const intervals = this.getAllIntervals(partials)
         let octave = undefined
         let packedIntervals = intervals
 

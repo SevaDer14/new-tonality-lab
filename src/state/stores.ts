@@ -1,9 +1,7 @@
 import { writable, derived, readable } from 'svelte/store';
-import type { TSpectrumType, TSweepType, TTweaks } from 'src/xentonality/old/types';
+import type { TSweepType } from '../xentonality/old/types';
 import { createSpectrum } from './custom';
-// import { generatePartials, applyTweaks, shiftOnRatio } from '../xentonality/spectrum'
-// import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
-// import { centsToRatio } from '../xentonality/utils';
+import { Roughness } from '../xentonality/roughness';
 
 type TSampleRate = 44100 | 48000 | 96000
 
@@ -14,7 +12,6 @@ export const notes = readable({
 })
 
 export const fundamental = writable(C4);
-export const tweaks = writable<TTweaks>([])
 export const tweaksEnabled = writable(true)
 
 export const sweepRatio = writable(1)
@@ -39,6 +36,16 @@ export const spectrum = createSpectrum({
     octaveRatio: 2,
     steps: 12,
 })
+
+// TODO: put to web worker
+// after web worker make and display hq version
+export const roughness = derived(
+    [spectrum],
+    ([$spectrum]) => new Roughness({ partials: $spectrum.partials })
+);
+
+
+
 // export const sweepSpectrum = createSpectrum()
 
 
