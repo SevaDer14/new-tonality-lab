@@ -1,41 +1,40 @@
 import { round } from "./utils"
-import { PointSeries } from "./pointSeries"
+import { PointSeries, type PointSeriesValue } from "./pointSeries"
 import { Tuning, type Ratio } from "./tuning"
 import { Partials } from "./partials"
 
-type RoughnessConstructorOptions = {
-    partials: Partials,
-    sweep?: Partials,
+export type RoughnessConstructorOptions = {
+    partials: PointSeriesValue,
+    sweep?: PointSeriesValue,
     limits?: [number, number],
     fundamental?: number,
     numberOfPoints?: number
 }
 
+type RoughnessState = Required<RoughnessConstructorOptions> & {
+    pseudoOctave: Ratio,
+    profile: PointSeries,
+}
+
 export class Roughness {
-    private _partials: Partials
-    private _sweep: Partials
+    private _partials: PointSeriesValue
+    private _sweep: PointSeriesValue
     private _pseudoOctave: Ratio
     private _numberOfPoints: number
     private _limits: [number, number]
     private _profile: PointSeries
     private _fundamental: number
 
-    constructor({ partials, sweep, limits, fundamental, numberOfPoints }: RoughnessConstructorOptions) {
-        this._partials = new Partials(partials.series.value)
-        this._sweep = new Partials((sweep ?? partials).series.value)
-        this._fundamental = fundamental ?? 261.63
-        this._pseudoOctave = new Tuning(partials).octave ?? { decimal: 2, ratio: "2:1" }
-        this._numberOfPoints = numberOfPoints ?? 2000
+    constructor(options: RoughnessConstructorOptions) {
+        const { partials, sweep, fundamental, pseudoOctave, numberOfPoints, limits, profile } = this.init(options)
 
-        if (limits === undefined) {
-            const lowLimit = 1 / this._pseudoOctave.decimal
-            const highLimit = this._pseudoOctave.decimal ** 2
-            limits = [lowLimit, highLimit]
-        }
-
+        this._partials = partials
+        this._sweep = sweep
+        this._fundamental = fundamental
+        this._pseudoOctave = pseudoOctave
+        this._numberOfPoints = numberOfPoints
         this._limits = limits
-
-        this._profile = this.roughnessProfile()
+        this._profile = profile
     }
 
     public get profile() {
@@ -62,18 +61,57 @@ export class Roughness {
         this._fundamental = fundamental;
     }
 
-    private roughnessProfile = (): PointSeries => {
+    update(options: RoughnessConstructorOptions) {
+        const { partials, sweep, fundamental, pseudoOctave, numberOfPoints, limits, profile } = this.init(options)
+        this._partials = partials
+        this._sweep = sweep
+        this._fundamental = fundamental
+        this._pseudoOctave = pseudoOctave
+        this._numberOfPoints = numberOfPoints
+        this._limits = limits
+        this._profile = profile
+    }
+
+    private init(options: RoughnessConstructorOptions): RoughnessState {
+        const partials = options.partials
+        const sweep = options.sweep ?? options.partials
+        const fundamental = options.fundamental ?? 261.63
+        const pseudoOctave = new Tuning(partials).octave ?? { decimal: 2, ratio: "2:1" }
+        const numberOfPoints = options.numberOfPoints ?? 2000
+        const limits = options.limits ?? [1 / pseudoOctave.decimal, pseudoOctave.decimal ** 2]
+        const profile = this.roughnessProfile({ limits, numberOfPoints, fundamental, sweep, partials })
+
+        return {
+            partials,
+            sweep,
+            fundamental,
+            pseudoOctave,
+            numberOfPoints,
+            limits,
+            profile,
+        }
+    }
+
+    private roughnessProfile = ({ limits, numberOfPoints, fundamental, sweep, partials }: Pick<RoughnessState, "limits" | "numberOfPoints" | "fundamental" | "sweep" | "partials">): PointSeries => {
         const profile = new PointSeries()
 
-        const sweepStep = (this.limits[1] - this.limits[0]) / this._numberOfPoints
-        const staticPartials = new Partials(this._partials.series.value).shift(this._fundamental)
+        const sweepStep = (limits[1] - limits[0]) / numberOfPoints
+        const staticPartials = partials.map(point => {
+            point[0] *= fundamental
+            return point
+        })
 
-        for (let i = 0; i <= this._numberOfPoints; i++) {
-            const currentStep = this.limits[0] + sweepStep * i
+        for (let i = 0; i <= numberOfPoints; i++) {
+            const currentStep = limits[0] + sweepStep * i
 
-            const sweepPartials = new Partials(this._sweep.series.value).shift(this._fundamental * currentStep)
+            const sweepPartials = staticPartials.map(point => {
+                point[0] *= currentStep
+                return point
+            })
 
-            const roughness = this.roughness(sweepPartials.include(staticPartials.series.value))
+            const combinedPartials = [staticPartials, sweepPartials].flat().sort((a, b) => a[0] - b[0])
+
+            const roughness = this.roughness(combinedPartials, fundamental)
 
             profile.push([currentStep, roughness])
         }
@@ -83,19 +121,18 @@ export class Roughness {
         return profile
     }
 
-    private roughness(partials: Partials) {
+    private roughness(partials: PointSeriesValue, fundamental: number) {
         let roughness = 0
-        const partialSeries = partials.series.value
 
-        for (let i = 0; i < partialSeries.length; i++) {
-            for (let j = i + 1; j < partialSeries.length; j++) {
-                const minLoudness = this.loudness(Math.min(partialSeries[i][1], partialSeries[j][1]))
+        for (let i = 0; i < partials.length; i++) {
+            for (let j = i + 1; j < partials.length; j++) {
+                const minLoudness = this.loudness(Math.min(partials[i][1], partials[j][1]))
                 if (minLoudness === 0) continue
 
-                const minFrequency = partialSeries[i][0] * this._fundamental
+                const minFrequency = partials[i][0] * fundamental
                 if (minFrequency === 0) continue
 
-                const frequencyDifference = (partialSeries[j][0] - partialSeries[i][0]) * this._fundamental
+                const frequencyDifference = (partials[j][0] - partials[i][0]) * fundamental
                 if (frequencyDifference === 0) continue
 
 

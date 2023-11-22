@@ -1,4 +1,5 @@
 import type { Partials } from "./partials"
+import type { PointSeriesValue } from "./pointSeries"
 import type { SeriesValue } from "./series"
 import { round } from "./utils"
 
@@ -22,7 +23,7 @@ export class Tuning {
     private _octave: Ratio | undefined
 
 
-    constructor(partials: Partials) {
+    constructor(partials: PointSeriesValue) {
         const { octave, intervals } = this.findTuning(partials)
         this._octave = octave
         this._intervals = intervals
@@ -36,7 +37,7 @@ export class Tuning {
         return this._octave
     }
 
-    update(partials: Partials) {
+    update(partials: PointSeriesValue) {
         const { octave, intervals } = this.findTuning(partials)
         this._octave = octave
         this._intervals = intervals
@@ -56,19 +57,18 @@ export class Tuning {
     /**
     * Finds all intervals in a given series
     */
-    private getAllIntervals(partials: Partials): Interval[] {
-        const partialSeries = partials.series.value
+    private getAllIntervals(partials: PointSeriesValue): Interval[] {
         let intervals = [] as Interval[]
 
         for (let i = 0; i < partials.length; i += 1) {
             for (let j = i + 1; j < partials.length; j += 1) {
-                const decimal = partialSeries[j][0] / partialSeries[i][0]
+                const decimal = partials[j][0] / partials[i][0]
                 const index = this.findIntervalIndexByDecimal(intervals, decimal)
 
                 if (index !== -1) {
                     intervals[index].repeats += 1
                 } else {
-                    const ratio = `${partialSeries[j]}/${partialSeries[i]}`
+                    const ratio = `${partials[j][0]}:${partials[i][0]}`
                     intervals.push({ ratio, decimal, repeats: 1 })
                 }
             }
@@ -109,7 +109,7 @@ export class Tuning {
     /**
     * Returns octave and corresponding intervals for the array of intervals
     */
-    private findTuning(partials: Partials): { octave?: Ratio, intervals: Interval[] } {
+    private findTuning(partials: PointSeriesValue): { octave?: Ratio, intervals: Interval[] } {
         const intervals = this.getAllIntervals(partials)
         let octave = undefined
         let packedIntervals = intervals

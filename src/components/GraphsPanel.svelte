@@ -1,9 +1,47 @@
 <script lang="ts">
-    import { spectrum, showSweep, roughness } from '../state/stores'
+    import { spectrum, roughness, showSweep } from '../state/stores'
     import highcharts from '../utils/highcharts'
     import type { PlotOptions } from 'highcharts'
-    import { round } from '../xentonality/utils'
+    import { round, type PointSeriesValue, Spectrum } from '../xentonality'
     import { colors } from '../theme/colors'
+    import roughnessWorkerUrl from '../workers/roughnessWorker?url'
+    import { debounce } from 'lodash'
+
+    // const roughnessWorker = new Worker(roughnessWorkerUrl, { type: 'module' })
+
+    // const updateRoughness = (spectrum: Spectrum) => {
+    //     const payload = JSON.stringify({
+    //         type: 'update',
+    //         payload: {
+    //             partials: spectrum.partials.series.value as Array<any>,
+    //         },
+    //     })
+
+    //     roughnessWorker.postMessage(payload)
+    // }
+
+    // spectrum.subscribe(
+    //     debounce(updateRoughness, 100, {
+    //         leading: false,
+    //         trailing: true,
+    //     })
+    // )
+
+    // roughnessWorker.onmessage = (message) => {
+    //     const { data } = message
+    //     if (!data.type) {
+    //         console.error('Invalid Roughness Worker response!')
+    //         return
+    //     }
+    //     if (data.type === 'error') {
+    //         console.error(data.payload)
+    //         return
+    //     }
+    //     if (data.type === 'success') {
+    //         $roughness = data.payload
+    //         console.log($roughness)
+    //     }
+    // }
 
     let spectrumChartConfig: PlotOptions
     let dissonanceCurveChartConfig: PlotOptions
@@ -31,7 +69,7 @@
     }
 
     $: {
-        if ($spectrum) {
+        if ($spectrum && $roughness) {
             let maxSpectrumRatio = $spectrum.partials.series.getX().max()
 
             spectrumChartConfig = {
@@ -80,7 +118,7 @@
                         gridLineWidth: 1,
                         gridLineColor: colors.white[25],
                         gridLineDashStyle: 'dash',
-                        min: $roughness.limits[0],
+                        min: 1 / $spectrum.options.octaveRatio,
                         max: maxSpectrumRatio + 1,
                         startOnTick: false,
                         endOnTick: false,
@@ -132,7 +170,7 @@
                             ],
                         },
                         opacity: 0.15,
-                        data: $roughness.profile.value,
+                        data: $roughness.profile.value || [],
                     },
                 ],
             }
