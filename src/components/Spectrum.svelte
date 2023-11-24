@@ -1,13 +1,11 @@
 <script lang="ts">
     import { partials, sweepPartials, sweepRatio, showSweep, dissonanceCurve, show12EDO, dissonanceCurveHighRes, dissonanceCurveEDOMarks, pseudoOctave } from '../state/stores.js'
-    import { ratioToCents } from '../xentonality/utils'
-    import highcharts from '../utils/highcharts'
+    import { ratioToCents } from '../xentonality/utils.js'
+    import highcharts from '../utils/highcharts.js'
     import type { PlotOptions } from 'highcharts'
     import { round } from 'lodash'
-    import Panel from './Panel.svelte'
 
     let spectrumChartConfig: PlotOptions
-    let dissonanceCurveChartConfig: PlotOptions
     let tooltip = {
         backgroundColor: '#FFFFFF09',
         borderRadius: 10,
@@ -60,24 +58,14 @@
         },
     }
 
-    const labels = {
-        style: {
-            color: colors.white[65],
-        },
-    }
-
-    const titleStyles = {
-        color: '#FFF',
-        'letter-spacing': '0.3rem',
-    }
-
     $: {
         if ($partials && $dissonanceCurve && $dissonanceCurveHighRes) {
             spectrumChartConfig = {
                 chart: {
                     zoomType: 'xy',
                     backgroundColor: '#00000000',
-                    height: 370,
+                    spacing: [8, 0, 4, 0],
+                    height: 274,
                     style: {
                         fontFamily: 'monospace',
                     },
@@ -91,21 +79,16 @@
                 },
                 yAxis: [
                     {
-                        title: { text: 'Amplitude', style: titleStyles },
-                        gridLineWidth: 1,
-                        gridLineColor: colors.white[5],
-                        gridLineDashStyle: 'dash',
                         max: 1,
-                        minortickInterval: 0.1,
-                        labels: labels,
+                        visible: false,
+                        labels: {
+                            enabled: false,
+                        },
                     },
                     {
-                        title: { text: '' },
-                        gridLineWidth: 0,
+                        visible: false,
                         max: 2,
                         min: 0,
-                        tickInterval: 0.1,
-                        opposite: true,
                         labels: {
                             enabled: false,
                         },
@@ -113,11 +96,17 @@
                 ],
                 xAxis: [
                     {
-                        title: { text: 'Ratio to fundamental', style: titleStyles },
+                        title: {
+                            text: '',
+                            style: {
+                                color: 'transparent',
+                            },
+                        },
                         type: 'logarithmic',
                         gridLineWidth: 1,
                         gridLineColor: colors.white[25],
                         gridLineDashStyle: 'dash',
+                        lineColor: colors.white[25],
                         min: 1 / $dissonanceCurve.pseudoOctave.ratio,
                         max: $partials[$partials.length - 1].ratio + 2,
                         startOnTick: false,
@@ -125,7 +114,11 @@
                         tickInterval: 0.1,
                         tickPositions: Math.ceil($partials[$partials.length - 1].ratio) <= 20 ? Array.from(Array(Math.ceil($partials[$partials.length - 1].ratio))).map((val, index) => Math.log10(index + 1)) : undefined,
                         tickPosition: 'inside',
-                        labels: labels,
+                        labels: {
+                            style: {
+                                color: colors.white[65],
+                            },
+                        },
                     },
                 ],
                 plotOptions: {
@@ -174,105 +167,14 @@
                     },
                 ],
             }
-
-            dissonanceCurveChartConfig = {
-                chart: {
-                    zoomType: 'xy',
-                    backgroundColor: '#00000000',
-                    height: 250,
-                    style: {
-                        fontFamily: 'monospace',
-                    },
-                },
-                tooltip: tooltip,
-                title: {
-                    text: '',
-                },
-                legend: {
-                    enabled: false,
-                },
-                yAxis: {
-                    title: { text: 'Roughness', style: titleStyles },
-                    gridLineWidth: 0,
-                    gridLineColor: colors.white[25],
-                    min: 0,
-                    max: 1,
-                    labels: {
-                        enabled: true,
-                        style: {
-                            color: colors.white[65],
-                        },
-                    },
-                },
-                xAxis: {
-                    title: { text: 'cents', style: titleStyles },
-                    tickInterval: round($pseudoOctave / $dissonanceCurveEDOMarks, 2),
-                    gridLineWidth: 1,
-                    gridLineColor: colors.white[25],
-                    gridLineDashStyle: 'dash',
-                    minorTickInterval: 100,
-                    minorGridLineWidth: $show12EDO ? 1 : 0,
-                    minorGridLineColor: colors.white[5],
-                    min: 0,
-                    tickPosition: 'inside',
-                    labels: labels,
-                },
-                plotOptions: {
-                    series: {
-                        type: 'line',
-                        label: {
-                            connectorAllowed: false,
-                        },
-                        pointStart: 0,
-                    },
-                },
-                series: [
-                    {
-                        name: 'Dissonance Curve',
-                        type: 'area',
-                        marker: {
-                            enabled: false,
-                        },
-                        color: colors.blue.DEFAULT,
-                        fillOpacity: 0.15,
-                        data: $dissonanceCurveHighRes.curve.map((point) => [point.cents, point.value]),
-                    },
-                    {
-                        // Sweep Spectrum Note Line
-                        yAxis: 0,
-                        type: 'column',
-                        name: 'Partials',
-                        color: colors.orange.DEFAULT,
-                        pointWidth: 2,
-                        borderWidth: 0,
-                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
-                    },
-                    {
-                        // Sweep Spectrum Note Ball
-                        yAxis: 0,
-                        type: 'scatter',
-                        name: 'Partials',
-                        color: colors.orange.DEFAULT,
-                        marker: { symbol: 'circle', radius: 4 },
-                        data: $showSweep ? [[Math.floor(ratioToCents($sweepRatio)), $dissonanceCurveHighRes.curve.find((point) => point.cents === Math.floor(ratioToCents($sweepRatio)))?.value || 0.5]] : [],
-                    },
-                ],
-            }
         }
     }
 </script>
 
-<Panel maxContentHeight="auto">
-    <div class="min-w-full">
-        <div
-            use:highcharts={{
-                chart: spectrumChartConfig,
-            }}
-        />
-        <div
-            use:highcharts={{
-                chart: dissonanceCurveChartConfig,
-            }}
-        />
-    </div>
-</Panel>
+<div class="min-w-full">
+    <div
+        use:highcharts={{
+            chart: spectrumChartConfig,
+        }}
+    />
+</div>

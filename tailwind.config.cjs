@@ -9,7 +9,7 @@ module.exports = {
         'fjalla-one': ['Fjalla One', 'sans-serif'],
       },
       backgroundImage: {
-        'radial-gradient': 'radial-gradient(at 100% 0%, #537895 0%, #09203F 100%)',
+        'radial-gradient': 'radial-gradient(at 100% 0%, #204B6C 0%, #05172F 100%)',
       },
       colors: {
         transparent: 'rgba(255, 255, 255, 0)',
@@ -17,6 +17,7 @@ module.exports = {
           DEFAULT: 'rgba(255, 255, 255, 1)',
           '65': 'rgba(255, 255, 255, 0.65)',
           '25': 'rgba(255, 255, 255, 0.25)',
+          '15': 'rgba(255, 255, 255, 0.15)',
           '5': 'rgba(255, 255, 255, 0.05)',
         },
         blue: {

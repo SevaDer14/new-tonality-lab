@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Panel from './Panel.svelte'
+    import Controls from './Controls.svelte'
     import Range from './Range.svelte'
     import Checkbox from './Checkbox.svelte'
     import Button from './Button.svelte'
@@ -19,7 +19,6 @@
     let downloadingZip = false
     let playing = false
     let randomPhaseExport = true
-
 
     onMount(() => {
         audioCtx = new AudioContext()
@@ -109,7 +108,7 @@
     }
 </script>
 
-<Panel title="export">
+<Controls title="export">
     <Range label="Duration (sec)" min={1} max={12} onInput={(value) => ($sampleDuration = value)} initialValue={$sampleDuration} />
 
     <Checkbox label="Random phase" onChange={(value) => (randomPhaseExport = value)} checked={randomPhaseExport === true} />
@@ -126,4 +125,4 @@
         <Button class="text-blue border-blue-65 bg-blue-5" onClick={() => downloadZip()} disabled={downloadingZip === true}>{downloadingZip === true ? 'Processing' : 'Download'}</Button>
     </div>
     <p class="text-xs text-white-25 text-center">Press "Space" to play or stop</p>
-</Panel>
+</Controls>

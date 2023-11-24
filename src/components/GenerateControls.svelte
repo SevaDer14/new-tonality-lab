@@ -1,6 +1,6 @@
 <script lang="ts">
     import Checkbox from './Checkbox.svelte'
-    import Panel from './Panel.svelte'
+    import Controls from './Controls.svelte'
     import Range from './Range.svelte'
     import RadioGroup from './RadioGroup.svelte'
     import { fundamental, notes, mainPan, numberOfPartials, pseudoOctave, edoSteps, spectrumType, amplitudeSlope } from '../state/stores.js'
@@ -26,7 +26,7 @@
     }
 </script>
 
-<Panel title="generate">
+<Controls title="generate">
     <Checkbox label="Note C4 = 261.63 Hz" onChange={handleC4CheckboxChange} checked />
 
     <Range label="Note Frequency (Hz)" disabled={noteFrequencyC4 === true} min={55} max={880} onInput={handleFrequencyInput} initialValue={$fundamental} />
@@ -51,4 +51,4 @@
 
     <Range label="Amplitude slope" min={0} max={3} step={0.005} onInput={(value) => ($amplitudeSlope = value)} initialValue={$amplitudeSlope} />
     <Range label="Pan" min={-1} max={1} step={0.01} onInput={(value) => ($mainPan = value)} initialValue={$mainPan} />
-</Panel>
+</Controls>

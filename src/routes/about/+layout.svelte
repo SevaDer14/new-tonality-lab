@@ -2,6 +2,6 @@
     import Panel from '../../components/Panel.svelte'
 </script>
 
-<Panel class="max-w-4xl" >
+<div class="rich-text max-w-2xl">
     <slot />
-</Panel>
+</div>
