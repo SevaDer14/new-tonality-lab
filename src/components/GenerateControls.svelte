@@ -1,22 +1,11 @@
 <script lang="ts">
-    import Checkbox from './Checkbox.svelte'
     import Controls from './Controls.svelte'
     import Range from './Range.svelte'
     import RadioGroup from './RadioGroup.svelte'
-    import { fundamental, notes, mainPan, numberOfPartials, pseudoOctave, edoSteps, spectrumType, amplitudeSlope } from '../state/stores.js'
+    import { fundamental, mainPan, numberOfPartials, pseudoOctave, edoSteps, spectrumType, amplitudeSlope } from '../state/stores.js'
 
     let noteFrequencyC4 = true
     let customNoteFrequency = $fundamental
-
-    const handleC4CheckboxChange = (value: boolean) => {
-        noteFrequencyC4 = value
-
-        if (value === true) {
-            $fundamental = $notes.C4
-        } else {
-            handleFrequencyInput(customNoteFrequency)
-        }
-    }
 
     const handleFrequencyInput = (value: number) => {
         if (noteFrequencyC4 === false) {
@@ -27,10 +16,6 @@
 </script>
 
 <Controls title="generate">
-    <Checkbox label="Note C4 = 261.63 Hz" onChange={handleC4CheckboxChange} checked />
-
-    <Range label="Note Frequency (Hz)" disabled={noteFrequencyC4 === true} min={55} max={880} onInput={handleFrequencyInput} initialValue={$fundamental} />
-
     <Range label="Number of Partials" min={1} max={100} onInput={(value) => ($numberOfPartials = value)} initialValue={$numberOfPartials} />
 
     <Range label="Pseudo-octave (cents)" min={100} max={2400} step={10} onInput={(value) => ($pseudoOctave = value)} initialValue={$pseudoOctave} />
