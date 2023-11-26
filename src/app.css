@@ -86,8 +86,13 @@ input[type="radio"]:checked:after {
 .rich-text>*>a {
     font-size: inherit;
     font-weight: inherit;
-    color: rgba(0, 189, 249, 1);
+    color: #69FF6F;
+    opacity: 0.75;
     text-decoration: underline;
+}
+
+.rich-text>*>a:hover {
+    opacity: 1;
 }
 
 .rich-text>em,

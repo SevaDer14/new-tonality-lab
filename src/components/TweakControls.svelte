@@ -1,6 +1,6 @@
 <script lang="ts">
     import Tweak from './Tweak.svelte'
-    import Panel from './Panel.svelte'
+    import Controls from './Controls.svelte'
     import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores'
     import Checkbox from './Checkbox.svelte'
 
@@ -13,7 +13,7 @@
     }
 </script>
 
-<Panel title="tweak" >
+<Controls title="tweak">
     <Checkbox label="Enable" checked={$tweaksEnabled} onChange={(value) => ($tweaksEnabled = value)} />
     {#each $partials as partial, index}
         <Tweak
@@ -40,4 +40,4 @@
             }}
         />
     {/each}
-</Panel>
+</Controls>

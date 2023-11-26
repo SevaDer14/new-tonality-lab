@@ -4,13 +4,9 @@ import { generatePartials, applyTweaks, shiftOnRatio, adjustAmplitude } from '..
 import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
 import { centsToRatio } from '../xentonality/utils';
 
-const C4 = 261.63
 
-export const notes = readable({
-    C4: C4
-})
-
-export const fundamental = writable(C4);
+export const fundamental = writable(261.63);
+export const playing = writable(false);
 export const numberOfPartials = writable(6);
 export const spectrumType = writable<TSpectrumType>('harmonic');
 export const edoSteps = writable(12)

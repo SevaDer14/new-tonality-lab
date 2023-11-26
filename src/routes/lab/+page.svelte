@@ -1,18 +1,26 @@
 <script lang="ts">
-    import GraphsPanel from '../../components/GraphsPanel.svelte'
-    import ExportPanel from '../../components/ExportPanel.svelte'
-    import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
-    import GeneratePanel from '../../components/GeneratePanel.svelte'
+    import Spectrum from '../../components/Spectrum.svelte'
+    import RoughnessProfileControls from '../../components/RoughnessControls.svelte'
+    import GenerateControls from '../../components/GenerateControls.svelte'
+    import TweakControls from '../../components/TweakControls.svelte'
     import Panel from '../../components/Panel.svelte'
-    import TweakPanel from '../../components/TweakPanel.svelte'
+    import Board from '../../components/Board.svelte'
+    import Synth from '../../components/Synth.svelte'
+    import ExportControls from '../../components/ExportControls.svelte'
 </script>
 
-<GeneratePanel />
+<Panel size="lg" title="synth">
+    <GenerateControls />
+    <TweakControls />
+    <RoughnessProfileControls />
+    <ExportControls />
+</Panel>
 
-<TweakPanel />
+<Panel size="md" title="graphs">
+    <Spectrum />
+</Panel>
 
-<RoughnessProfilePanel />
-
-<ExportPanel />
-
-<GraphsPanel />
+<Panel size="sm" title="board">
+    <Synth />
+    <Board />
+</Panel>
