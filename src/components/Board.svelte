@@ -2,9 +2,9 @@
     import { fundamental, playing } from '../state/stores.js'
 
     const LOWEST_NOTE = 55
-    const NR_OCTAVES = 4
+    const NR_OCTAVES = 2
     const BOARD_PADDING_LOW = 3
-    const BOARD_PADDING_HIGH = BOARD_PADDING_LOW ** (NR_OCTAVES - 0.5)
+    const BOARD_PADDING_HIGH = BOARD_PADDING_LOW ** (NR_OCTAVES * 1.2)
     const RANGE = [LOWEST_NOTE - BOARD_PADDING_LOW, LOWEST_NOTE * 2 ** NR_OCTAVES + BOARD_PADDING_HIGH]
 
     let boardWidth: number
@@ -40,6 +40,12 @@
         }
     }
 
+    const disableEvent = (event: Event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+    }
+
     const getNote = (offsetX: number) => {
         if (boardWidth === undefined) return LOWEST_NOTE
 
@@ -54,7 +60,6 @@
     const play = (event: PointerEvent) => {
         setNote(event.offsetX)
         $playing = true
-        console.log(octaveMarkings)
     }
 
     const stop = () => {
@@ -68,11 +73,10 @@
     }
 </script>
 
-<div class="relative h-full w-full transition-colors ease-in-out duration-300" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:pointerdown={play} on:pointermove={changeNote} on:pointerleave={stop} on:pointerup={stop}>
-    <span class="pointer-events-none absolute right-0 top-0 p-2">{$fundamental} Hz</span>
-    <span class="blur-[2px] absolute top-0 h-full w-1 bg-white pointer-events-none transition-opacity ease-in-out duration-500" class:opacity-100={$playing} class:opacity-0={!$playing} style={`left: ${noteOffset}px`} />
+<div class="touch-none relative h-full w-full transition-colors ease-in-out duration-300" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:pointerdown={play} on:selectionchange={disableEvent} on:pointermove={changeNote} on:pointerleave={stop} on:pointerup={stop}>
+    <span class="blur-[2px] absolute top-0 h-full w-1 bg-white pointer-events-none touch-none transition-opacity ease-in-out duration-500" class:opacity-100={$playing} class:opacity-0={!$playing} style={`left: ${noteOffset}px`} />
 
     {#each octaveMarkings as marking}
-        <span class="pointer-events-none absolute h-full bg-white-25 w-[1px] top-0" style={`left: ${marking}px`} />
+        <span class="pointer-events-none touch-none absolute h-full bg-white-25 w-[1px] top-0" style={`left: ${marking}px`} />
     {/each}
 </div>
