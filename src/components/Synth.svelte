@@ -13,6 +13,8 @@
         sweepSynth = new AdditiveSynth($sweepPartials, audioCtx)
         synth.connect(audioCtx.destination)
         sweepSynth.connect(audioCtx.destination)
+
+        window.synth = synth
     })
 
     $: {

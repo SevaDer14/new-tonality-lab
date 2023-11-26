@@ -6,15 +6,14 @@
     import Panel from '../../components/Panel.svelte'
     import Board from '../../components/Board.svelte'
     import Synth from '../../components/Synth.svelte'
+    import ExportControls from '../../components/ExportControls.svelte'
 </script>
 
 <Panel size="lg" title="synth">
     <GenerateControls />
-
     <TweakControls />
-
     <RoughnessProfileControls />
-
+    <ExportControls />
 </Panel>
 
 <Panel size="md" title="graphs">
