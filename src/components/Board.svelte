@@ -51,7 +51,7 @@
         $fundamental = getNote(offsetX)
     }
 
-    const play = (event: MouseEvent) => {
+    const play = (event: PointerEvent) => {
         setNote(event.offsetX)
         $playing = true
         console.log(octaveMarkings)
@@ -61,14 +61,14 @@
         $playing = false
     }
 
-    const changeNote = (event: MouseEvent) => {
+    const changeNote = (event: PointerEvent) => {
         if (!$playing) return
 
         setNote(event.offsetX)
     }
 </script>
 
-<div class="relative h-full w-full transition-colors ease-in-out duration-500" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:mousedown={play} on:mousemove={changeNote} on:mouseleave={stop} on:mouseup={stop}>
+<div class="relative h-full w-full transition-colors ease-in-out duration-300" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:pointerdown={play} on:pointermove={changeNote} on:pointerleave={stop} on:pointerup={stop}>
     <span class="absolute right-0 top-0 p-2">{$fundamental} Hz</span>
     <span class="blur-[2px] absolute top-0 h-full w-1 bg-white pointer-events-none transition-opacity ease-in-out duration-500" class:opacity-100={$playing} class:opacity-0={!$playing} style={`left: ${noteOffset}px`} />
 
