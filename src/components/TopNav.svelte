@@ -10,7 +10,8 @@
 <header class="bg-white-5 py-4 border-b border-white-65 font-fjalla-one tracking-wider">
     <nav class="container mx-auto px-4 flex justify-between items-center">
         <h1 class="text-3xl font-normal px-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-75">
-            <a href="/">NEW TONALITY</a>
+            <a class="hidden sm:block" href="/">NEW TONALITY</a>
+            <a class="block sm:hidden" href="/">NT</a>
         </h1>
         <ul class="flex">
             <MenuItem href="/" active={setActive($page.routeId, 'lab')}>Lab</MenuItem>
