@@ -43,7 +43,7 @@
     const getNote = (offsetX: number) => {
         if (boardWidth === undefined) return LOWEST_NOTE
 
-        return Math.floor(toLogScale(offsetX))
+        return Math.floor(toLogScale(offsetX) * 100) / 100
     }
 
     const setNote = (offsetX: number) => {
@@ -69,7 +69,7 @@
 </script>
 
 <div class="relative h-full w-full transition-colors ease-in-out duration-300" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:pointerdown={play} on:pointermove={changeNote} on:pointerleave={stop} on:pointerup={stop}>
-    <span class="absolute right-0 top-0 p-2">{$fundamental} Hz</span>
+    <span class="pointer-events-none absolute right-0 top-0 p-2">{$fundamental} Hz</span>
     <span class="blur-[2px] absolute top-0 h-full w-1 bg-white pointer-events-none transition-opacity ease-in-out duration-500" class:opacity-100={$playing} class:opacity-0={!$playing} style={`left: ${noteOffset}px`} />
 
     {#each octaveMarkings as marking}
