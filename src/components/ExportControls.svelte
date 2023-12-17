@@ -4,7 +4,7 @@
     import Checkbox from './Checkbox.svelte'
     import Button from './Button.svelte'
     import TextField from './TextField.svelte'
-    import { sampleDuration, sampleName, partials, dissonanceCurve, dissCurveLimits } from '../state/stores.js'
+    import { sampleDuration, sampleName, partials, dissonanceCurve, dissCurveLimits } from '../state/stores-old.js'
     import { BlobReader, BlobWriter, TextReader, ZipWriter } from '@zip.js/zip.js'
     import { parseCurveToFileFormat } from '../xentonality/utils'
     import { encodeWavFileFromAudioBuffer } from 'wav-file-encoder/dist/WavFileEncoder.js'

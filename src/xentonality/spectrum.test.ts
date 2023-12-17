@@ -178,7 +178,7 @@ describe('attachRandomPhases', () => {
     })
 })
 
-describe.only('tweak', () => {
+describe('tweak', () => {
     const partials = [
         { rate: 1, amplitude: 1, phase: 0.5 },
         { rate: 2, amplitude: 1, phase: 0.5 },

@@ -74,4 +74,8 @@ export class AdditiveSynth {
             voice.update(this._spectrum)
         })
     }
+
+    public setMasterGain(value: number, time = this._audioContext.currentTime) {
+        this._masterGain.gain.linearRampToValueAtTime(value, time)
+    }
 }

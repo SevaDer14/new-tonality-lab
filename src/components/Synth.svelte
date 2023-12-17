@@ -1,37 +1,36 @@
 <script lang="ts">
-    import { mainPan, sweepPan, playing, partials, sweepPartials } from '../state/stores.js'
-    import { AdditiveSynth } from '../xentonality/synth'
+    import { spectrum, pitch, masterGain } from '../state/stores.js'
+    import { AdditiveSynth } from '../synth'
     import { onMount } from 'svelte'
 
     let synth: AdditiveSynth
-    let sweepSynth: AdditiveSynth
-    let audioCtx: AudioContext
+    let audioContext: AudioContext
 
     onMount(() => {
-        audioCtx = new AudioContext()
-        synth = new AdditiveSynth($partials, audioCtx)
-        sweepSynth = new AdditiveSynth($sweepPartials, audioCtx)
-        synth.connect(audioCtx.destination)
-        sweepSynth.connect(audioCtx.destination)
+        audioContext = new AudioContext()
+        synth = new AdditiveSynth({ spectrum: $spectrum, audioContext })
 
         window.synth = synth
     })
 
     $: {
-        if (synth !== undefined) {
-            synth.updatePartials($partials)
-            sweepSynth.updatePartials($sweepPartials)
-            synth.setPan($mainPan)
-            sweepSynth.setPan($sweepPan)
+        if (synth) {
+            synth.update($spectrum)
         }
     }
 
     $: {
-        if (synth !== undefined) {
-            if ($playing) {
-                synth.start()
+        if (synth) {
+            synth.setMasterGain($masterGain)
+        }
+    }
+
+    $: {
+        if (synth) {
+            if ($pitch !== null) {
+                synth.play({ pitch: $pitch, velocity: 0.1, voiceId: 'voice' })
             } else {
-                synth.stop(audioCtx.currentTime)
+                synth.releaseAll()
             }
         }
     }

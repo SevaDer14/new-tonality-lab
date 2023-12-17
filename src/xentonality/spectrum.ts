@@ -1,4 +1,4 @@
-import { Partial } from '../synth'
+import type { Partial } from '../synth'
 
 type Rate = Pick<Partial, 'rate'>
 

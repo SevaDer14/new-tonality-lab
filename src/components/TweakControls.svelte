@@ -1,7 +1,7 @@
 <script lang="ts">
     import Tweak from './Tweak.svelte'
     import Controls from './Controls.svelte'
-    import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores'
+    import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores-old'
     import Checkbox from './Checkbox.svelte'
 
     $: {
