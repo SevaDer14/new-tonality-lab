@@ -1,6 +1,7 @@
 import * as Spectrum from '../../src/xentonality/spectrum';
 import * as Factory from './factories'
 import * as Fixture from './fixtures/spectrum'
+import { expect, describe, it } from 'vitest'
 
 
 describe('Xentonality.Spectrum.generatePartials', () => {

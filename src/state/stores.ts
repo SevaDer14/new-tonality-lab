@@ -1,8 +1,8 @@
 import { writable, derived, readable } from 'svelte/store';
 import type { TSpectrumType, TSweepType, TTweaks } from 'src/xentonality/types';
-import { generatePartials, applyTweaks, shiftOnRatio, adjustAmplitude } from '../xentonality/spectrum'
-import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
-import { centsToRatio } from '../xentonality/utils';
+import { generatePartials, applyTweaks, shiftOnRatio, adjustAmplitude } from '../xentonality/old/spectrum'
+import { calcDissonanceCurveMultipleOctaves } from '../xentonality/old/dissonance'
+import { centsToRatio } from '../xentonality/old/utils';
 
 
 export const fundamental = writable(261.63);

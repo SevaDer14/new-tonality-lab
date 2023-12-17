@@ -1,0 +1,5 @@
+export { AdditiveSynth } from './synth'
+export { Voice } from './voice'
+export { OscillatorBank } from './oscillatorBank'
+export { Oscillator } from './oscillator'
+export * from './types'

@@ -1,4 +1,4 @@
-import type { Partial } from './partial'
+import type { Oscillator } from './oscillator'
 import type { Spectrum } from './types'
 import { Voice } from './voice'
 
@@ -51,14 +51,14 @@ export class AdditiveSynth {
         this._voices.clear()
     }
 
-    public getPartials() {
-        const partials = new Map<string, Partial[]>()
+    public getOscillators() {
+        const oscillators = new Map<string, Oscillator[]>()
 
         this._voices.forEach((voice) => {
-            partials.set(voice.id, voice.getPartials())
+            oscillators.set(voice.id, voice.getOscillators())
         })
 
-        return partials
+        return oscillators
     }
 
     public update(spectrum: Spectrum, voiceId?: string) {

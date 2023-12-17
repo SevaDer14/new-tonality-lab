@@ -6,14 +6,14 @@ export type PartialAddress = { voiceId?: string; oscIndex: number; partialIndex:
 
 export type PlayState = 'ready' | 'playing' | 'used'
 
+export type Partial = {
+    rate: number
+    amplitude: number
+    phase?: number
+}
+
 export type SpectralLayer = {
-    partials: PartialArgs[]
+    partials: Partial[]
 }
 
 export type Spectrum = SpectralLayer[]
-
-export type PartialArgs = {
-    rate: number
-    amplitude: number
-    phase: number
-}

@@ -1,6 +1,7 @@
 import * as Utils from "../../src/xentonality/utils"
 import * as Factory from "./factories"
 import { curvesEqual } from "./assertions"
+import { expect, describe, it } from 'vitest'
 
 
 describe('Xentonality.Utils.ratioToCents', () => {

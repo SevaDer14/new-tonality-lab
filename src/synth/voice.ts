@@ -1,8 +1,8 @@
-import { Oscillator } from './oscillator'
-import type { Partial } from './partial'
+import { OscillatorBank } from './oscillatorBank'
+import type { Oscillator } from './oscillator'
 import type { OscillatorAddress, PartialAddress, PlayState, SpectralLayer, Spectrum } from './types'
 
-export type VoiceConstructorOptions = {
+type VoiceConstructorOptions = {
     id?: string
     spectrum: Spectrum
     audioContext: AudioContext
@@ -13,7 +13,7 @@ export class Voice {
     private _id: string
     private _pitch = 20
     private _state: PlayState
-    private _oscillators: Oscillator[]
+    private _oscillatorBanks: OscillatorBank[]
     private _gain: GainNode
     private _audioContext: AudioContext
 
@@ -25,7 +25,7 @@ export class Voice {
         this._gain = this._audioContext.createGain()
         this.connect(destination)
 
-        this._oscillators = this.buildOscillators(spectrum)
+        this._oscillatorBanks = this.buildOscillatorBanks(spectrum)
     }
 
     public get id() {
@@ -40,8 +40,8 @@ export class Voice {
         return this._state
     }
 
-    public get oscillators() {
-        return this._oscillators
+    public get oscillatorBanks() {
+        return this._oscillatorBanks
     }
 
     public play(pitch: number, velocity: number, time = this._audioContext.currentTime) {
@@ -50,16 +50,16 @@ export class Voice {
 
         this.setGain(velocity)
 
-        for (let i = 0; i < this._oscillators.length; i++) {
-            this._oscillators[i].play(this._pitch, time)
+        for (let i = 0; i < this._oscillatorBanks.length; i++) {
+            this._oscillatorBanks[i].play(this._pitch, time)
         }
 
         this._state = 'playing'
     }
 
     public release(time = this._audioContext.currentTime) {
-        for (let i = 0; i < this._oscillators.length; i++) {
-            this._oscillators[i].release(time)
+        for (let i = 0; i < this._oscillatorBanks.length; i++) {
+            this._oscillatorBanks[i].release(time)
         }
 
         this._state = 'used'
@@ -69,32 +69,32 @@ export class Voice {
     public get(address: OscillatorAddress & PartialAddress) {
         if (!address.oscIndex) return
 
-        const oscillator = this._oscillators[address.oscIndex]
+        const oscillatorBank = this._oscillatorBanks[address.oscIndex]
 
-        if (!address.partialIndex) return oscillator
+        if (!address.partialIndex) return oscillatorBank
 
-        return oscillator.partial(address.partialIndex)
+        return oscillatorBank.oscillator(address.partialIndex)
     }
 
     public update(spectrum: Spectrum) {
         if (this._state === 'used') return
 
-        const commonLength = Math.min(this._oscillators.length, spectrum.length)
-        const difference = this._oscillators.length - spectrum.length
+        const commonLength = Math.min(this._oscillatorBanks.length, spectrum.length)
+        const difference = this._oscillatorBanks.length - spectrum.length
 
         for (let i = 0; i < commonLength; i++) {
-            this._oscillators[i].update(spectrum[i])
+            this._oscillatorBanks[i].update(spectrum[i])
         }
 
         if (difference > 0) {
             for (let i = 0; i < difference; i++) {
-                this.removeOscillator(commonLength)
+                this.removeOscillatorBank(commonLength)
             }
         }
 
         if (difference < 0) {
             for (let i = 0; i < -difference; i++) {
-                this.createOscillator(spectrum[commonLength + i])
+                this.createOscillatorBank(spectrum[commonLength + i])
             }
         }
     }
@@ -103,22 +103,22 @@ export class Voice {
         this._gain.gain.linearRampToValueAtTime(value, currentTime)
     }
 
-    public getPartials() {
-        const partials: Partial[] = []
+    public getOscillators() {
+        const partials: Oscillator[] = []
 
-        for (let i = 0; i < this._oscillators.length; i++) {
-            partials.push(...this._oscillators[i].partials)
+        for (let i = 0; i < this._oscillatorBanks.length; i++) {
+            partials.push(...this._oscillatorBanks[i].oscillators)
         }
 
         return partials
     }
 
-    private removeOscillator(index: number) {
-        const removedOscillator = this._oscillators.splice(index, 1)[0]
+    private removeOscillatorBank(index: number) {
+        const removedOscillatorBank = this._oscillatorBanks.splice(index, 1)[0]
 
-        removedOscillator.destroy()
+        removedOscillatorBank.destroy()
 
-        return removedOscillator
+        return removedOscillatorBank
     }
 
     private connect(dest: AudioNode) {
@@ -129,18 +129,18 @@ export class Voice {
         this._gain.disconnect()
     }
 
-    private buildOscillators(spectrum: Spectrum): Oscillator[] {
-        const oscillators: Oscillator[] = []
+    private buildOscillatorBanks(spectrum: Spectrum): OscillatorBank[] {
+        const oscillators: OscillatorBank[] = []
 
         for (let i = 0; i < spectrum.length; i++) {
-            this.createOscillator(spectrum[i], oscillators)
+            this.createOscillatorBank(spectrum[i], oscillators)
         }
 
         return oscillators
     }
 
-    private createOscillator({ partials }: SpectralLayer, oscillators = this._oscillators) {
-        const newOscillator = new Oscillator({
+    private createOscillatorBank({ partials }: SpectralLayer, oscillators = this._oscillatorBanks) {
+        const newOscillator = new OscillatorBank({
             partials,
             audioContext: this._audioContext,
             destination: this._gain,

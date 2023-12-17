@@ -1,5 +1,6 @@
 import { curvesEqual } from "./assertions";
 import * as Factory from "./factories"
+import { expect, describe, it } from 'vitest'
 
 
 describe('Assertions.curvesEqual', () => {

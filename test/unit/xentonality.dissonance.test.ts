@@ -3,6 +3,7 @@ import * as Spectrum from '../../src/xentonality/spectrum';
 import * as Factory from './factories'
 import { diss_curve_440_4_harmonic, diss_curve_440_1_partial } from './fixtures/dissCurves'
 import { curvesEqual } from "./assertions"
+import { expect, describe, it } from 'vitest'
 
 describe('Xentonality.Dissonance.plompLeveltDissonance', () => {
     it('returns 0 if minLoudness is 0', () => {
