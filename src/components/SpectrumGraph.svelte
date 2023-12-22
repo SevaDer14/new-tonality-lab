@@ -15,7 +15,7 @@
         if ($spectrum) {
             let data: number[][] = partialsToPlotData($spectrum[0]?.partials || [])
             const maxRate = data.reduce((acc, curr) => Math.max(curr[0], acc), 0)
-            console.log(maxRate)
+            
             spectrumChartConfig = {
                 chart: {
                     zoomType: 'xy',

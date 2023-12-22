@@ -2,7 +2,7 @@
     import SpectrumGraph from '../../components/SpectrumGraph.svelte'
     // import RoughnessProfileControls from '../../components/RoughnessControls.svelte'
     import GenerateControls from '../../components/GenerateControls.svelte'
-    // import TweakControls from '../../components/TweakControls.svelte'
+    import TweakControls from '../../components/TweakControls.svelte'
     import Panel from '../../components/Panel.svelte'
     import Board from '../../components/Board.svelte'
     import Synth from '../../components/Synth.svelte'
@@ -12,6 +12,7 @@
 
 <Panel size="lg" title="synth">
     <GenerateControls />
+    <TweakControls />
     <GlobalControls />
     <!-- <TweakControls />
     <RoughnessProfileControls />

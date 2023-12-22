@@ -1,38 +1,38 @@
 <script lang="ts">
-    import Tweak from './Tweak.svelte'
+    import TweakComp from './Tweak.svelte'
     import Controls from './Controls.svelte'
-    import { partials, generatedPartials, tweaks, tweaksEnabled } from '../state/stores-old'
+    import { spectrumTemplate, tweaks } from '../state/stores'
     import Checkbox from './Checkbox.svelte'
+    import type { Partial } from '../synth'
+
+    let partials: Partial[] = $spectrumTemplate[0].partials
+    let enabled: boolean = true
 
     $: {
-        $partials.forEach((partial, index) => {
-            if ($tweaks[index] === undefined) {
-                $tweaks.push({ ratio: 0, amplitude: 0 })
-            }
-        })
+        $tweaks = partials.map(() => ({ rate: 1, amplitude: 1 }))
     }
 </script>
 
 <Controls title="tweak">
-    <Checkbox label="Enable" checked={$tweaksEnabled} onChange={(value) => ($tweaksEnabled = value)} />
-    {#each $partials as partial, index}
-        <Tweak
+    <Checkbox label="Enable" checked={enabled} onChange={(value) => (enabled = value)} />
+    {#each partials as partial, index}
+        <TweakComp
             index={index + 1}
-            ratio={$generatedPartials[index].ratio}
-            disabled={!$tweaksEnabled}
-            amplitude={$generatedPartials[index].amplitude}
+            rate={partial.rate}
+            disabled={!enabled}
+            amplitude={partial.amplitude}
             initialValue={$tweaks[index]}
-            ratioLimits={{
-                min: index > 0 ? -($generatedPartials[index].ratio - $generatedPartials[index - 1].ratio) + 0.01 : 0,
-                max: $generatedPartials.length <= 1 ? 1 : index < $generatedPartials.length - 1 ? $generatedPartials[index + 1]?.ratio - $generatedPartials[index].ratio - 0.01 : $generatedPartials[index]?.ratio - $generatedPartials[index - 1].ratio,
+            rateLimits={{
+                min: 0.5,
+                max: 2,
             }}
             amplitudeLimits={{
-                min: -$generatedPartials[index].amplitude,
-                max: 1 - $generatedPartials[index].amplitude,
+                min: 0,
+                max: 1 / partial.amplitude,
             }}
-            onRatioChange={index !== 0
+            onRateChange={index !== 0
                 ? (value) => {
-                      $tweaks[index].ratio = value
+                      $tweaks[index].rate = value
                   }
                 : undefined}
             onAmplitudeChange={(value) => {

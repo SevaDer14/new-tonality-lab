@@ -4,7 +4,6 @@
 // import { calcDissonanceCurveMultipleOctaves } from '../xentonality/old/dissonance'
 // import { centsToRatio } from '../xentonality/old/utils';
 
-
 // export const fundamental = writable(261.63);
 // export const playing = writable(false);
 // export const numberOfPartials = writable(6);
@@ -33,18 +32,17 @@
 // export const sampleDuration = writable(5)
 // export const sampleName = writable('sample')
 
-
 // export const generatedPartials = derived(
 //     [spectrumType, fundamental, numberOfPartials, edoSteps, pseudoOctave, amplitudeSlope],
 //     ([
-//         $spectrumType,
+//         $spectrumTemplateType,
 //         $fundamental,
 //         $numberOfPartials,
 //         $edoSteps,
 //         $pseudoOctave,
 //         $amplitudeSlope,
 //     ]) => generatePartials({
-//         type: $spectrumType,
+//         type: $spectrumTemplateType,
 //         slope: $amplitudeSlope,
 //         fundamental: $fundamental,
 //         number: $numberOfPartials,
@@ -52,7 +50,6 @@
 //         edo: $edoSteps
 //     })
 // );
-
 
 // export const partials = derived(
 //     [generatedPartials, tweaks, tweaksEnabled],
@@ -80,7 +77,6 @@
 //         ? adjustAmplitude(shiftOnRatio($partials, $sweepRatio), $sweepAmplitude)
 //         : adjustAmplitude(shiftOnRatio(generatePartials({ type: 'harmonic', fundamental: $fundamental, number: $dissonanceCurveSweepHarmonicPartials, slope: 1 }), $sweepRatio), $sweepAmplitude)
 // )
-
 
 // export const dissCurveLimits = derived(
 //     [dissLimitMinIndex, dissLimitMaxIndex],

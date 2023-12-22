@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spectrum } from '../state/stores'
+    import { spectrumTemplate } from '../state/stores'
     import { attachRandomPhases, attachReciprocalAmplitudes, getHarmonicRates, stretchRates } from '../xentonality/spectrum'
     import Controls from './Controls.svelte'
     import Range from './Range.svelte'
@@ -17,7 +17,7 @@
 
     $: {
         if (partials) {
-            $spectrum = [{ partials }]
+            $spectrumTemplate = [{ partials }]
         }
     }
 </script>

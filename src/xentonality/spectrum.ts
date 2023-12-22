@@ -74,13 +74,15 @@ export function attachRandomPhases({ partials }: AttachRandomPhasesArgs): Partia
     return withPhases
 }
 
+export type Tweak = {
+    rate?: number
+    amplitude?: number
+    phase?: number
+}
+
 type TweakArgs = {
     partials: Partial[]
-    tweaks: {
-        rate?: number
-        amplitude?: number
-        phase?: number
-    }[]
+    tweaks: Tweak[]
 }
 
 export function tweak({ partials, tweaks }: TweakArgs): Partial[] {
