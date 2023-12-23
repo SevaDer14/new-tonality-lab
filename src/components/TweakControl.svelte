@@ -33,13 +33,13 @@
         <legend class="w-full whitespace-nowrap text-xs text-white-65 mb-4 relative top-5 flex justify-between">
             <p class="flex">
                 <span class={!rateTweakValue ? '' : rateTweakValue > 0 ? 'greater' : 'lower'}>
-                    {`r: ${rateTweakValue ? round(rate + rateTweakValue, 2) : ''}`}
+                    {`r: ${rateTweakValue ? round(rate * rateTweakValue, 2) : ''}`}
                 </span>
                 {round(rate, 2)}
             </p>
             <p class="flex">
                 <span class={!amplitudeTweakValue ? '' : amplitudeTweakValue > 0 ? 'greater' : 'lower'}>
-                    {`a: ${amplitudeTweakValue ? round(amplitude + amplitudeTweakValue, 2) : ''}`}
+                    {`a: ${amplitudeTweakValue ? round(amplitude * amplitudeTweakValue, 2) : ''}`}
                 </span>
                 {round(amplitude, 2)}
             </p>
