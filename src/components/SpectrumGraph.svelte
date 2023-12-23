@@ -15,6 +15,7 @@
         if ($spectrum) {
             let data: number[][] = partialsToPlotData($spectrum[0]?.partials || [])
             const maxRate = data.reduce((acc, curr) => Math.max(curr[0], acc), 0)
+            const maxAmplitude = data.reduce((acc, curr) => Math.max(curr[1], acc), 0)
             
             spectrumChartConfig = {
                 chart: {
@@ -45,7 +46,7 @@
                 },
                 yAxis: [
                     {
-                        max: 1,
+                        max: Math.ceil(maxAmplitude) || 1,
                         visible: false,
                         labels: {
                             enabled: false,

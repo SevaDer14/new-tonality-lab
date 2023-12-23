@@ -1,5 +1,5 @@
 <script lang="ts">
-    import TweakComp from './Tweak.svelte'
+    import TweakControl from './TweakControl.svelte'
     import Controls from './Controls.svelte'
     import { spectrumTemplate, tweaks } from '../state/stores'
     import Checkbox from './Checkbox.svelte'
@@ -13,11 +13,10 @@
     }
 </script>
 
-<Controls title="tweak">
+<Controls title="Tweak:">
     <Checkbox label="Enable" checked={enabled} onChange={(value) => (enabled = value)} />
     {#each partials as partial, index}
-        <TweakComp
-            index={index + 1}
+        <TweakControl
             rate={partial.rate}
             disabled={!enabled}
             amplitude={partial.amplitude}

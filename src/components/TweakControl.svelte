@@ -1,13 +1,14 @@
 <script lang="ts">
     import { round } from 'lodash'
-    import type { TTweak, TMinMax } from 'src/xentonality/types'
     import Range from './Range.svelte'
+    import type { Tweak } from '../xentonality/spectrum'
 
-    export let index: number
+    type MinMax = { min?: number; max?: number }
+
     export let disabled: boolean | undefined
-    export let initialValue: TTweak | undefined
-    export let rateLimits: TMinMax | undefined
-    export let amplitudeLimits: TMinMax | undefined
+    export let initialValue: Tweak | undefined
+    export let rateLimits: MinMax | undefined
+    export let amplitudeLimits: MinMax | undefined
     export let rate: number
     export let onRateChange: ((value: number) => void) | undefined
     export let amplitude: number

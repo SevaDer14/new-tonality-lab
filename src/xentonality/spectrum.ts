@@ -46,15 +46,16 @@ export function stretchRates({ rates, stretch }: StretchRatesArgs): Rate[] {
 type AttachReciprocalAmplitudesArgs = {
     rates: Rate[]
     slope: number
+    amplitude?: number
 }
 
-export function attachReciprocalAmplitudes({ rates, slope }: AttachReciprocalAmplitudesArgs): Partial[] {
+export function attachReciprocalAmplitudes({ rates, slope, amplitude = 1 }: AttachReciprocalAmplitudesArgs): Partial[] {
     const partials: Partial[] = []
 
     if (slope < 0) throw new Error(`One of the args is less than zero! slope={${slope}}`)
 
     for (let i = 0; i < rates.length; i++) {
-        partials.push({ ...rates[i], amplitude: rates[i].rate ** -slope })
+        partials.push({ ...rates[i], amplitude: amplitude * rates[i].rate ** -slope })
     }
 
     return partials
