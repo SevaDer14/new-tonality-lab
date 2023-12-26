@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spectrum, pitch, masterGain } from '../state/stores.js'
+    import { spectrum, pitch, synthSettings } from '../state/stores.js'
     import { AdditiveSynth } from '../synth'
     import { onMount } from 'svelte'
 
@@ -21,7 +21,7 @@
 
     $: {
         if (synth) {
-            synth.setMasterGain($masterGain)
+            synth.setMasterGain($synthSettings.masterGain)
         }
     }
 

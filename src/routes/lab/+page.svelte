@@ -1,25 +1,20 @@
 <script lang="ts">
     import SpectrumGraph from '../../components/SpectrumGraph.svelte'
-    // import RoughnessProfileControls from '../../components/RoughnessControls.svelte'
-    import GenerateControls from '../../components/GenerateControls.svelte'
-    import TweakControls from '../../components/TweakControls.svelte'
     import Panel from '../../components/Panel.svelte'
     import Board from '../../components/Board.svelte'
     import Synth from '../../components/Synth.svelte'
     import GlobalControls from '../../components/GlobalControls.svelte'
-    // import ExportControls from '../../components/ExportControls.svelte'
+    import LayerControls from '../../components/LayerControls.svelte'
+
+
 </script>
 
 <Panel size="lg" title="synth">
-    <GenerateControls />
-    <TweakControls />
     <GlobalControls />
-    <!-- <TweakControls />
-    <RoughnessProfileControls />
-    <ExportControls /> -->
+    <LayerControls />
 </Panel>
 
-<Panel size="md" title="graphs">
+<Panel size="md" title="Spectrum">
     <SpectrumGraph />
 </Panel>
 

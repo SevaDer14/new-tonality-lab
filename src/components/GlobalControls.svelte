@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { masterGain } from '../state/stores'
+    import { synthSettings } from '../state/stores'
     import Controls from './Controls.svelte'
     import Range from './Range.svelte'
 </script>
 
-<Controls title="Mix:">
-    <Range label="Volume" min={0} max={1} step={0.01} onInput={(value) => ($masterGain = value)} initialValue={$masterGain} />
+<Controls class="w-60 border-r-4 bg-white-5">
+    <Range color="rgb(255, 255, 255)" label="Volume" min={0} max={1} step={0.01} onInput={synthSettings.setMasterGain} initialValue={$synthSettings.masterGain} />
 </Controls>

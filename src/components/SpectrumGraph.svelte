@@ -1,7 +1,7 @@
 <script lang="ts">
     import { spectrum } from '../state/stores.js'
     import type { Partial } from '../synth/types.js'
-    import { colors } from '../theme/colors.js'
+    import { colors, colorSeries } from '../theme/colors.js'
     import highcharts from '../utils/highcharts.js'
     import type { PlotOptions } from 'highcharts'
 
@@ -13,10 +13,25 @@
 
     $: {
         if ($spectrum) {
-            let data: number[][] = partialsToPlotData($spectrum[0]?.partials || [])
-            const maxRate = data.reduce((acc, curr) => Math.max(curr[0], acc), 0)
-            const maxAmplitude = data.reduce((acc, curr) => Math.max(curr[1], acc), 0)
-            
+            const data = $spectrum.map((layer) => partialsToPlotData(layer.partials))
+            const series = data.map((points, index) => ({
+                yAxis: 0,
+                type: 'column',
+                name: `Layer-${index}`,
+                color: colors[colorSeries[index]]?.DEFAULT ?? colors.green.DEFAULT,
+                pointWidth: 2,
+                borderWidth: 0,
+                data: points,
+            }))
+            const maxRate = data.reduce((acc, points) => {
+                const rates = points.map((point) => point[0])
+                return Math.max(...rates, acc)
+            }, 0)
+            const maxAmplitude = data.reduce((acc, points) => {
+                const rates = points.map((point) => point[1])
+                return Math.max(...rates, acc)
+            }, 0)
+
             spectrumChartConfig = {
                 chart: {
                     zoomType: 'xy',
@@ -83,23 +98,17 @@
                 plotOptions: {
                     series: {
                         type: 'line',
+                        animation: false,
                         label: {
                             connectorAllowed: false,
                         },
                         pointStart: 0,
                     },
+                    column: {
+                        grouping: false,
+                    }
                 },
-                series: [
-                    {
-                        yAxis: 0,
-                        type: 'column',
-                        name: 'Spectrum',
-                        color: colors.green.DEFAULT,
-                        pointWidth: 2,
-                        borderWidth: 0,
-                        data,
-                    },
-                ],
+                series,
             }
         }
     }

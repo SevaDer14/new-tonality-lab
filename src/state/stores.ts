@@ -1,15 +1,38 @@
 import { derived, writable } from 'svelte/store'
-import type { Spectrum } from '../synth'
-import { tweak, type Tweak } from '../xentonality/spectrum'
+import type { SpectralLayer, Spectrum } from '../synth'
+import * as XenSpectrum from '../xentonality/spectrum'
+import { createSynthSettings, type Layer } from './synthSettings'
 
-export const spectrumTemplate = writable<Spectrum>([])
-export const tweaks = writable<Tweak[]>([])
 
-export const spectrum = derived([spectrumTemplate, tweaks], ([$spectrumTemplate, $tweaks]) => {
-    const partials = tweak({ partials: $spectrumTemplate[0]?.partials, tweaks: $tweaks })
-    const spectrum = [{ partials }]
-    return spectrum
+export const synthSettings = createSynthSettings()
+
+function getHarmonicSpectralLayer(layer: Layer): SpectralLayer {
+    const { length, start, transposeTo, stretch, slope, amplitude } = layer.seed
+
+    const rates = XenSpectrum.getHarmonicRates({ length, start, transposeTo })
+    const stretchedRates = XenSpectrum.stretchRates({ rates, stretch })
+    const withAmplitudes = XenSpectrum.attachReciprocalAmplitudes({ rates: stretchedRates, slope, amplitude })
+    const partials = XenSpectrum.attachRandomPhases({ partials: withAmplitudes })
+
+    if (!layer.tweaks.enabled) return { partials }
+
+    const tweakedPartials = XenSpectrum.tweak({ partials, tweaks: layer.tweaks.value })
+
+    return { partials: tweakedPartials }
+}
+
+export const spectrum = derived([synthSettings], ([$synthSettings]) => {
+    const newSpectrum = $synthSettings.layers
+        .map((layer) => {
+            if (layer.type === 'harmonic') {
+                return getHarmonicSpectralLayer(layer)
+            }
+
+            return null
+        })
+        .filter((spectralLayer) => spectralLayer !== null) as Spectrum
+
+    return newSpectrum
 })
 
 export const pitch = writable<number | null>(null)
-export const masterGain = writable<number>(0.7)

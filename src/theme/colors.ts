@@ -1,4 +1,3 @@
-
 // integrate with tailwind config
 
 export const colors = {
@@ -40,3 +39,5 @@ export const colors = {
         '5': 'rgba(255, 61, 177, 0.05)',
     },
 }
+
+export const colorSeries = ['green', 'orange', 'yellow', 'pink', 'blue', 'white'] as const
