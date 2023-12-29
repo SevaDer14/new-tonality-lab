@@ -3,13 +3,13 @@
     export let min: number
     export let max: number
     export let step = 1
-    export let initialValue: number | undefined
+    export let initialValue: number | undefined = undefined
+    export let value: number | undefined = initialValue || 0
     export let onInput: (arg: number) => any
     export let disabled = false
     export let color = "rgb(0, 189, 249)"
 
     let backgroundSize: string
-    let value = initialValue || 0
     const id = Math.random().toString()
 
     $: {

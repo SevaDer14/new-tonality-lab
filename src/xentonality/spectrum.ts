@@ -1,4 +1,4 @@
-import type { Partial } from '../synth'
+import type { Partial, Spectrum } from '../synth'
 
 type Rate = Pick<Partial, 'rate'>
 
@@ -108,4 +108,35 @@ export function tweak({ partials, tweaks }: TweakArgs): Partial[] {
     }
 
     return tweaked
+}
+
+function hasPartial(partials: Partial[], testPartial: Partial): boolean {
+    let result = false
+
+    for (let i = 0; i < partials.length; i++) {
+        const partial = partials[i]
+
+        if (partial.rate === testPartial.rate) {
+            result = true
+            break
+        }
+    }
+
+    return result
+}
+
+export function getAllPartials(spectrum: Spectrum): Partial[] {
+    const partials: Partial[] = []
+
+    for (let i = 0; i < spectrum.length; i++) {
+        const layerPartials = spectrum[i].partials
+
+        for (let j = 0; j < layerPartials.length; j++) {
+            const partial = layerPartials[j]
+
+            if (!hasPartial(partials, partial)) partials.push(partial)
+        }
+    }
+
+    return partials.sort((a, b) => a.rate - b.rate)
 }

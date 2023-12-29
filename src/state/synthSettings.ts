@@ -33,7 +33,6 @@ const DEFAULT_SEED: Seed = {
     transposeTo: 1,
 }
 const DEFAULT_TWEAK: Tweak = { rate: 1, amplitude: 1 }
-const DEFAULT_TWEAKS: Tweak[] = Array(DEFAULT_SEED.length).fill({ ...DEFAULT_TWEAK })
 
 function getDefaultLayer(): Layer {
     return {
@@ -41,7 +40,7 @@ function getDefaultLayer(): Layer {
         seed: DEFAULT_SEED,
         tweaks: {
             enabled: true,
-            value: DEFAULT_TWEAKS,
+            value: Array(DEFAULT_SEED.length).fill({ ...DEFAULT_TWEAK }),
         },
     }
 }
@@ -66,9 +65,9 @@ export function createSynthSettings() {
 
     function updateSeed(layerIndex: number, newSeed: Partial<Seed>) {
         update((state) => {
-            const newState = { ...state }
+            if (!state.layers[layerIndex]) throw new Error(`Cannot update seed: layer with index ${layerIndex} not found!`)
 
-            if (!newState.layers[layerIndex]) throw new Error(`Cannot update seed: layer with index ${layerIndex} not found!`)
+            const newState = { ...state }
             const updatedSeed = { ...newState.layers[layerIndex].seed, ...newSeed }
 
             newState.layers[layerIndex].seed = updatedSeed
@@ -80,11 +79,13 @@ export function createSynthSettings() {
     function updateTweaks(layerIndex: number, newTweaks: Partial<TweakThing>) {
         update((state) => {
             if (!state.layers[layerIndex]) throw new Error(`Cannot update tweaks: layer with index ${layerIndex} not found!`)
-            const updatedTweaks = { ...state.layers[layerIndex].tweaks, ...newTweaks }
 
-            state.layers[layerIndex].tweaks = updatedTweaks
+            const newState = { ...state }
+            const updatedTweaks = { ...newState.layers[layerIndex].tweaks, ...newTweaks }
 
-            return state
+            newState.layers[layerIndex].tweaks = updatedTweaks
+
+            return newState
         })
     }
 
@@ -93,11 +94,13 @@ export function createSynthSettings() {
             if (!state.layers[layerIndex]) throw new Error(`Cannot update tweak value: layer with index ${layerIndex} not found!`)
             if (!state.layers[layerIndex].tweaks.value[tweakIndex]) throw new Error(`Cannot update tweak value: tweak with index ${tweakIndex} not found!`)
 
-            const updatedTweak = { ...state.layers[layerIndex].tweaks.value[tweakIndex], ...newValue }
+            const newState = { ...state }
 
-            state.layers[layerIndex].tweaks.value[tweakIndex] = updatedTweak
+            const updatedTweak = { ...newState.layers[layerIndex].tweaks.value[tweakIndex], ...newValue }
 
-            return state
+            newState.layers[layerIndex].tweaks.value[tweakIndex] = updatedTweak
+
+            return newState
         })
     }
 

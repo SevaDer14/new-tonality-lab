@@ -231,3 +231,37 @@ describe('tweak', () => {
         expect(partials !== Spectrum.tweak(options)).toEqual(true)
     })
 })
+
+describe('getAllPartials', () => {
+    const spectrum = [
+        {
+            partials: [
+                { rate: 1, amplitude: 1, phase: 0.5 },
+                { rate: 2, amplitude: 1, phase: 0.5 },
+                { rate: 3, amplitude: 1, phase: 0.5 },
+                { rate: 4, amplitude: 1, phase: 0.5 },
+            ],
+        },
+        {
+            partials: [
+                { rate: 6, amplitude: 1, phase: 0.5 },
+                { rate: 5, amplitude: 1, phase: 0.5 },
+                { rate: 4, amplitude: 1, phase: 0.5 },
+                { rate: 3, amplitude: 1, phase: 0.5 },
+            ],
+        },
+    ]
+
+    it('should return sorted partials without duplicates', () => {
+        const expectedOutcome = [
+            { rate: 1, amplitude: 1, phase: 0.5 },
+            { rate: 2, amplitude: 1, phase: 0.5 },
+            { rate: 3, amplitude: 1, phase: 0.5 },
+            { rate: 4, amplitude: 1, phase: 0.5 },
+            { rate: 5, amplitude: 1, phase: 0.5 },
+            { rate: 6, amplitude: 1, phase: 0.5 },
+        ]
+
+        expect(Spectrum.getAllPartials(spectrum)).toEqual(expectedOutcome)
+    })
+})

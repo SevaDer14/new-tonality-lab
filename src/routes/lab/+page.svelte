@@ -5,6 +5,7 @@
     import Synth from '../../components/Synth.svelte'
     import GlobalControls from '../../components/GlobalControls.svelte'
     import LayerControls from '../../components/LayerControls.svelte'
+    import { spectrum } from '../../state/stores'
 
 
 </script>
@@ -20,5 +21,5 @@
 
 <Panel size="sm" title="board">
     <Synth />
-    <Board />
+    <Board spectrum={$spectrum} />
 </Panel>
