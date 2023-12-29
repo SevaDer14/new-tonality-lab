@@ -1,27 +1,31 @@
 <script lang="ts">
-    import { pitch } from '../state/stores.js'
+    import { boardSpan } from '../state/stores.js'
     import type { Spectrum } from '../synth/types.js'
-    import { colors } from '../theme/colors'
     import { getAllPartials } from '../xentonality/spectrum.js'
     import { getTuning, type Tuning } from '../xentonality/tuning.js'
 
     export let spectrum: Spectrum | undefined
 
-    const LOWEST_NOTE = 55
-    const ROOT_NOTE = 110
-    const NR_OCTAVES = 2
-    const BOARD_PADDING_LOW = 3
-    const BOARD_PADDING_HIGH = BOARD_PADDING_LOW ** (NR_OCTAVES * 1.2)
-    const RANGE = [LOWEST_NOTE - BOARD_PADDING_LOW, LOWEST_NOTE * 2 ** NR_OCTAVES + BOARD_PADDING_HIGH]
+    type Key = {
+        marker: {
+            offsetX: number
+            opacity: number
+        }
+        isPlayable: boolean
+        pitch: number
+        ratio: string
+        key?: string
+    }
+
+    const ROOT_NOTE = 220
+    const RANGE_PADDING = 1.1
     const NOTE_CORRELATION_THRESHOLD = 0.1
 
     let boardWidth: number
-    let noteOffset: number
-
-    let noteMarkers: { offsetX: number; opacity: number; isPlayable: boolean; pitch: number }[] = []
-
+    let keys: Key[] = []
     let partials
     let tuning: Tuning
+    let range = [ROOT_NOTE / RANGE_PADDING, ROOT_NOTE * RANGE_PADDING]
 
     $: {
         if (spectrum) {
@@ -32,26 +36,38 @@
 
     const toLinearScale = (val: number) => {
         const safeValue = Math.abs(val) || 1
-        const b = boardWidth / Math.log(RANGE[1] / RANGE[0])
-        const a = -1 * b * Math.log(RANGE[0])
+        const b = boardWidth / Math.log(range[1] / range[0])
+        const a = -1 * b * Math.log(range[0])
 
         return a + b * Math.log(safeValue)
     }
 
     $: {
-        if (boardWidth !== undefined) {
-            let markers: typeof noteMarkers = []
+        if (boardWidth !== undefined && $boardSpan) {
+            const LOWEST_RANGE = ROOT_NOTE / $boardSpan
+            const HIGHEST_RANGE = ROOT_NOTE * $boardSpan
+            range = [LOWEST_RANGE / RANGE_PADDING, HIGHEST_RANGE * RANGE_PADDING]
+
+            let newKeys: typeof keys = []
 
             for (let i = 0; i < tuning.length; i++) {
                 const offsetX = toLinearScale(ROOT_NOTE * tuning[i].ratio)
                 if (offsetX > 0 && offsetX < boardWidth) {
                     const isPlayable = tuning[i].correlation > NOTE_CORRELATION_THRESHOLD
                     const opacity = isPlayable ? Math.sqrt(tuning[i].correlation) : tuning[i].correlation
-                    markers.push({ offsetX, opacity, isPlayable, pitch: tuning[i].ratio * ROOT_NOTE })
+                    newKeys.push({
+                        marker: {
+                            offsetX,
+                            opacity,
+                        },
+                        isPlayable,
+                        pitch: tuning[i].ratio * ROOT_NOTE,
+                        ratio: `${tuning[i].fraction[0]}:${tuning[i].fraction[1]}`,
+                    })
                 }
             }
 
-            noteMarkers = markers
+            keys = newKeys
         }
     }
 
@@ -61,29 +77,34 @@
         return false
     }
 
-    function playPitch(newPitch: number) {
-        $pitch = newPitch
+    function velocityCurve(pitch: number) {
+        return pitch > 440 ? 0.06 : 20 / pitch
     }
 
-    function releasePitch() {
-        $pitch = null
+    function handleKeyPress(key: Key) {
+        if (window.synth) {
+            window.synth.play({ pitch: key.pitch, velocity: velocityCurve(key.pitch), voiceId: key.ratio })
+        }
+    }
+
+    function handleKeyRelease(key: Key) {
+        if (window.synth) {
+            window.synth.release(key.ratio)
+        }
     }
 </script>
 
 <div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:selectionchange={disableEvent}>
-    <span class="blur-[2px] absolute top-0 h-full w-1 bg-white -translate-x-[2px] pointer-events-none touch-none transition-opacity ease-in-out duration-500" class:opacity-100={$pitch} class:opacity-0={!$pitch} style={`left: ${noteOffset}px`} />
-
-    {#each noteMarkers as { offsetX, opacity, isPlayable, pitch }}
+    {#each keys as key}
         <button
-            class="z-1 absolute h-full top-0 w-2 -transalte-x-1"
+            class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white"
             style={`
-                left: ${offsetX}px; 
-                opacity: ${opacity}; 
-                background-color: ${isPlayable ? colors.green.DEFAULT : colors.white.DEFAULT};
-                pointer-events: ${isPlayable ? 'auto' : 'none'}    
+                left: ${key.marker.offsetX}px; 
+                opacity: ${key.marker.opacity}; 
+                pointer-events: ${key.isPlayable ? 'auto' : 'none'}    
             `}
-            on:pointerdown={isPlayable ? () => playPitch(pitch) : undefined}
-            on:pointerup={releasePitch}
+            on:pointerdown={key.isPlayable ? () => handleKeyPress(key) : undefined}
+            on:pointerup={() => handleKeyRelease(key)}
         />
     {/each}
 </div>

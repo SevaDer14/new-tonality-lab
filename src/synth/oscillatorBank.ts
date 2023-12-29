@@ -50,12 +50,10 @@ export class OscillatorBank {
         this._state = 'playing'
     }
 
-    public release(time = this._audioContext.currentTime) {
+    public stop(time = this._audioContext.currentTime) {
         for (let i = 0; i < this._oscillators.length; i++) {
-            this._oscillators[i].release(time)
+            this._oscillators[i].stop(time)
         }
-
-        this.disconnect()
     }
 
     public update({ partials }: SpectralLayer) {
@@ -114,7 +112,8 @@ export class OscillatorBank {
 
     public destroy() {
         if (this._state === 'playing') {
-            this.release()
+            this.stop()
+            this.disconnect()
         } else {
             this.disconnect()
         }

@@ -1,4 +1,4 @@
-import type { AdditiveSynth } from './xentonality/synth'
+import type { AdditiveSynth } from './synth/index'
 
 declare global {
     interface Window {

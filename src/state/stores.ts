@@ -3,7 +3,7 @@ import type { SpectralLayer, Spectrum } from '../synth'
 import * as XenSpectrum from '../xentonality/spectrum'
 import { createSynthSettings, type Layer } from './synthSettings'
 
-
+export const boardSpan = writable(2)
 export const synthSettings = createSynthSettings()
 
 function getHarmonicSpectralLayer(layer: Layer): SpectralLayer {

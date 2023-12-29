@@ -67,13 +67,11 @@ export class Oscillator {
         }
     }
 
-    public release(time = this._audioContext.currentTime) {
+    public stop(time = this._audioContext.currentTime) {
         if (this._state !== 'playing') return
 
-        this.setGain(0, time)
         this._oscNode.stop(time)
         this._state = 'used'
-        this.disconnect()
     }
 
     public setRate(rate: number) {
@@ -95,7 +93,8 @@ export class Oscillator {
 
     public destroy() {
         if (this._state === 'playing') {
-            this.release()
+            this.stop()
+            this.disconnect()
         } else {
             this.disconnect()
         }

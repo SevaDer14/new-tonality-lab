@@ -24,7 +24,6 @@
             activeColor = colors[colorSeries[activeLayerIndex]].DEFAULT
             tweaks = activeLayer.tweaks
             seed = activeLayer.seed
-            console.log(tweaks.value[1])
         }
     }
 </script>

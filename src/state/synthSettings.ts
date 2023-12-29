@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store'
 import type { Tweak } from '../xentonality/spectrum'
+import type { ADSR } from '../synth'
 
 export type Seed = {
     length: number
@@ -19,7 +20,7 @@ export type Layer = {
     }
 }
 
-type TweakThing = {
+type Tweaks = {
     enabled: boolean
     value: Tweak[]
 }
@@ -49,6 +50,12 @@ export function createSynthSettings() {
     const { subscribe, update } = writable({
         layers: [getDefaultLayer()],
         masterGain: 0.75,
+        adsr: {
+            attack: 0.03,
+            decay: 1.6,
+            sustain: 0.1,
+            release: 3,
+        },
     })
 
     function setMasterGain(value: number) {
@@ -76,7 +83,7 @@ export function createSynthSettings() {
         })
     }
 
-    function updateTweaks(layerIndex: number, newTweaks: Partial<TweakThing>) {
+    function updateTweaks(layerIndex: number, newTweaks: Partial<Tweaks>) {
         update((state) => {
             if (!state.layers[layerIndex]) throw new Error(`Cannot update tweaks: layer with index ${layerIndex} not found!`)
 
@@ -113,6 +120,12 @@ export function createSynthSettings() {
         })
     }
 
+    function setAdsr(adsr: Partial<ADSR>) {
+        update((state) => {
+            return { ...state, adsr: { ...state.adsr, ...adsr } }
+        })
+    }
+
     return {
         subscribe,
         setMasterGain,
@@ -121,5 +134,12 @@ export function createSynthSettings() {
         updateSeed,
         updateTweaks,
         updateTweakValue,
+        setAdsr,
+        adsr: ({ attack, decay, sustain, release }: ADSR) => ({
+            attack,
+            decay,
+            sustain,
+            release,
+        }),
     }
 }

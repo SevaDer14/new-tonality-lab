@@ -8,7 +8,8 @@
 
     onMount(() => {
         audioContext = new AudioContext()
-        synth = new AdditiveSynth({ spectrum: $spectrum, audioContext })
+        synth = new AdditiveSynth({ spectrum: $spectrum, audioContext, adsr: $synthSettings.adsr })
+        synth.setMasterGain($synthSettings.masterGain)
 
         window.synth = synth
     })
@@ -22,16 +23,7 @@
     $: {
         if (synth) {
             synth.setMasterGain($synthSettings.masterGain)
-        }
-    }
-
-    $: {
-        if (synth) {
-            if ($pitch !== null) {
-                synth.play({ pitch: $pitch, velocity: 0.1, voiceId: 'voice' })
-            } else {
-                synth.releaseAll()
-            }
+            synth.updateAdsr($synthSettings.adsr)
         }
     }
 </script>

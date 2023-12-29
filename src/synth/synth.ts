@@ -1,9 +1,10 @@
 import type { Oscillator } from './oscillator'
-import type { Spectrum } from './types'
+import type { ADSR, Spectrum } from './types'
 import { Voice } from './voice'
 
 type AdditiveSynthConstructorOptions = {
     spectrum: Spectrum
+    adsr: ADSR
     audioContext: AudioContext
 }
 
@@ -12,20 +13,25 @@ export class AdditiveSynth {
     private _spectrum: Spectrum
     private _voices = new Map<string, Voice>()
     private _masterGain: GainNode
+    private _adsr: ADSR
 
-    public constructor({ spectrum, audioContext }: AdditiveSynthConstructorOptions) {
+    public constructor({ spectrum, adsr, audioContext }: AdditiveSynthConstructorOptions) {
         this._audioContext = audioContext
         this._spectrum = spectrum
+        this._adsr = adsr
         this._masterGain = this._audioContext.createGain()
         this._masterGain.connect(audioContext.destination)
     }
 
     public play({ pitch, velocity, voiceId }: { pitch: number; velocity: number; voiceId?: string }) {
+        this.cleanUpVoices()
+
         const voice =
             (voiceId && this._voices.get(voiceId)) ||
             new Voice({
                 id: voiceId,
                 spectrum: this._spectrum,
+                adsr: this._adsr,
                 audioContext: this._audioContext,
                 destination: this._masterGain,
             })
@@ -40,15 +46,13 @@ export class AdditiveSynth {
         const voice = this._voices.get(voiceId)
         if (!voice) return
 
-        voice.release(time)
-        this._voices.delete(voiceId)
+        voice.release()
     }
 
     public releaseAll(time = this._audioContext.currentTime) {
         this._voices.forEach((voice) => {
-            voice.release(time)
+            voice.release()
         })
-        this._voices.clear()
     }
 
     public getOscillators() {
@@ -77,5 +81,22 @@ export class AdditiveSynth {
 
     public setMasterGain(value: number, time = this._audioContext.currentTime) {
         this._masterGain.gain.linearRampToValueAtTime(value, time)
+    }
+
+    public updateAdsr(adsr: ADSR) {
+        this._adsr = adsr
+
+        this._voices.forEach((voice) => {
+            voice.updateAdsr(this._adsr)
+        })
+    }
+
+    private cleanUpVoices() {
+        this._voices.forEach((voice) => {
+            if (voice.gainValue < 0.00001) {
+                voice.destroy()
+                this._voices.delete(voice.id)
+            }
+        })
     }
 }

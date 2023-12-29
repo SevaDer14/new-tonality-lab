@@ -1,10 +1,11 @@
 import { OscillatorBank } from './oscillatorBank'
 import type { Oscillator } from './oscillator'
-import type { OscillatorAddress, PartialAddress, PlayState, SpectralLayer, Spectrum } from './types'
+import type { ADSR, OscillatorAddress, PartialAddress, PlayState, SpectralLayer, Spectrum } from './types'
 
 type VoiceConstructorOptions = {
     id?: string
     spectrum: Spectrum
+    adsr: ADSR
     audioContext: AudioContext
     destination: GainNode
 }
@@ -14,11 +15,13 @@ export class Voice {
     private _pitch = 20
     private _state: PlayState
     private _oscillatorBanks: OscillatorBank[]
+    private _adsr: ADSR
     private _gain: GainNode
     private _audioContext: AudioContext
 
-    public constructor({ id, spectrum, audioContext, destination }: VoiceConstructorOptions) {
+    public constructor({ id, spectrum, adsr, audioContext, destination }: VoiceConstructorOptions) {
         this._id = id || Math.random().toString(16)
+        this._adsr = adsr
         this._state = 'ready'
         this._audioContext = audioContext
 
@@ -40,6 +43,10 @@ export class Voice {
         return this._state
     }
 
+    public get gainValue() {
+        return this._gain.gain.value
+    }
+
     public get oscillatorBanks() {
         return this._oscillatorBanks
     }
@@ -48,22 +55,28 @@ export class Voice {
         if (this._state === 'used') return
         this._pitch = pitch
 
-        this.setGain(velocity)
+        if (this._state === 'playing') {
+            this.setGain(velocity * this._adsr.sustain, time)
+        } else {
+            this.setGain(0)
+        }
 
         for (let i = 0; i < this._oscillatorBanks.length; i++) {
             this._oscillatorBanks[i].play(this._pitch, time)
         }
 
         this._state = 'playing'
+
+        const timeAttackEnds = time + this._adsr.attack
+        const timeDecayEnds = timeAttackEnds + this._adsr.decay
+        this.setGain(velocity, timeAttackEnds)
+        this.setGain(velocity * this._adsr.sustain, timeDecayEnds)
     }
 
     public release(time = this._audioContext.currentTime) {
-        for (let i = 0; i < this._oscillatorBanks.length; i++) {
-            this._oscillatorBanks[i].release(time)
-        }
-
-        this._state = 'used'
-        this.disconnect()
+        const timeReleaseEnds = time + this._adsr.release
+        this.setGain(this.gainValue, time)
+        this.setGain(0, timeReleaseEnds)
     }
 
     public get(address: OscillatorAddress & PartialAddress) {
@@ -99,8 +112,12 @@ export class Voice {
         }
     }
 
-    public setGain(value: number, currentTime = this._audioContext.currentTime) {
-        this._gain.gain.linearRampToValueAtTime(value, currentTime)
+    public setGain(value: number, time = this._audioContext.currentTime) {
+        this._gain.gain.exponentialRampToValueAtTime(value || 0.0000000001, time)
+    }
+
+    public updateAdsr(adsr: ADSR) {
+        this._adsr = adsr
     }
 
     public getOscillators() {
@@ -113,6 +130,16 @@ export class Voice {
         return partials
     }
 
+    public destroy() {
+        this._state = 'used'
+
+        for (let i = 0; i < this._oscillatorBanks.length; i++) {
+            this._oscillatorBanks[i].stop()
+        }
+
+        this._gain.disconnect()
+    }
+
     private removeOscillatorBank(index: number) {
         const removedOscillatorBank = this._oscillatorBanks.splice(index, 1)[0]
 
@@ -123,10 +150,6 @@ export class Voice {
 
     private connect(dest: AudioNode) {
         this._gain.connect(dest)
-    }
-
-    private disconnect() {
-        this._gain.disconnect()
     }
 
     private buildOscillatorBanks(spectrum: Spectrum): OscillatorBank[] {

@@ -17,3 +17,10 @@ export type SpectralLayer = {
 }
 
 export type Spectrum = SpectralLayer[]
+
+export type ADSR = {
+    attack: number
+    decay: number
+    sustain: number
+    release: number
+}
