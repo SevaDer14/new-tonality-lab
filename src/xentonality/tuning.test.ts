@@ -37,16 +37,16 @@ describe('getTuning', () => {
         const partials = [
             { rate: 1, amplitude: 1, phase: 0.5 },
             { rate: 2, amplitude: 1, phase: 0.5 },
-            { rate: 2.01, amplitude: 1, phase: 0.5 },
+            { rate: 2.1, amplitude: 1, phase: 0.5 },
         ]
         const expectedFractions = [
             [1, 1],
             [1, 2],
-            [100, 201],
+            [10, 21],
             [2, 1],
-            [200, 201],
-            [201, 100],
-            [201, 200],
+            [20, 21],
+            [21, 10],
+            [21, 20],
         ]
         const expectedCorrelation = [1, 1 / 3, 1 / 3, 1 / 3, 1 / 3, 1 / 3, 1 / 3]
 
@@ -100,7 +100,7 @@ describe('getTuning', () => {
         expect(correlation).toEqual(expectedCorrelation)
     })
 
-    it.only('should count correlation for stretched tunings', () => {
+    it('should count correlation for stretched tunings', () => {
         const partials = [
             {
                 rate: 1,
