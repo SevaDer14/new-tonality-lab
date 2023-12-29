@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spectrum, pitch, synthSettings } from '../state/stores.js'
+    import { spectrum, synthSettings } from '../state/stores.js'
     import { AdditiveSynth } from '../synth'
     import { onMount } from 'svelte'
 
