@@ -1,10 +1,5 @@
 <script lang="ts">
-    import { boardSpan } from '../state/stores.js'
-    import type { Spectrum } from '../synth/types.js'
-    import { getAllPartials } from '../xentonality/spectrum.js'
-    import { getTuning, type Tuning } from '../xentonality/tuning.js'
-
-    export let spectrum: Spectrum | undefined
+    import { boardSpan, pitches, tuning } from '../state/stores.js'
 
     type Key = {
         marker: {
@@ -14,6 +9,7 @@
         isPlayable: boolean
         pitch: number
         ratio: string
+        ratioNum: number
         key?: string
     }
 
@@ -23,16 +19,7 @@
 
     let boardWidth: number
     let keys: Key[] = []
-    let partials
-    let tuning: Tuning
     let range = [ROOT_NOTE / RANGE_PADDING, ROOT_NOTE * RANGE_PADDING]
-
-    $: {
-        if (spectrum) {
-            partials = getAllPartials(spectrum)
-            tuning = getTuning(partials)
-        }
-    }
 
     const toLinearScale = (val: number) => {
         const safeValue = Math.abs(val) || 1
@@ -50,19 +37,20 @@
 
             let newKeys: typeof keys = []
 
-            for (let i = 0; i < tuning.length; i++) {
-                const offsetX = toLinearScale(ROOT_NOTE * tuning[i].ratio)
+            for (let i = 0; i < $tuning.length; i++) {
+                const offsetX = toLinearScale(ROOT_NOTE * $tuning[i].ratio)
                 if (offsetX > 0 && offsetX < boardWidth) {
-                    const isPlayable = tuning[i].correlation > NOTE_CORRELATION_THRESHOLD
-                    const opacity = isPlayable ? Math.sqrt(tuning[i].correlation) : tuning[i].correlation
+                    const isPlayable = $tuning[i].correlation > NOTE_CORRELATION_THRESHOLD
+                    const opacity = isPlayable ? Math.sqrt($tuning[i].correlation) : $tuning[i].correlation
                     newKeys.push({
                         marker: {
                             offsetX,
                             opacity,
                         },
                         isPlayable,
-                        pitch: tuning[i].ratio * ROOT_NOTE,
-                        ratio: `${tuning[i].fraction[0]}:${tuning[i].fraction[1]}`,
+                        pitch: $tuning[i].ratio * ROOT_NOTE,
+                        ratio: `${$tuning[i].fraction[0]}:${$tuning[i].fraction[1]}`,
+                        ratioNum: $tuning[i].fraction[0] / $tuning[i].fraction[1],
                     })
                 }
             }
@@ -83,18 +71,42 @@
 
     function handleKeyPress(key: Key) {
         if (window.synth) {
-            window.synth.play({ pitch: key.pitch, velocity: velocityCurve(key.pitch), voiceId: key.ratio })
+            const newPitch = {
+                pitch: key.pitch,
+                velocity: velocityCurve(key.pitch),
+                keyRatio: key.ratioNum,
+                voiceId: key.ratio,
+            }
+
+            if (!$pitches.find((pitch) => pitch.voiceId === key.ratio)) {
+                $pitches = [...$pitches, newPitch]
+            }
+
+            window.synth.play(newPitch)
         }
     }
 
     function handleKeyRelease(key: Key) {
         if (window.synth) {
+            const index = $pitches.findIndex((pitch) => pitch.voiceId === key.ratio)
+
+            if (index !== undefined) {
+                $pitches = $pitches.toSpliced(index, 1)
+            }
+
             window.synth.release(key.ratio)
+        }
+    }
+
+    function releaseAll() {
+        if (window.synth) {
+            $pitches = []
+            window.synth.releaseAll()
         }
     }
 </script>
 
-<div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:selectionchange={disableEvent}>
+<div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:selectionchange={disableEvent}>
     {#each keys as key}
         <button
             class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white"
@@ -107,4 +119,5 @@
             on:pointerup={() => handleKeyRelease(key)}
         />
     {/each}
+    <button class="z-2 absolute right-0 bottom-0 bg-white-5 p-2 text-xs" on:pointerdown={releaseAll}>Stop</button>
 </div>

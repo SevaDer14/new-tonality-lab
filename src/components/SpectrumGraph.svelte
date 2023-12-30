@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spectrum } from '../state/stores.js'
+    import { spectrum, audiblePartials, spectrumViewType } from '../state/stores.js'
     import type { Partial } from '../synth/types.js'
     import { colors, colorSeries } from '../theme/colors.js'
     import highcharts from '../utils/highcharts.js'
@@ -12,21 +12,24 @@
     }
 
     $: {
-        if ($spectrum) {
-            const data = $spectrum.map((layer) => partialsToPlotData(layer.partials))
+        if ($spectrum && $audiblePartials) {
+            const data = $spectrumViewType === "audible" ? [partialsToPlotData($audiblePartials)] : $spectrum.map((layer) => partialsToPlotData(layer.partials))
+
             const series = data.map((points, index) => ({
                 yAxis: 0,
                 type: 'column',
                 name: `Layer-${index}`,
-                color: colors[colorSeries[index]]?.DEFAULT ?? colors.green.DEFAULT,
-                pointWidth: 2,
+                color: $spectrumViewType === "audible" ? colors.white['65'] : colors[colorSeries[index]]?.DEFAULT ?? colors.green.DEFAULT,
+                pointWidth: $spectrumViewType  === "audible" ? 4 : 2,
                 borderWidth: 0,
                 data: points,
             }))
+
             const maxRate = data.reduce((acc, points) => {
                 const rates = points.map((point) => point[0])
                 return Math.max(...rates, acc)
             }, 0)
+
             const maxAmplitude = data.reduce((acc, points) => {
                 const rates = points.map((point) => point[1])
                 return Math.max(...rates, acc)
@@ -106,7 +109,7 @@
                     },
                     column: {
                         grouping: false,
-                    }
+                    },
                 },
                 series,
             }
