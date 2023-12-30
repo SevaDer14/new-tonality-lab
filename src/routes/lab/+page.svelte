@@ -21,5 +21,7 @@
 
 <Panel size="sm" title="board">
     <Synth />
-    <Board spectrum={$spectrum} />
+    <Board />
 </Panel>
+
+<a class="mt-8 text-xs underline text-green-65 hover:text-green" href="https://xen-jmju0jgyc-sevader14.vercel.app/lab" target="_blank">View old app version</a>
