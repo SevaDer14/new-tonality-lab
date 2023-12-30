@@ -56,6 +56,8 @@ export class Voice {
         this._pitch = pitch
 
         if (this._state === 'playing') {
+            this._gain.gain.cancelScheduledValues(time)
+            this.setGain(this.gainValue, time)
             this.setGain(velocity * this._adsr.sustain, time)
         } else {
             this.setGain(0)
@@ -68,12 +70,13 @@ export class Voice {
         this._state = 'playing'
 
         const timeAttackEnds = time + this._adsr.attack
-        const timeDecayEnds = timeAttackEnds + this._adsr.decay
         this.setGain(velocity, timeAttackEnds)
+        const timeDecayEnds = timeAttackEnds + this._adsr.decay
         this.setGain(velocity * this._adsr.sustain, timeDecayEnds)
     }
 
     public release(time = this._audioContext.currentTime) {
+        this._gain.gain.cancelScheduledValues(time)
         const timeReleaseEnds = time + this._adsr.release
         this.setGain(this.gainValue, time)
         this.setGain(0, timeReleaseEnds)

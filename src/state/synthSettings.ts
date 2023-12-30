@@ -8,7 +8,7 @@ export type Seed = {
     start: number
     slope: number
     amplitude: number
-    transposeTo: number
+    transpose: number
 }
 
 export type Layer = {
@@ -31,7 +31,7 @@ const DEFAULT_SEED: Seed = {
     start: 1,
     slope: 1,
     amplitude: 1,
-    transposeTo: 1,
+    transpose: 1,
 }
 const DEFAULT_TWEAK: Tweak = { rate: 1, amplitude: 1 }
 

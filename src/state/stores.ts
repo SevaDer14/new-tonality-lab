@@ -7,12 +7,13 @@ export const boardSpan = writable(2)
 export const synthSettings = createSynthSettings()
 
 function getHarmonicSpectralLayer(layer: Layer): SpectralLayer {
-    const { length, start, transposeTo, stretch, slope, amplitude } = layer.seed
+    const { length, start, transpose, stretch, slope, amplitude } = layer.seed
 
-    const rates = XenSpectrum.getHarmonicRates({ length, start, transposeTo })
+    const rates = XenSpectrum.getHarmonicRates({ length, start })
     const stretchedRates = XenSpectrum.stretchRates({ rates, stretch })
     const withAmplitudes = XenSpectrum.attachReciprocalAmplitudes({ rates: stretchedRates, slope, amplitude })
-    const partials = XenSpectrum.attachRandomPhases({ partials: withAmplitudes })
+    const transposed = XenSpectrum.transpose({ partials: withAmplitudes, ratio: transpose })
+    const partials = XenSpectrum.attachRandomPhases({ partials: transposed })
 
     if (!layer.tweaks.enabled) return { partials }
 

@@ -64,10 +64,10 @@
     <Controls title="Seed:">
         <Range label="Number of Partials" min={1} max={100} onInput={(length) => synthSettings.updateSeed(activeLayerIndex, { length })} value={seed.length} color={activeColor} />
         <Range label="Start partial" min={1} max={20} onInput={(start) => synthSettings.updateSeed(activeLayerIndex, { start })} value={seed.start} color={activeColor} />
-        <Range label="Transpose" min={0.1} max={4} step={0.005} onInput={(transposeTo) => synthSettings.updateSeed(activeLayerIndex, { transposeTo })} value={seed.transposeTo} color={activeColor} />
         <Range label="Stretch" min={0.1} max={2} step={0.005} onInput={(stretch) => synthSettings.updateSeed(activeLayerIndex, { stretch })} value={seed.stretch} color={activeColor} />
         <Range label="Amplitude slope" min={0} max={3} step={0.005} onInput={(slope) => synthSettings.updateSeed(activeLayerIndex, { slope })} value={seed.slope} color={activeColor} />
         <Range label="Amplitude" min={0} max={1} step={0.005} onInput={(amplitude) => synthSettings.updateSeed(activeLayerIndex, { amplitude })} value={seed.amplitude} color={activeColor} />
+        <Range label="Transpose" min={0.1} max={4} step={0.005} onInput={(transpose) => synthSettings.updateSeed(activeLayerIndex, { transpose })} value={seed.transpose} color={activeColor} />
     </Controls>
 
     <Controls title="Tweak:">

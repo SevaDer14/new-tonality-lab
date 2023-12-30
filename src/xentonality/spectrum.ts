@@ -5,24 +5,39 @@ type Rate = Pick<Partial, 'rate'>
 type GetHarmonicRatesArgs = {
     length: number
     start?: number
-    transposeTo?: number
 }
 
-export function getHarmonicRates({ length, start = 1, transposeTo }: GetHarmonicRatesArgs): Rate[] {
-    if (length < 0 || start <= 0 || (transposeTo && transposeTo <= 0)) {
-        throw new Error(`One of the args is less than zero! length={${length}}; start={${start}}; transposeTo={${transposeTo}}`)
+export function getHarmonicRates({ length, start = 1 }: GetHarmonicRatesArgs): Rate[] {
+    if (length < 0 || start <= 0) {
+        throw new Error(`One of the args is less than zero! length={${length}}; start={${start}}`)
     }
 
     const rates: Rate[] = []
 
-    const transposeTarget = transposeTo ?? start
-    const transposition = transposeTarget / start
-
     for (let i = start; i < start + length; i++) {
-        rates.push({ rate: i * transposition })
+        rates.push({ rate: i })
     }
 
     return rates
+}
+
+type TransposeArgs = {
+    partials: Partial[]
+    ratio: number
+}
+
+export function transpose({ partials, ratio }: TransposeArgs): Partial[] {
+    if (ratio <= 0) {
+        throw new Error(`One of the args is less than zero! ratio={${ratio}}`)
+    }
+
+    const newPartial: Partial[] = []
+
+    for (let i = 0; i < partials.length; i++) {
+        newPartial.push({ ...partials[i], rate: partials[i].rate * ratio })
+    }
+
+    return newPartial
 }
 
 type StretchRatesArgs = {

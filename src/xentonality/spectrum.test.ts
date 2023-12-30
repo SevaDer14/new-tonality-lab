@@ -3,47 +3,27 @@ import * as Spectrum from './spectrum'
 
 describe('getHarmonicRates', () => {
     it('should return 4 harmonic rates from 1 to 4', () => {
-        const options = { length: 4, start: undefined, transposeTo: undefined }
+        const options = { length: 4, start: undefined }
         const expectedOutcome = [{ rate: 1 }, { rate: 2 }, { rate: 3 }, { rate: 4 }]
 
         expect(Spectrum.getHarmonicRates(options)).toEqual(expectedOutcome)
     })
 
     it('should return 4 harmonic rates from 4 to 7', () => {
-        const options = { length: 4, start: 4, transposeTo: undefined }
+        const options = { length: 4, start: 4 }
         const expectedOutcome = [{ rate: 4 }, { rate: 5 }, { rate: 6 }, { rate: 7 }]
 
         expect(Spectrum.getHarmonicRates(options)).toEqual(expectedOutcome)
     })
 
-    it('should return 4 harmonic rates from 4 to 7 transposed to 2', () => {
-        const options = { length: 4, start: 4, transposeTo: 2 }
-        const expectedOutcome = [{ rate: 2 }, { rate: 5 / 2 }, { rate: 3 }, { rate: 7 / 2 }]
-
-        expect(Spectrum.getHarmonicRates(options)).toEqual(expectedOutcome)
-    })
-
-    it('should return 3 harmonic rates from 4 to 6 transposed to 1', () => {
-        const options = { length: 3, start: 4, transposeTo: 1 }
-        const expectedOutcome = [{ rate: 1 }, { rate: 5 / 4 }, { rate: 6 / 4 }]
-
-        expect(Spectrum.getHarmonicRates(options)).toEqual(expectedOutcome)
-    })
-
     it('should throw if length is negative', () => {
-        const options = { length: -1, start: 2, transposeTo: 2 }
+        const options = { length: -1, start: 2 }
 
         expect(() => Spectrum.getHarmonicRates(options)).toThrowError()
     })
 
     it('should throw if start is negative', () => {
-        const options = { length: 4, start: -1, transposeTo: 2 }
-
-        expect(() => Spectrum.getHarmonicRates(options)).toThrowError()
-    })
-
-    it('should throw if transposeTo is negative', () => {
-        const options = { length: 4, start: 1, transposeTo: -1 }
+        const options = { length: 4, start: -1 }
 
         expect(() => Spectrum.getHarmonicRates(options)).toThrowError()
     })
@@ -263,5 +243,24 @@ describe('getAllPartials', () => {
         ]
 
         expect(Spectrum.getAllPartials(spectrum)).toEqual(expectedOutcome)
+    })
+})
+
+describe('transpose', () => {
+    it('should transpose partials on a given ratio', () => {
+        const partials = [
+            { rate: 1, amplitude: 1, phase: 0 },
+            { rate: 2, amplitude: 0.5, phase: 0.2 },
+            { rate: 3, amplitude: 0.25, phase: 0.4 },
+            { rate: 4, amplitude: 0.125, phase: 0.6 },
+        ]
+        const expectedOutcome = [
+            { rate: 1.5, amplitude: 1, phase: 0 },
+            { rate: 3, amplitude: 0.5, phase: 0.2 },
+            { rate: 4.5, amplitude: 0.25, phase: 0.4 },
+            { rate: 6, amplitude: 0.125, phase: 0.6 },
+        ]
+
+        expect(Spectrum.transpose({ partials, ratio: 1.5 })).toEqual(expectedOutcome)
     })
 })
