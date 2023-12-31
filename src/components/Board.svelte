@@ -20,6 +20,7 @@
     let boardWidth: number
     let keys: Key[] = []
     let range = [ROOT_NOTE / RANGE_PADDING, ROOT_NOTE * RANGE_PADDING]
+    let sustain = false
 
     const toLinearScale = (val: number) => {
         const safeValue = Math.abs(val) || 1
@@ -87,7 +88,7 @@
     }
 
     function handleKeyRelease(key: Key) {
-        if (window.synth) {
+        if (window.synth && sustain === false) {
             const index = $pitches.findIndex((pitch) => pitch.voiceId === key.ratio)
 
             if (index !== undefined) {
@@ -104,9 +105,14 @@
             window.synth.releaseAll()
         }
     }
+
+    function toggleSustain() {
+        sustain = !sustain
+    }
 </script>
 
-<div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:selectionchange={disableEvent}>
+<div />
+<div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:selectionchange={disableEvent}>
     {#each keys as key}
         <button
             class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white"
@@ -119,5 +125,8 @@
             on:pointerup={() => handleKeyRelease(key)}
         />
     {/each}
-    <button class="z-2 absolute right-0 bottom-0 bg-white-5 p-2 text-xs" on:pointerdown={releaseAll}>Stop</button>
+</div>
+<div class="flex flex-col w-12 border-l-[1px] border-white-25 text-xs text-white-65">
+    <button class="border-b-[1px] border-white-25 p-2 hover:text-white" on:pointerdown={releaseAll}>Mute</button>
+    <button class="border-b-[1px] border-white-25 p-2 hover:text-white" class:bg-white-5={sustain} on:pointerdown={toggleSustain}>Sus</button>
 </div>
