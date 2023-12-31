@@ -1,123 +1,61 @@
-import { writable, derived, readable } from 'svelte/store';
-import type { TSpectrumType, TSweepType, TTweaks } from 'src/xentonality/types';
-import { generatePartials, applyTweaks, shiftOnRatio, adjustAmplitude } from '../xentonality/spectrum'
-import { calcDissonanceCurveMultipleOctaves } from '../xentonality/dissonance'
-import { centsToRatio } from '../xentonality/utils';
+import { derived, writable } from 'svelte/store'
+import type { Partial, SpectralLayer, Spectrum } from '../synth'
+import * as XenSpectrum from '../xentonality/spectrum'
+import { createSynthSettings, type Layer } from './synthSettings'
+import type { Pitch } from '../synth/synth'
+import { getTuning, type Tuning } from '../xentonality/tuning.js'
+import { getAllPartials } from '../xentonality/spectrum.js'
 
-const C4 = 261.63
+export const boardSpan = writable(2)
+export const sampleDuration = writable(10)
+export const sampleFundamental = writable(440)
+export const synthSettings = createSynthSettings()
+export const pitches = writable<Pitch[]>([])
+export const spectrumViewType = writable<'audible' | 'seed'>('seed')
+export const presetName = writable('sample')
 
-export const notes = readable({
-    C4: C4
+function getHarmonicSpectralLayer(layer: Layer): SpectralLayer {
+    const { length, start, transpose, stretch, slope, amplitude } = layer.seed
+
+    const rates = XenSpectrum.getHarmonicRates({ length, start })
+    const stretchedRates = XenSpectrum.stretchRates({ rates, stretch })
+    const withAmplitudes = XenSpectrum.attachReciprocalAmplitudes({ rates: stretchedRates, slope, amplitude })
+    const transposed = XenSpectrum.transpose({ partials: withAmplitudes, ratio: transpose })
+    const partials = XenSpectrum.attachRandomPhases({ partials: transposed })
+
+    if (!layer.tweaks.enabled) return { partials }
+
+    const tweakedPartials = XenSpectrum.tweak({ partials, tweaks: layer.tweaks.value })
+
+    return { partials: tweakedPartials }
+}
+
+export const spectrum = derived([synthSettings], ([$synthSettings]) => {
+    const newSpectrum = $synthSettings.layers
+        .map((layer) => {
+            if (layer.type === 'harmonic') {
+                return getHarmonicSpectralLayer(layer)
+            }
+
+            return null
+        })
+        .filter((spectralLayer) => spectralLayer !== null) as Spectrum
+
+    return newSpectrum
 })
 
-export const fundamental = writable(C4);
-export const numberOfPartials = writable(6);
-export const spectrumType = writable<TSpectrumType>('harmonic');
-export const edoSteps = writable(12)
-export const pseudoOctave = writable(1200)
-export const amplitudeSlope = writable(1)
-export const tweaks = writable<TTweaks>([])
-export const tweaksEnabled = writable(true)
-export const mainPan = writable(0)
-export const showSweep = writable(false)
-export const sweepPan = writable(0)
-export const sweepAmplitude = writable(1)
-export const sweepRatio = writable(1)
+export const tuning = derived([spectrum], ([$spectrum]) => {
+    const partials = getAllPartials($spectrum)
+    return getTuning(partials)
+})
 
-export const dissLimitMinIndex = writable(0)
-export const dissLimitMaxIndex = writable(8)
-export const dissonanceCurveSweepType = writable<TSweepType>('same')
-export const dissonanceCurveDetrend = writable(false)
-export const dissonanceCurveSweepHarmonicPartials = writable(6)
-export const dissonanceCurveEDOMarks = writable(12)
-export const show12EDO = writable(false)
+export const audiblePartials = derived([spectrum, pitches], ([$spectrum, $pitches]) => {
+    const partials = XenSpectrum.getAllPartials($spectrum)
+    const allPartials: Partial[][] = []
 
-type TSampleRate = 44100 | 48000 | 96000
-export const sampleRate = readable<TSampleRate>(44100)
-export const sampleDuration = writable(5)
-export const sampleName = writable('sample')
-
-
-export const generatedPartials = derived(
-    [spectrumType, fundamental, numberOfPartials, edoSteps, pseudoOctave, amplitudeSlope],
-    ([
-        $spectrumType,
-        $fundamental,
-        $numberOfPartials,
-        $edoSteps,
-        $pseudoOctave,
-        $amplitudeSlope,
-    ]) => generatePartials({
-        type: $spectrumType,
-        slope: $amplitudeSlope,
-        fundamental: $fundamental,
-        number: $numberOfPartials,
-        pseudoOctave: $pseudoOctave,
-        edo: $edoSteps
+    $pitches.forEach((pitch) => {
+        if (pitch.keyRatio) allPartials.push(XenSpectrum.transpose({ partials, ratio: pitch.keyRatio }))
     })
-);
 
-
-export const partials = derived(
-    [generatedPartials, tweaks, tweaksEnabled],
-    ([
-        $generatedPartials,
-        $tweaks,
-        $tweaksEnabled
-    ]) => applyTweaks({
-        partials: $generatedPartials,
-        tweaks: $tweaksEnabled ? $tweaks : []
-    })
-);
-
-export const sweepPartials = derived(
-    [sweepAmplitude, showSweep, partials, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials, sweepRatio, fundamental],
-    ([
-        $sweepAmplitude,
-        $showSweep,
-        $partials,
-        $dissonanceCurveSweepType,
-        $dissonanceCurveSweepHarmonicPartials,
-        $sweepRatio,
-        $fundamental
-    ]) => !$showSweep ? [] : $dissonanceCurveSweepType === 'same'
-        ? adjustAmplitude(shiftOnRatio($partials, $sweepRatio), $sweepAmplitude)
-        : adjustAmplitude(shiftOnRatio(generatePartials({ type: 'harmonic', fundamental: $fundamental, number: $dissonanceCurveSweepHarmonicPartials, slope: 1 }), $sweepRatio), $sweepAmplitude)
-)
-
-
-export const dissCurveLimits = derived(
-    [dissLimitMinIndex, dissLimitMaxIndex],
-    ([$dissLimitMinIndex, $dissLimitMaxIndex]) => ({
-        index: {
-            min: $dissLimitMinIndex,
-            max: $dissLimitMaxIndex,
-        },
-    })
-)
-
-export const dissonanceCurveHighRes = derived(
-    [partials, dissCurveLimits, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials, pseudoOctave],
-    ([$partials, $dissCurveLimits, $dissonanceCurveDetrend, $dissonanceCurveSweepType, $dissonanceCurveSweepHarmonicPartials, $pseudoOctave]) => calcDissonanceCurveMultipleOctaves({
-        partials: $partials,
-        sweepType: $dissonanceCurveSweepType,
-        sweepHarmonicPartials: $dissonanceCurveSweepHarmonicPartials,
-        pseudoOctave: { cents: $pseudoOctave, ratio: centsToRatio($pseudoOctave), Hz: centsToRatio($pseudoOctave) * $partials[0].frequency },
-        octaves: [0, 1],
-        limits: $dissCurveLimits,
-        detrended: $dissonanceCurveDetrend,
-    })
-);
-
-export const dissonanceCurve = derived(
-    [partials, dissCurveLimits, pseudoOctave, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials],
-    ([$partials, $dissCurveLimits, $pseudoOctave, $dissonanceCurveDetrend, $dissonanceCurveSweepType, $dissonanceCurveSweepHarmonicPartials]) => calcDissonanceCurveMultipleOctaves({
-        partials: $partials,
-        points: $pseudoOctave > 1200 ? Math.ceil($pseudoOctave / 12) : 100,
-        sweepType: $dissonanceCurveSweepType,
-        sweepHarmonicPartials: $dissonanceCurveSweepHarmonicPartials,
-        pseudoOctave: { cents: $pseudoOctave, ratio: centsToRatio($pseudoOctave), Hz: centsToRatio($pseudoOctave) * $partials[0].frequency },
-        limits: $dissCurveLimits,
-        detrended: $dissonanceCurveDetrend,
-    })
-);
+    return allPartials.flat().sort((a, b) => a.rate - b.rate) as Partial[]
+})

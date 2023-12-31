@@ -1,13 +1,13 @@
 <script lang="ts">
-    import Panel from './Panel.svelte'
+    import Controls from './Controls.svelte'
     import Range from './Range.svelte'
     import RadioGroup from './RadioGroup.svelte'
     import Checkbox from './Checkbox.svelte'
-    import { sweepPan, sweepAmplitude, show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
+    import { sweepPan, sweepAmplitude, show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores-old.js'
     import { centsToRatio } from '../xentonality/utils'
 </script>
 
-<Panel title="roughness profile">
+<Controls title="roughness profile">
     <Range label="Partial limit max" min={0} max={20} onInput={(value) => ($dissLimitMaxIndex = value)} initialValue={$dissLimitMaxIndex} />
 
     <RadioGroup legend="Sweep type">
@@ -35,4 +35,4 @@
     <Checkbox label="Show 12 EDO minor ticks" onChange={(value) => ($show12EDO = value)} checked={$show12EDO === true} />
 
     <Checkbox label="Detrend" onChange={(value) => ($dissonanceCurveDetrend = value)} checked={$dissonanceCurveDetrend === true} />
-</Panel>
+</Controls>

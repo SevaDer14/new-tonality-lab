@@ -3,12 +3,13 @@
     export let min: number
     export let max: number
     export let step = 1
-    export let initialValue: number | undefined
+    export let initialValue: number | undefined = undefined
+    export let value: number | undefined = initialValue || 0
     export let onInput: (arg: number) => any
     export let disabled = false
+    export let color = "rgb(0, 189, 249)"
 
     let backgroundSize: string
-    let value = initialValue || 0
     const id = Math.random().toString()
 
     $: {
@@ -23,7 +24,7 @@
     }
 </script>
 
-<div class={`flex py-2 ${$$props.class}`} style={disabled ? "opacity: 0.25; pointer-events: none" : "opacity: 1"}>
+<div class={`flex py-2 ${$$props.class}`} style={`--input-color: ${color}; ${disabled ? "opacity: 0.25; pointer-events: none" : "opacity: 1"}`}>
     <div class="flex flex-col max-w-full grow h-8">
         <label class="text-white-65 text-xs whitespace-nowrap" for={id}>{label}</label>
         <input class="mt-1" style={`background-size: ${backgroundSize}`} type="range" {min} {max} {step} {disabled} bind:value on:input={handleInput} {id} />
@@ -37,7 +38,7 @@
         height: 4px;
         border-radius: 2px;
         background: rgba(255, 255, 255, 0.25);
-        background-image: linear-gradient(rgb(0, 189, 249), rgb(0, 189, 249));
+        background-image: linear-gradient(var(--input-color), var(--input-color));
         background-repeat: no-repeat;
     }
     input[type='range']:focus {

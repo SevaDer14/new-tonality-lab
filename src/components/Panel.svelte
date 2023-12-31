@@ -1,19 +1,35 @@
 <script lang="ts">
-    export let title: string | undefined = undefined
-    export let maxContentHeight: string | undefined = "400px"
+    import ChevronDown from '../icons/ChevronDown.svelte'
+
+    export let title = ''
+    export let size: 'lg' | 'md' | 'sm'
+    let collapsed = false
 </script>
 
-<div class={`relative 2xl:p-2 sm:p-1 flex xl:basis-1/5 md:basis-1/2 basis-full flex-grow ${$$props.class}`} style={$$props.style}>
-    <div class={`sm:border-2 border-white-65 sm:rounded-2xl min-w-full flex-col ${$$props.class}`}>
-        {#if title}
-            <div class="relative top-0 left-0 sm:rounded-t-2xl border-b-2 border-white-65 px-6 bg-white-25">
-                <h2 class="uppercase tracking-widest h-10 leading-10">{title}</h2>
-            </div>
-        {/if}
-        <div class="px-1">
-            <div class="rich-text py-3 px-4 flex flex-col flex-grow overflow-y-auto" style={`max-height: ${maxContentHeight}`}>
-                <slot />
-            </div>
-        </div>
+<div class={`w-full border-2 border-white-65 overflow-hidden`}>
+    <div class="h-9 border-b-2 border-white-65 bg-white-15 flex items-center">
+        <button class="shrink-0 basis-12" on:click={() => (collapsed = !collapsed)}>
+            <ChevronDown class="mx-2 transition-all ease-in-out duration-500" style={`transform: rotate(${collapsed ? 0 : 180}deg)`} />
+        </button>
+        <h2 class="basis-full uppercase tracking-widest">{title}</h2>
+        <slot name="actions" />
+    </div>
+    <div class={`w-full overflow-x-auto overflow-y-hidden flex transition-all duration-500 ease-in-out ${size} ${$$props.class}`} class:collapsed>
+        <slot />
     </div>
 </div>
+
+<style>
+    .collapsed {
+        height: 0px !important;
+    }
+    .lg {
+        height: 464px;
+    }
+    .md {
+        height: 274px;
+    }
+    .sm {
+        height: 154px;
+    }
+</style>

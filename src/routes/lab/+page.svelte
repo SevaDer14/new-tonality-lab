@@ -1,18 +1,27 @@
 <script lang="ts">
-    import GraphsPanel from '../../components/GraphsPanel.svelte'
-    import ExportPanel from '../../components/ExportPanel.svelte'
-    import RoughnessProfilePanel from '../../components/RoughnessProfilePanel.svelte'
-    import GeneratePanel from '../../components/GeneratePanel.svelte'
+    import SpectrumGraph from '../../components/SpectrumGraph.svelte'
     import Panel from '../../components/Panel.svelte'
-    import TweakPanel from '../../components/TweakPanel.svelte'
+    import Board from '../../components/Board.svelte'
+    import Synth from '../../components/Synth.svelte'
+    import GlobalControls from '../../components/GlobalControls.svelte'
+    import LayerControls from '../../components/LayerControls.svelte'
+    import { spectrum } from '../../state/stores'
+
+
 </script>
 
-<GeneratePanel />
+<Panel size="lg" title="synth">
+    <GlobalControls />
+    <LayerControls />
+</Panel>
 
-<TweakPanel />
+<Panel size="md" title="Spectrum">
+    <SpectrumGraph />
+</Panel>
 
-<RoughnessProfilePanel />
+<Panel size="sm" title="board">
+    <Synth />
+    <Board />
+</Panel>
 
-<ExportPanel />
-
-<GraphsPanel />
+<a class="mt-8 text-xs underline text-green-65 hover:text-green" href="https://xen-jmju0jgyc-sevader14.vercel.app/lab" target="_blank">View old app version</a>
