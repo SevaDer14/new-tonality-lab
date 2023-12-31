@@ -14,7 +14,7 @@
         <h2 class="basis-full uppercase tracking-widest">{title}</h2>
         <slot name="actions" />
     </div>
-    <div class={`w-full overflow-x-auto overflow-y-hidden flex transition-all duration-500 ease-in-out ${size}`} class:collapsed>
+    <div class={`w-full overflow-x-auto overflow-y-hidden flex transition-all duration-500 ease-in-out ${size} ${$$props.class}`} class:collapsed>
         <slot />
     </div>
 </div>

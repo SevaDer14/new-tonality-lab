@@ -1,168 +1,157 @@
-import type { TPartials, TSpectrumType, TTweaks } from "./types"
-import { centsToRatio, checkNumericParam, getAmplitude, setharesLoudness } from "./utils"
-import { cloneDeep, round } from 'lodash-es'
+import type { Partial, Spectrum } from '../synth'
 
-export const generatePartials = ({ type, slope = 0, pseudoOctave = 1200, edo = 12, fundamental = 440, number = 100 }: { type: TSpectrumType, slope?: number, pseudoOctave?: number, edo?: number, fundamental?: number, number?: number }): TPartials => {
-    const partials = [] as TPartials
+type Rate = Pick<Partial, 'rate'>
 
-    const success = checkNumericParam({ param: number, condition: number > 0, integer: true }) && checkNumericParam({ param: fundamental, condition: fundamental > 0 })
-    const pseudoOctaveRatio = centsToRatio(pseudoOctave)
+type GetHarmonicRatesArgs = {
+    length: number
+    start?: number
+}
 
-    if (!success) {
-        return partials
+export function getHarmonicRates({ length, start = 1 }: GetHarmonicRatesArgs): Rate[] {
+    if (length < 0 || start <= 0) {
+        throw new Error(`One of the args is less than zero! length={${length}}; start={${start}}`)
     }
 
-    if (type === 'harmonic') {
-        for (let i = 1; i <= number; i++) {
-            const frequency = round(fundamental * (pseudoOctaveRatio ** Math.log2(i)), 10)
-            const ratio = frequency / fundamental
-            const amplitude = getAmplitude(slope, ratio)
-            partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
-        }
+    const rates: Rate[] = []
+
+    for (let i = start; i < start + length; i++) {
+        rates.push({ rate: i })
     }
 
-    if (type === 'edo') {
-        let iteration = 1
-        while (partials.length < number) {
-            const frequency = fundamental * (pseudoOctaveRatio ** (Math.round(Math.log2(iteration) * edo) / edo))
-            if (frequency !== partials[partials.length - 1]?.frequency) {
-                const ratio = frequency / fundamental
-                const amplitude = getAmplitude(slope, ratio)
-                partials.push({ ratio: ratio, frequency: frequency, amplitude: amplitude, loudness: setharesLoudness(amplitude) })
-            }
-            iteration++
-        }
+    return rates
+}
+
+type TransposeArgs = {
+    partials: Partial[]
+    ratio: number
+}
+
+export function transpose({ partials, ratio }: TransposeArgs): Partial[] {
+    if (ratio <= 0) {
+        throw new Error(`One of the args is less than zero! ratio={${ratio}}`)
+    }
+
+    const newPartial: Partial[] = []
+
+    for (let i = 0; i < partials.length; i++) {
+        newPartial.push({ ...partials[i], rate: partials[i].rate * ratio })
+    }
+
+    return newPartial
+}
+
+type StretchRatesArgs = {
+    rates: Rate[]
+    stretch: number
+}
+
+export function stretchRates({ rates, stretch }: StretchRatesArgs): Rate[] {
+    const stretchedRates: Rate[] = []
+
+    if (stretch <= 0) throw new Error(`One of the args is less than zero! stretch={${stretch}}`)
+
+    for (let i = 0; i < rates.length; i++) {
+        const newRate = rates[i].rate ** stretch
+        stretchedRates.push({ rate: newRate })
+    }
+
+    return stretchedRates
+}
+
+type AttachReciprocalAmplitudesArgs = {
+    rates: Rate[]
+    slope: number
+    amplitude?: number
+}
+
+export function attachReciprocalAmplitudes({ rates, slope, amplitude = 1 }: AttachReciprocalAmplitudesArgs): Partial[] {
+    const partials: Partial[] = []
+
+    if (slope < 0) throw new Error(`One of the args is less than zero! slope={${slope}}`)
+
+    for (let i = 0; i < rates.length; i++) {
+        partials.push({ ...rates[i], amplitude: amplitude * rates[i].rate ** -slope })
     }
 
     return partials
 }
 
-export const applyTweaks = ({ partials, tweaks }: { partials: TPartials, tweaks: TTweaks }): TPartials => {
-    let result = [] as TPartials
-    const fundamental = partials[0].frequency
+type AttachRandomPhasesArgs = {
+    partials: Partial[]
+}
+
+export function attachRandomPhases({ partials }: AttachRandomPhasesArgs): Partial[] {
+    const withPhases: Partial[] = []
+
+    for (let i = 0; i < partials.length; i++) {
+        withPhases.push({ ...partials[i], phase: Math.random() })
+    }
+
+    return withPhases
+}
+
+export type Tweak = {
+    rate?: number
+    amplitude?: number
+    phase?: number
+}
+
+type TweakArgs = {
+    partials: Partial[]
+    tweaks: Tweak[]
+}
+
+export function tweak({ partials, tweaks }: TweakArgs): Partial[] {
+    const tweaked: Partial[] = []
 
     for (let i = 0; i < partials.length; i++) {
         if (tweaks[i] === undefined) {
-            result.push(partials[i])
+            tweaked.push({ ...partials[i] })
             continue
-        } else {
-            const ratio = round(partials[i].ratio + tweaks[i].ratio, 10)
-            let amplitude = round(partials[i].amplitude + tweaks[i].amplitude, 10)
-            amplitude = amplitude > 0 ? amplitude : 0
-            const frequency = ratio * fundamental
-            const loudness = setharesLoudness(amplitude)
+        }
 
-            result.push({ ratio, frequency, amplitude, loudness })
+        const { rate: oldRate, amplitude: oldAmplitude, phase: oldPhase } = partials[i]
+        const { rate: tweakRate, amplitude: tweakAmplitude, phase: tweakPhase } = tweaks[i]
+
+        const rate = tweakRate === undefined ? oldRate : oldRate * tweakRate
+        const amplitude = tweakAmplitude === undefined ? oldAmplitude : oldAmplitude * tweakAmplitude
+        const phase = oldPhase === undefined || tweakPhase === undefined ? oldPhase : oldPhase * tweakPhase
+
+        if (rate < 0 || amplitude < 0 || (phase !== undefined && phase < 0)) throw new Error('One of the tweak args is less than zero!')
+
+        tweaked.push({ rate, amplitude, phase })
+    }
+
+    return tweaked
+}
+
+function hasPartial(partials: Partial[], testPartial: Partial): boolean {
+    let result = false
+
+    for (let i = 0; i < partials.length; i++) {
+        const partial = partials[i]
+
+        if (partial.rate === testPartial.rate) {
+            result = true
+            break
         }
     }
 
     return result
 }
 
+export function getAllPartials(spectrum: Spectrum): Partial[] {
+    const partials: Partial[] = []
 
-export const changeFundamental = ({ partials, fundamental }: { partials: TPartials, fundamental: number }): TPartials => {
-    const newPartials = [] as TPartials
+    for (let i = 0; i < spectrum.length; i++) {
+        const layerPartials = spectrum[i].partials
 
-    const success = checkNumericParam({ param: fundamental, condition: fundamental > 0 })
+        for (let j = 0; j < layerPartials.length; j++) {
+            const partial = layerPartials[j]
 
-    if (!success) {
-        return newPartials
-    }
-
-    for (let i = 0; i < partials.length; i++) {
-        newPartials.push({ ...partials[i], frequency: partials[i].ratio * fundamental })
-    }
-
-    return newPartials
-}
-
-export const shiftOnRatio = (partials: TPartials, shiftRatio: number) => {
-    const newPartials = [] as TPartials
-
-    const success = checkNumericParam({ param: shiftRatio, condition: shiftRatio > 0 })
-
-    if (!success) {
-        return newPartials
-    }
-
-    for (let i = 0; i < partials.length; i++) {
-        const newRatio = partials[i].ratio * shiftRatio
-        const newFrequency = partials[i].frequency * shiftRatio
-        newPartials.push({ ...partials[i], ratio: newRatio, frequency: newFrequency })
-    }
-
-    return newPartials
-}
-
-export const adjustAmplitude = (partials: TPartials, multiplier: number) => {
-    const newPartials = [] as TPartials
-
-    const success = checkNumericParam({ param: multiplier, condition: multiplier > 0 })
-
-    if (!success) {
-        return newPartials
-    }
-
-    for (let i = 0; i < partials.length; i++) {
-        const amplitude = partials[i].amplitude * multiplier
-        const loudness = setharesLoudness(amplitude)
-        newPartials.push({ ...partials[i], amplitude, loudness })
-    }
-
-    return newPartials
-}
-
-
-export const sumPartials = (...spectrums: TPartials[]): TPartials => {
-    const result = [] as TPartials
-    const partials = cloneDeep(spectrums)
-    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
-
-    if (allPartials.length === 0) {
-        return result
-    }
-
-    result[0] = allPartials[0]
-    const fundamental = result[0].frequency
-
-    for (let i = 1; i < allPartials.length; i++) {
-        if (result[result.length - 1] && allPartials[i].frequency === result[result.length - 1].frequency) {
-            const summedAmplitude = result[result.length - 1].amplitude + allPartials[i].amplitude
-
-            result[result.length - 1].amplitude = summedAmplitude
-            result[result.length - 1].loudness = setharesLoudness(summedAmplitude)
-        } else {
-            result.push({
-                ...allPartials[i],
-                ratio: allPartials[i].frequency / fundamental,
-            })
+            if (!hasPartial(partials, partial)) partials.push(partial)
         }
     }
 
-    return result
-}
-
-
-
-export const combinePartials = (...spectrums: TPartials[]): TPartials => {
-    const result = [] as TPartials
-    const partials = cloneDeep(spectrums)
-    const allPartials = partials.flat().sort((a, b) => a.frequency - b.frequency) as TPartials
-
-    if (allPartials.length === 0) {
-        return result
-    }
-
-    result[0] = { ...allPartials[0], ratio: 1 } // TODO: non tested setting ratio of first to 1 do the same for sum partials
-    const fundamental = result[0].frequency
-
-    for (let i = 1; i < allPartials.length; i++) {
-
-        result[i] = {
-            ...allPartials[i],
-            ratio: allPartials[i].frequency / fundamental,
-        }
-    }
-
-    return result
+    return partials.sort((a, b) => a.rate - b.rate)
 }

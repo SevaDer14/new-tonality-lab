@@ -1,42 +1,62 @@
 <script lang="ts">
-    import { fundamental, playing } from '../state/stores.js'
+    import { boardSpan, pitches, tuning } from '../state/stores.js'
 
-    const LOWEST_NOTE = 55
-    const NR_OCTAVES = 2
-    const BOARD_PADDING_LOW = 3
-    const BOARD_PADDING_HIGH = BOARD_PADDING_LOW ** (NR_OCTAVES * 1.2)
-    const RANGE = [LOWEST_NOTE - BOARD_PADDING_LOW, LOWEST_NOTE * 2 ** NR_OCTAVES + BOARD_PADDING_HIGH]
+    type Key = {
+        marker: {
+            offsetX: number
+            opacity: number
+        }
+        isPlayable: boolean
+        pitch: number
+        ratio: string
+        ratioNum: number
+        key?: string
+    }
+
+    const ROOT_NOTE = 220
+    const RANGE_PADDING = 1.1
+    const NOTE_CORRELATION_THRESHOLD = 0.1
 
     let boardWidth: number
-    let noteOffset: number
-    let octaveMarkings: number[] = []
+    let keys: Key[] = []
+    let range = [ROOT_NOTE / RANGE_PADDING, ROOT_NOTE * RANGE_PADDING]
+    let sustain = false
 
     const toLinearScale = (val: number) => {
         const safeValue = Math.abs(val) || 1
-        const b = boardWidth / Math.log(RANGE[1] / RANGE[0])
-        const a = -1 * b * Math.log(RANGE[0])
+        const b = boardWidth / Math.log(range[1] / range[0])
+        const a = -1 * b * Math.log(range[0])
 
         return a + b * Math.log(safeValue)
     }
 
-    const toLogScale = (val: number) => {
-        const safeValue = Math.abs(val)
-
-        const a = RANGE[0]
-        const b = Math.log(RANGE[1] / RANGE[0]) / (boardWidth - 1)
-
-        return a * Math.exp(b * safeValue)
-    }
-
     $: {
-        if (boardWidth !== undefined) {
-            let markings = []
+        if (boardWidth !== undefined && $boardSpan) {
+            const LOWEST_RANGE = ROOT_NOTE / $boardSpan
+            const HIGHEST_RANGE = ROOT_NOTE * $boardSpan
+            range = [LOWEST_RANGE / RANGE_PADDING, HIGHEST_RANGE * RANGE_PADDING]
 
-            for (let i = 0; i < NR_OCTAVES + 1; i++) {
-                markings.push(toLinearScale(LOWEST_NOTE * 2 ** i))
+            let newKeys: typeof keys = []
+
+            for (let i = 0; i < $tuning.length; i++) {
+                const offsetX = toLinearScale(ROOT_NOTE * $tuning[i].ratio)
+                if (offsetX > 0 && offsetX < boardWidth) {
+                    const isPlayable = $tuning[i].correlation > NOTE_CORRELATION_THRESHOLD
+                    const opacity = isPlayable ? Math.sqrt($tuning[i].correlation) : $tuning[i].correlation
+                    newKeys.push({
+                        marker: {
+                            offsetX,
+                            opacity,
+                        },
+                        isPlayable,
+                        pitch: $tuning[i].ratio * ROOT_NOTE,
+                        ratio: `${$tuning[i].fraction[0]}:${$tuning[i].fraction[1]}`,
+                        ratioNum: $tuning[i].fraction[0] / $tuning[i].fraction[1],
+                    })
+                }
             }
 
-            octaveMarkings = markings
+            keys = newKeys
         }
     }
 
@@ -46,37 +66,68 @@
         return false
     }
 
-    const getNote = (offsetX: number) => {
-        if (boardWidth === undefined) return LOWEST_NOTE
-
-        return Math.floor(toLogScale(offsetX) * 100) / 100
+    function velocityCurve(pitch: number) {
+        return pitch > 440 ? 0.06 : 20 / pitch
     }
 
-    const setNote = (offsetX: number) => {
-        noteOffset = offsetX
-        $fundamental = getNote(offsetX)
+    function handleKeyPress(key: Key) {
+        if (window.synth) {
+            const newPitch = {
+                pitch: key.pitch,
+                velocity: velocityCurve(key.pitch),
+                keyRatio: key.ratioNum,
+                voiceId: key.ratio,
+            }
+
+            if (!$pitches.find((pitch) => pitch.voiceId === key.ratio)) {
+                $pitches = [...$pitches, newPitch]
+            }
+
+            window.synth.play(newPitch)
+        }
     }
 
-    const play = (event: PointerEvent) => {
-        setNote(event.offsetX)
-        $playing = true
+    function handleKeyRelease(key: Key) {
+        if (window.synth && sustain === false) {
+            const index = $pitches.findIndex((pitch) => pitch.voiceId === key.ratio)
+
+            if (index !== undefined) {
+                $pitches = $pitches.toSpliced(index, 1)
+            }
+
+            window.synth.release(key.ratio)
+        }
     }
 
-    const stop = () => {
-        $playing = false
+    function releaseAll() {
+        if (window.synth) {
+            $pitches = []
+            window.synth.releaseAll()
+        }
     }
 
-    const changeNote = (event: PointerEvent) => {
-        if (!$playing) return
-
-        setNote(event.offsetX)
+    function toggleSustain() {
+        sustain = !sustain
     }
 </script>
 
-<div class="touch-none relative h-full w-full transition-colors ease-in-out duration-300" class:bg-white-5={!$playing} bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:pointerdown={play} on:selectionchange={disableEvent} on:pointermove={changeNote} on:pointerleave={stop} on:pointerup={stop}>
-    <span class="blur-[2px] absolute top-0 h-full w-1 bg-white pointer-events-none touch-none transition-opacity ease-in-out duration-500" class:opacity-100={$playing} class:opacity-0={!$playing} style={`left: ${noteOffset}px`} />
-
-    {#each octaveMarkings as marking}
-        <span class="pointer-events-none touch-none absolute h-full bg-white-25 w-[1px] top-0" style={`left: ${marking}px`} />
+<div class="overflow-hidden relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth}>
+    {#each keys as key}
+        <button
+            class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white touch-none"
+            style={`
+                left: ${key.marker.offsetX}px; 
+                opacity: ${key.marker.opacity}; 
+                pointer-events: ${key.isPlayable ? 'auto' : 'none'}    
+            `}
+            on:pointerdown={key.isPlayable ? () => handleKeyPress(key) : undefined}
+            on:pointerup={() => handleKeyRelease(key)}
+            on:contextmenu={disableEvent}
+            on:selectionchange={disableEvent}
+        />
     {/each}
+</div>
+<div class="flex flex-col w-12 border-l-[1px] border-white-25 text-xs text-white-65">
+    <button class="border-b-[1px] border-white-25 p-2 hover:text-white" on:pointerdown={releaseAll}>Mute</button>
+    <button class="border-b-[1px] border-white-25 p-2 hover:text-white" class:bg-white-5={sustain} on:pointerdown={toggleSustain}>Sus</button>
 </div>

@@ -3,7 +3,7 @@
     import Range from './Range.svelte'
     import RadioGroup from './RadioGroup.svelte'
     import Checkbox from './Checkbox.svelte'
-    import { sweepPan, sweepAmplitude, show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores.js'
+    import { sweepPan, sweepAmplitude, show12EDO, showSweep, sweepRatio, pseudoOctave, dissLimitMaxIndex, dissonanceCurveEDOMarks, dissonanceCurveDetrend, dissonanceCurveSweepType, dissonanceCurveSweepHarmonicPartials } from '../state/stores-old.js'
     import { centsToRatio } from '../xentonality/utils'
 </script>
 

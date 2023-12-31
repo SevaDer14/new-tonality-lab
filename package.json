@@ -1,56 +1,60 @@
 {
-	"name": "xen-kit",
-	"version": "0.0.1",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"test": "jest -i",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"@sveltejs/adapter-auto": "latest",
-		"@sveltejs/kit": "latest",
-		"@types/jest": "^29.0.0",
-		"@types/lodash-es": "^4.17.6",
-		"@typescript-eslint/eslint-plugin": "^5.27.0",
-		"@typescript-eslint/parser": "^5.27.0",
-		"autoprefixer": "^10.4.13",
-		"eslint": "^8.16.0",
-		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-svelte3": "^4.0.0",
-		"mdsvex": "^0.10.6",
-		"postcss": "^8.4.19",
-		"prettier": "^2.6.2",
-		"prettier-plugin-svelte": "^2.7.0",
-		"svelte": "^3.44.0",
-		"svelte-check": "^2.7.1",
-		"svelte-preprocess": "^4.10.7",
-		"tailwindcss": "^3.2.4",
-		"ts-jest": "^28.0.8",
-		"tslib": "^2.3.1",
-		"typescript": "^4.8.2",
-		"vite": "^4.0.0"
-	},
-	"dependencies": {
-		"@types/lodash": "^4.14.185",
-		"@vercel/analytics": "^0.1.5",
-		"@zip.js/zip.js": "^2.6.30",
-		"highcharts": "^10.2.1",
-		"lodash": "^4.17.21",
-		"lodash-es": "^4.17.21",
-		"wav-file-encoder": "^1.0.4"
-	},
-	"prettier": {
-		"trailingComma": "es5",
-		"tabWidth": 4,
-		"semi": false,
-		"singleQuote": true,
-		"printWidth": 800
-	}
+    "name": "xen-kit",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "test": "vitest run",
+        "preview": "vite preview",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "lint": "prettier --check . && eslint .",
+        "format": "prettier --write ."
+    },
+    "engines": {
+        "npm": ">=8.0.0",
+        "node": "18.x"
+    },
+    "devDependencies": {
+        "@sveltejs/adapter-vercel": "^4.0.3",
+        "@sveltejs/kit": "latest",
+        "@types/lodash-es": "^4.17.6",
+        "@typescript-eslint/eslint-plugin": "^5.27.0",
+        "@typescript-eslint/parser": "^5.27.0",
+        "autoprefixer": "^10.4.13",
+        "eslint": "^8.16.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-svelte": "^2.35.1",
+        "mdsvex": "^0.11.0",
+        "postcss": "^8.4.19",
+        "prettier": "^2.6.2",
+        "prettier-plugin-svelte": "^2.7.0",
+        "sass": "^1.69.6",
+        "svelte": "^4.0.0",
+        "svelte-check": "^3.6.2",
+        "svelte-preprocess": "^5.1.3",
+        "tailwindcss": "^3.2.4",
+        "tslib": "^2.3.1",
+        "typescript": "^5.0.0",
+        "vite": "^5.0.0",
+        "vitest": "^1.0.4"
+    },
+    "dependencies": {
+        "@types/lodash": "^4.14.185",
+        "@vercel/analytics": "^0.1.5",
+        "@zip.js/zip.js": "^2.6.30",
+        "highcharts": "^10.2.1",
+        "lodash": "^4.17.21",
+        "lodash-es": "^4.17.21",
+        "wav-file-encoder": "^1.0.4"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true,
+        "printWidth": 800
+    }
 }
