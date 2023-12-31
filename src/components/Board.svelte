@@ -111,11 +111,10 @@
     }
 </script>
 
-<div />
-<div class="overflow-hidden touch-none relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth} on:contextmenu={disableEvent} on:selectionchange={disableEvent}>
+<div class="overflow-hidden relative h-full w-full transition-colors ease-in-out duration-300" bind:clientWidth={boardWidth}>
     {#each keys as key}
         <button
-            class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white"
+            class="z-1 absolute h-full top-0 w-2 -transalte-x-1 bg-white touch-none"
             style={`
                 left: ${key.marker.offsetX}px; 
                 opacity: ${key.marker.opacity}; 
@@ -123,6 +122,8 @@
             `}
             on:pointerdown={key.isPlayable ? () => handleKeyPress(key) : undefined}
             on:pointerup={() => handleKeyRelease(key)}
+            on:contextmenu={disableEvent}
+            on:selectionchange={disableEvent}
         />
     {/each}
 </div>
