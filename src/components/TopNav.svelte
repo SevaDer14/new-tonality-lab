@@ -16,6 +16,7 @@
         <ul class="flex">
             <MenuItem href="/" active={setActive($page.routeId, 'lab')}>Lab</MenuItem>
             <MenuItem href="/about" active={setActive($page.routeId, 'about')}>About</MenuItem>
+            <MenuItem href="/whitepaper">Whitepaper</MenuItem>
         </ul>
     </nav>
 </header>
