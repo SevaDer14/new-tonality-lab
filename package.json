@@ -21,6 +21,7 @@
         "@sveltejs/adapter-vercel": "^4.0.3",
         "@sveltejs/kit": "latest",
         "@types/lodash-es": "^4.17.6",
+        "@types/node": "^22.15.30",
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
         "autoprefixer": "^10.4.13",
