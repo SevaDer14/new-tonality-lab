@@ -26,12 +26,24 @@
 
         for (let i = 1; i <= numberOfPartials; i++) {
             result.push({
-                freq: Math.pow(fundamental * i, stretch),
+                freq: fundamental * Math.pow(i, stretch),
                 amp: 1 / i,
             })
         }
 
-        complement = [{ freq: 100, amp: 1 }]
+        complement = result
+    }
+
+    function addToContext() {
+        const newSpectrum = new Map<number, number>()
+
+        for (const partial of [...context, ...complement]) {
+            const amplitude = newSpectrum.get(partial.freq) ?? 0
+
+            newSpectrum.set(partial.freq, amplitude + partial.amp)
+        }
+
+        context = Array.from(newSpectrum.entries()).map((p) => ({ freq: p[0], amp: p[1] }))
     }
 
     const DEFAULT_DISSONANCE_PARAMS = {
@@ -68,14 +80,7 @@
             </div>
 
             <div class="flex flex-col">
-                <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => {
-                        resetSpectrums()
-                        generateSpectrums()
-                    }}>Generate</Button
-                >
+                <Button size="sm" variant="primary" onClick={generateSpectrums}>Generate</Button>
                 <Button size="sm" variant="danger" onClick={resetSpectrums}>Reset</Button>
             </div>
         </div>
@@ -83,7 +88,7 @@
         <div class="flex">
             <SpectrumControl title="Complement" bind:spectrum={complement} />
             <div class="h-full flex items-center">
-                <button class="px-1 rounded bg-white-5 hover:bg-white-15">{'=>'}</button>
+                <button class="px-1 rounded bg-white-5 hover:bg-white-15" on:click={addToContext}>{'=>'}</button>
             </div>
             <SpectrumControl title="Context" bind:spectrum={context} />
         </div>

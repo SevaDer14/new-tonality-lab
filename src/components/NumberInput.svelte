@@ -35,10 +35,10 @@
         const range = valueRange > 1 && fine ? 1 : valueRange <= 1 && fine ? 0.1 : valueRange
         const valueDiff = (range * (clientY - startY)) / pixelRange
         value = clamp(startValue - valueDiff)
+        onInput(value)
     }
 
     $: debounce(value)
-    $: onInput(value)
 
     function handleFineAdjustment({ shiftKey }: { shiftKey: boolean }) {
         fine = shiftKey
@@ -69,7 +69,18 @@
 
 <div class={`relative text-xs px-2 py-1 max-w-fit flex items-center gap-1 pr-3 ${active ? 'text-white' : 'text-white-65'} hover:text-white cursor-ns-resize`} on:pointerdown={pointerDown}>
     <span class="select-non">{label}:</span>
-    <input type="number" bind:value class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow" style={`width: ${test}ch`} />
+    <input
+        type="number"
+        bind:value
+        class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow"
+        style={`width: ${test}ch`}
+        on:input={(e) => {
+            // @ts-ignore valueAsNumber does exist on target
+            const val = e?.target?.valueAsNumber
+            if (!val) return
+            onInput(val)
+        }}
+    />
 
     {#if value !== defaultValue}
         <button on:click={reset} class="absolute top-[0.5px] right-0 rounded-full h-3 w-3 hover:bg-white-25 leading-none">×</button>
