@@ -2,7 +2,7 @@
     import ChevronDown from '../icons/ChevronDown.svelte'
 
     export let title = ''
-    export let size: 'lg' | 'md' | 'sm'
+    export let size: 'full' | 'lg' | 'md' | 'sm'
     export let collapsible = true
 
     let collapsed = false
@@ -26,6 +26,9 @@
 <style>
     .collapsed {
         height: 0px !important;
+    }
+    .full {
+        height: 100%;
     }
     .lg {
         height: 464px;

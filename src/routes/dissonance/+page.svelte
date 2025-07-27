@@ -7,22 +7,32 @@
     import NumberInput from '../../components/NumberInput.svelte'
     import SpectrumGraph from './SpectrumGraph.svelte'
     import SpectrumControl from './SpectrumControl.svelte'
+    import Button from '../../components/Button.svelte'
 
-    let context: Spectrum = [
-        { freq: 400, amp: 1 },
-        { freq: 800, amp: 1 / 2 },
-        { freq: 1200, amp: 1 / 3 },
-        { freq: 1600, amp: 1 / 4 },
-        { freq: 2000, amp: 1 / 5 },
-    ]
+    let fundamental: number = 440
+    let numberOfPartials: number = 6
+    let stretch: number = 1
 
-    let complement: Spectrum = [
-        { freq: 400, amp: 1 },
-        { freq: 800, amp: 1 / 2 },
-        { freq: 1200, amp: 1 / 3 },
-        { freq: 1600, amp: 1 / 4 },
-        { freq: 2000, amp: 1 / 5 },
-    ]
+    let context: Spectrum = []
+    let complement: Spectrum = []
+
+    function resetSpectrums() {
+        context = []
+        complement = []
+    }
+
+    function generateSpectrums() {
+        let result: Spectrum = []
+
+        for (let i = 1; i <= numberOfPartials; i++) {
+            result.push({
+                freq: Math.pow(fundamental * i, stretch),
+                amp: 1 / i,
+            })
+        }
+
+        complement = [{ freq: 100, amp: 1 }]
+    }
 
     const DEFAULT_DISSONANCE_PARAMS = {
         rangeMin: 0,
@@ -44,14 +54,39 @@
     let b1 = DEFAULT_DISSONANCE_PARAMS.b1
     let b2 = DEFAULT_DISSONANCE_PARAMS.b2
 
-    $: dissonanceCurve = new DissonanceCurve({ context, complement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
+    $: dissonanceCurve = new DissonanceCurve({ context, complement: context, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
     $: chartConfig = getChartConfig(dissonanceCurve)
 </script>
 
 <div class="grid grid-rows-2 grid-cols-3 gap-4 w-full">
-    <Panel size="md" title="Table" class="row-span-2" collapsible={false}>
-        <SpectrumControl title="Context" bind:spectrum={context} />
-        <SpectrumControl title="Complement"bind:spectrum={complement} />
+    <Panel size="full" title="Data" class="row-span-2 flex-col" collapsible={false}>
+        <div class="flex flex-wrap border-b px-4 py-2">
+            <div>
+                <NumberInput label="fundamental (Hz)" whole defaultValue={fundamental} bind:value={fundamental} valueRange={100} min={1} />
+                <NumberInput label="number of partials" whole defaultValue={numberOfPartials} bind:value={numberOfPartials} valueRange={10} min={1} />
+                <NumberInput label="stretch" defaultValue={stretch} bind:value={stretch} valueRange={1} min={0.1} />
+            </div>
+
+            <div class="flex flex-col">
+                <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                        resetSpectrums()
+                        generateSpectrums()
+                    }}>Generate</Button
+                >
+                <Button size="sm" variant="danger" onClick={resetSpectrums}>Reset</Button>
+            </div>
+        </div>
+
+        <div class="flex">
+            <SpectrumControl title="Complement" bind:spectrum={complement} />
+            <div class="h-full flex items-center">
+                <button class="px-1 rounded bg-white-5 hover:bg-white-15">{'=>'}</button>
+            </div>
+            <SpectrumControl title="Context" bind:spectrum={context} />
+        </div>
     </Panel>
     <Panel size="md" title="Spectrum" class="col-span-2" collapsible={false}>
         <SpectrumGraph {complement} {context} />
