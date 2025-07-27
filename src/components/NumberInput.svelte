@@ -1,33 +1,64 @@
 <script lang="ts">
-    export let value: number, min: number | undefined, max: number | undefined
+    export let defaultValue: number
+    export let value = defaultValue,
+        min: number = -Infinity,
+        max: number = +Infinity
     export let pixelRange = 100
     export let valueRange: number
     export let label: string
+    export let debouncedValue: number
+    let timer: NodeJS.Timeout
 
-    let startX: number, startValue: number
-
-    function clamp(num: number) {
-        return Math.max(min ?? -Infinity, Math.min(num, max ?? +Infinity))
+    const debounce = (v: number) => {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+            debouncedValue = v
+        }, 50)
     }
 
-    function pointerMove({ clientX }: { clientX: number }) {
-        const valueDiff = (valueRange * (startX - clientX)) / pixelRange
+    let startY: number, startValue: number, fine: boolean
+
+    function clamp(num: number) {
+        return parseFloat(Math.max(min, Math.min(num, max)).toFixed(valueRange <= 0.1 ? 3 : valueRange <= 100 ? 2 : 0))
+    }
+
+    function pointerMove({ clientY }: { clientY: number }) {
+        const range = valueRange > 1 && fine ? 1 : valueRange <= 1 && fine ? 0.1 : valueRange
+        const valueDiff = (range * (clientY - startY)) / pixelRange
         value = clamp(startValue - valueDiff)
     }
 
-    function pointerDown({ clientX }: { clientX: number }) {
-        startX = clientX
+    $: debounce(value)
+
+    function handleFineAdjustment({ shiftKey }: { shiftKey: boolean }) {
+        fine = shiftKey
+    }
+
+    function reset() {
+        value = defaultValue
+    }
+
+    function pointerDown({ clientY }: { clientY: number }) {
+        startY = clientY
         startValue = value
         window.addEventListener('pointermove', pointerMove)
         window.addEventListener('pointerup', pointerUp)
+        window.addEventListener('keydown', handleFineAdjustment)
+        window.addEventListener('keyup', handleFineAdjustment)
     }
 
     function pointerUp() {
         window.removeEventListener('pointermove', pointerMove)
         window.removeEventListener('pointerup', pointerUp)
+        window.removeEventListener('keydown', handleFineAdjustment)
+        window.removeEventListener('keyup', handleFineAdjustment)
     }
 </script>
 
-<div class="text-xs block px-2 py-1 max-w-fit border select-none cursor-ew-resize" on:pointerdown={pointerDown}>
-    {label}: {value.toFixed(2)}
+<div class="relative text-xs px-2 py-1 max-w-fit flex items-center gap-1 pr-3">
+    <span class="select-none">{label}:</span>
+    <input type="number" bind:value class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow" style={`width: ${value.toString().length}ch`} on:pointerdown={pointerDown} />
+    {#if value !== defaultValue}
+        <button on:click={reset} class="absolute top-[0.5px] right-0 rounded-full h-3 w-3 hover:bg-white-25 leading-none">×</button>
+    {/if}
 </div>

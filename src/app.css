@@ -100,3 +100,9 @@ input[type="radio"]:checked:after {
     font-weight: inherit;
     color: rgba(255, 255, 255, 0.65)
 }
+
+.hide-arrow[type="number"]::-webkit-inner-spin-button,
+.hide-arrow[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -1,14 +1,14 @@
 import type { PlotOptions } from 'highcharts'
 import { colors } from '../../theme/colors'
-import type { DissonanceCurve } from './DissoannceCurve'
+import type { DissonanceCurve } from './DissonanceCurve'
 
-export function getChartConfig(dissonanceCurve: DissonanceCurve): PlotOptions {
+export function getChartConfig(dissonanceCurve?: DissonanceCurve): PlotOptions {
     return {
         chart: {
             zoomType: 'xy',
             backgroundColor: '#00000000',
             spacing: [8, 0, 4, 0],
-            height: 274,
+            height: 224,
             style: {
                 fontFamily: 'monospace',
             },
@@ -34,7 +34,7 @@ export function getChartConfig(dissonanceCurve: DissonanceCurve): PlotOptions {
         yAxis: [
             {
                 visible: false,
-                max: dissonanceCurve.maxDissonance,
+                max: dissonanceCurve?.maxDissonance,
                 labels: {
                     enabled: false,
                 },
@@ -86,7 +86,7 @@ export function getChartConfig(dissonanceCurve: DissonanceCurve): PlotOptions {
                 color: colors.green.DEFAULT,
                 pointWidth: 2,
                 borderWidth: 0,
-                data: dissonanceCurve.points,
+                data: dissonanceCurve?.points ?? [],
             },
         ],
     }
