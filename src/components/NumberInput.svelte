@@ -32,7 +32,7 @@
     }
 
     function pointerMove({ clientY }: { clientY: number }) {
-        const range = valueRange > 1 && fine ? 1 : valueRange <= 1 && fine ? 0.1 : valueRange
+        const range = valueRange > 1 && fine ? 1 : valueRange <= 1 && fine ? 0.1 : valueRange // more when whole
         const valueDiff = (range * (clientY - startY)) / pixelRange
         value = clamp(startValue - valueDiff)
         onInput(value)

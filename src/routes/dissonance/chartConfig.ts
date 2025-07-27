@@ -2,7 +2,9 @@ import type { PlotOptions } from 'highcharts'
 import { colors } from '../../theme/colors'
 import type { DissonanceCurve } from './DissonanceCurve'
 
-export function getChartConfig(dissonanceCurve?: DissonanceCurve): PlotOptions {
+export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0): PlotOptions {
+    const tansposedComplementPoint = dissonanceCurve?.points.find((point) => point[0] === interval)
+
     return {
         chart: {
             zoomType: 'xy',
@@ -87,6 +89,25 @@ export function getChartConfig(dissonanceCurve?: DissonanceCurve): PlotOptions {
                 pointWidth: 2,
                 borderWidth: 0,
                 data: dissonanceCurve?.points ?? [],
+            },
+            {
+                // Sweep Spectrum Note Line
+                yAxis: 0,
+                type: 'column',
+                name: 'Note line',
+                color: colors.orange.DEFAULT,
+                pointWidth: 2,
+                borderWidth: 0,
+                data: [tansposedComplementPoint],
+            },
+            {
+                // Sweep Spectrum Note Ball
+                yAxis: 0,
+                type: 'scatter',
+                name: 'Partials',
+                color: colors.orange.DEFAULT,
+                marker: { symbol: 'circle', radius: 4 },
+                data: [tansposedComplementPoint],
             },
         ],
     }

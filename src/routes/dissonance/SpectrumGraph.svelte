@@ -35,7 +35,7 @@
             },
         ]
 
-        const maxFreq = Math.max(context.at(-1)?.freq ?? 0, complement.at(-1)?.freq ?? 0)
+        // const maxFreq = Math.max(context.at(-1)?.freq ?? 0, complement.at(-1)?.freq ?? 0)
         const maxAmp = Math.max(context.at(-1)?.amp ?? 0, complement.at(-1)?.amp ?? 0)
 
         spectrumChartConfig = {
@@ -43,7 +43,7 @@
                 zoomType: 'xy',
                 backgroundColor: '#00000000',
                 spacing: [8, 0, 4, 0],
-                height: 274,
+                height: 244,
                 style: {
                     fontFamily: 'monospace',
                 },
