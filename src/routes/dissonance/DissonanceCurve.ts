@@ -2,7 +2,7 @@ import { getSetharesDissonance, SETHARES_DISSONANCE_PARAMS, transpose, type Spec
 
 export type DissonanceCurveOptions = Partial<typeof SETHARES_DISSONANCE_PARAMS> & {
     context: Spectrum
-    compliment: Spectrum
+    complement: Spectrum
     step?: number
     rangeMin?: number
     rangeMax?: number
@@ -15,15 +15,15 @@ export class DissonanceCurve {
     public readonly rangeMax: NonNullable<DissonanceCurveOptions['rangeMax']>
     public readonly step: NonNullable<DissonanceCurveOptions['step']>
     public readonly context: DissonanceCurveOptions['context']
-    public readonly compliment: DissonanceCurveOptions['compliment']
+    public readonly complement: DissonanceCurveOptions['complement']
     public readonly maxDissonance: number = 0
     public readonly change: number = 0
 
     constructor(opts: DissonanceCurveOptions) {
-        const { context, compliment, rangeMin, rangeMax, step, ...dissonanceParams } = opts
+        const { context, complement, rangeMin, rangeMax, step, ...dissonanceParams } = opts
 
         this.context = context
-        this.compliment = compliment
+        this.complement = complement
 
         this.rangeMin = rangeMin ?? 0
         this.rangeMax = rangeMax ?? 1200
@@ -33,7 +33,7 @@ export class DissonanceCurve {
         if (this.step <= 0) throw Error('precision should be greater than zero')
 
         for (let cent = this.rangeMin; cent <= this.rangeMax; cent += this.step) {
-            const dissonance = getSetharesDissonance(this.context, transpose(this.compliment, cent), dissonanceParams)
+            const dissonance = getSetharesDissonance(this.context, transpose(this.complement, cent), dissonanceParams)
 
             if (dissonance > this.maxDissonance) this.maxDissonance = dissonance
 
