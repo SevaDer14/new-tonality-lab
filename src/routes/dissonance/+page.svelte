@@ -6,6 +6,7 @@
     import { getChartConfig } from './chartConfig'
     import NumberInput from '../../components/NumberInput.svelte'
     import SpectrumGraph from './SpectrumGraph.svelte'
+    import SpectrumControl from './SpectrumControl.svelte'
 
     let context: Spectrum = [
         { freq: 400, amp: 1 },
@@ -47,13 +48,16 @@
     $: chartConfig = getChartConfig(dissonanceCurve)
 </script>
 
-<div class="grid grid-rows-2 grid-cols-2 gap-4 w-full">
-    <Panel size="md" title="Table" class="row-span-2" collapsible={false} />
-    <Panel size="md" title="Spectrum" class="col-span-1" collapsible={false}>
+<div class="grid grid-rows-2 grid-cols-3 gap-4 w-full">
+    <Panel size="md" title="Table" class="row-span-2" collapsible={false}>
+        <SpectrumControl title="Context" bind:spectrum={context} />
+        <SpectrumControl title="Complement"bind:spectrum={complement} />
+    </Panel>
+    <Panel size="md" title="Spectrum" class="col-span-2" collapsible={false}>
         <SpectrumGraph {complement} {context} />
     </Panel>
 
-    <Panel size="md" title="Dissonance curve" class="col-span-1" collapsible={false}>
+    <Panel size="md" title="Dissonance curve" class="col-span-2" collapsible={false}>
         <div class="min-w-full">
             <div class="flex flex-wrap border-b">
                 <NumberInput label="min" defaultValue={DEFAULT_DISSONANCE_PARAMS.rangeMin} bind:debouncedValue={rangeMin} valueRange={1000} min={-4800} max={4800} />

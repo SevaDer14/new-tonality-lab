@@ -6,7 +6,9 @@
     export let pixelRange = 100
     export let valueRange: number
     export let label: string
-    export let debouncedValue: number
+    export let debouncedValue: number = defaultValue
+    export let onInput: (v: number) => void = () => {}
+
     let timer: NodeJS.Timeout
 
     const debounce = (v: number) => {
@@ -18,8 +20,11 @@
 
     let startY: number, startValue: number, fine: boolean
 
+    const padding = valueRange <= 0.1 ? 4 : valueRange < 100 ? 3 : 0
+    $: test = Math.floor(value).toString().length + padding
+
     function clamp(num: number) {
-        return parseFloat(Math.max(min, Math.min(num, max)).toFixed(valueRange <= 0.1 ? 3 : valueRange <= 100 ? 2 : 0))
+        return Math.max(min, Math.min(num, max))
     }
 
     function pointerMove({ clientY }: { clientY: number }) {
@@ -29,6 +34,7 @@
     }
 
     $: debounce(value)
+    $: onInput(value)
 
     function handleFineAdjustment({ shiftKey }: { shiftKey: boolean }) {
         fine = shiftKey
@@ -57,7 +63,8 @@
 
 <div class="relative text-xs px-2 py-1 max-w-fit flex items-center gap-1 pr-3">
     <span class="select-none">{label}:</span>
-    <input type="number" bind:value class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow" style={`width: ${value.toString().length}ch`} on:pointerdown={pointerDown} />
+    <input type="number" bind:value class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow" style={`width: ${test}ch`} on:pointerdown={pointerDown} />
+
     {#if value !== defaultValue}
         <button on:click={reset} class="absolute top-[0.5px] right-0 rounded-full h-3 w-3 hover:bg-white-25 leading-none">×</button>
     {/if}

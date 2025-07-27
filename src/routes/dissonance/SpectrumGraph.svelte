@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { colors, colorSeries } from '../../theme/colors.js'
+    import { colors } from '../../theme/colors.js'
     import highcharts from '../../utils/highcharts.js'
     import type { PlotOptions } from 'highcharts'
     import type { Spectrum } from './utils.js'
