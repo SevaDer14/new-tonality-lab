@@ -17,7 +17,7 @@
     }
 </script>
 
-<div class="px-4 py-2 max-w-1/2">
+<div class="px-4 py-2 max-h-[512px] min-w-[180px] overflow-y-auto">
     <p class="text-sm px-2 pb-2">{title}</p>
     {#each spectrum as partial, index}
         <div class="grid grid-cols-2 gap-x-2">

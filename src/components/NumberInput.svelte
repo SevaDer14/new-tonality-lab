@@ -36,7 +36,7 @@
     function pointerMove({ clientY }: { clientY: number }) {
         let range = valueRange
 
-        if (valueRange > 1 && fine) range = 1
+        if (valueRange > 1 && fine) range = whole ? valueRange / 10 : 1
         if (valueRange <= 1 && fine) range = whole ? 1 : 0.1
 
         const valueDiff = (range * (clientY - startY)) / pixelRange

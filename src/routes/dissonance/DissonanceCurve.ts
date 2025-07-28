@@ -45,6 +45,10 @@ export class DissonanceCurve {
         return Array.from(this._data.entries()).sort((a, b) => a[0] - b[0])
     }
 
+    public get(cent: number) {
+        return this._data.get(cent)
+    }
+
     private getRowString(row: Array<number | string>) {
         if (row.length === 0) return ''
 

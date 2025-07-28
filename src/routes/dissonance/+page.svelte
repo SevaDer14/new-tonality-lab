@@ -16,6 +16,7 @@
 
     let context: Spectrum = []
     let complement: Spectrum = []
+
     $: transposedComplement = transpose(complement, interval)
 
     function resetSpectrums() {
@@ -61,6 +62,12 @@
 
     let rangeMin = DEFAULT_DISSONANCE_PARAMS.rangeMin
     let rangeMax = DEFAULT_DISSONANCE_PARAMS.rangeMax
+
+    $: {
+        if (interval < rangeMin) rangeMin = interval
+        if (interval > rangeMax) rangeMax = interval
+    }
+
     let step = DEFAULT_DISSONANCE_PARAMS.step
     let x_star = DEFAULT_DISSONANCE_PARAMS.x_star
     let s1 = DEFAULT_DISSONANCE_PARAMS.s1
@@ -87,7 +94,7 @@
             </div>
         </div>
 
-        <div class="flex">
+        <div class="flex justify-between">
             <SpectrumControl title="Complement" bind:spectrum={complement} />
             <SpectrumControl title="Context" bind:spectrum={context} />
         </div>
@@ -103,9 +110,9 @@
     <Panel size="md" title="Dissonance curve" class="col-span-2" collapsible={false}>
         <div class="min-w-full">
             <div class="flex flex-wrap border-b">
-                <NumberInput label="min" defaultValue={DEFAULT_DISSONANCE_PARAMS.rangeMin} bind:debouncedValue={rangeMin} valueRange={1000} min={-4800} max={4800} />
-                <NumberInput label="max" defaultValue={DEFAULT_DISSONANCE_PARAMS.rangeMax} bind:debouncedValue={rangeMax} valueRange={1000} min={-4800} max={4800} />
-                <NumberInput label="step" defaultValue={DEFAULT_DISSONANCE_PARAMS.step} bind:debouncedValue={step} valueRange={10} min={0.1} />
+                <NumberInput label="min" whole defaultValue={rangeMin} bind:value={rangeMin} valueRange={1000} min={-4800} max={4800} />
+                <NumberInput label="max" whole defaultValue={rangeMax} bind:value={rangeMax} valueRange={1000} min={-4800} max={4800} />
+                <NumberInput label="step" whole defaultValue={DEFAULT_DISSONANCE_PARAMS.step} bind:debouncedValue={step} valueRange={10} min={0.1} />
             </div>
             <div
                 use:highcharts={{

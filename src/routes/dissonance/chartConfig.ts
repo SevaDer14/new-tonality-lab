@@ -2,8 +2,8 @@ import type { PlotOptions } from 'highcharts'
 import { colors } from '../../theme/colors'
 import type { DissonanceCurve } from './DissonanceCurve'
 
-export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0): PlotOptions {
-    const tansposedComplementPoint = dissonanceCurve?.points.find((point) => point[0] === interval)
+export function getChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): PlotOptions {
+    const intervalAmplitude = dissonanceCurve.get(interval)
 
     return {
         chart: {
@@ -11,6 +11,7 @@ export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0):
             backgroundColor: '#00000000',
             spacing: [8, 0, 4, 0],
             height: 224,
+            animation: false,
             style: {
                 fontFamily: 'monospace',
             },
@@ -68,8 +69,6 @@ export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0):
         ],
         plotOptions: {
             series: {
-                type: 'line',
-                animation: false,
                 label: {
                     connectorAllowed: false,
                 },
@@ -98,7 +97,7 @@ export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0):
                 color: colors.orange.DEFAULT,
                 pointWidth: 2,
                 borderWidth: 0,
-                data: [tansposedComplementPoint],
+                data: [[interval, intervalAmplitude]],
             },
             {
                 // Sweep Spectrum Note Ball
@@ -107,7 +106,7 @@ export function getChartConfig(dissonanceCurve?: DissonanceCurve, interval = 0):
                 name: 'Partials',
                 color: colors.orange.DEFAULT,
                 marker: { symbol: 'circle', radius: 4 },
-                data: [tansposedComplementPoint],
+                data: [[interval, intervalAmplitude]],
             },
         ],
     }
