@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onDestroy, onMount } from 'svelte'
+
     export let defaultValue: number
     export let value = defaultValue,
         min: number = -Infinity,
@@ -23,7 +25,7 @@
     let startY: number, startValue: number, fine: boolean
 
     const padding = valueRange <= 0.1 ? 4 : valueRange < 100 ? 3 : 0
-    $: test = Math.floor(value).toString().length + padding
+    $: inputWidth = Math.floor(value).toString().length + padding
 
     function clamp(num: number) {
         const val = Math.max(min, Math.min(num, max))
@@ -32,7 +34,11 @@
     }
 
     function pointerMove({ clientY }: { clientY: number }) {
-        const range = valueRange > 1 && fine ? 1 : valueRange <= 1 && fine ? 0.1 : valueRange // more when whole
+        let range = valueRange
+
+        if (valueRange > 1 && fine) range = 1
+        if (valueRange <= 1 && fine) range = whole ? 1 : 0.1
+
         const valueDiff = (range * (clientY - startY)) / pixelRange
         value = clamp(startValue - valueDiff)
         onInput(value)
@@ -54,16 +60,24 @@
         active = true
         window.addEventListener('pointermove', pointerMove)
         window.addEventListener('pointerup', pointerUp)
+    }
+
+    onMount(() => {
         window.addEventListener('keydown', handleFineAdjustment)
         window.addEventListener('keyup', handleFineAdjustment)
-    }
+
+        return () => {
+            fine = false
+
+            window.removeEventListener('keydown', handleFineAdjustment)
+            window.removeEventListener('keyup', handleFineAdjustment)
+        }
+    })
 
     function pointerUp() {
         active = false
         window.removeEventListener('pointermove', pointerMove)
         window.removeEventListener('pointerup', pointerUp)
-        window.removeEventListener('keydown', handleFineAdjustment)
-        window.removeEventListener('keyup', handleFineAdjustment)
     }
 </script>
 
@@ -73,7 +87,7 @@
         type="number"
         bind:value
         class="cursor-ns-resize bg-transparent w-12 outline-none hide-arrow"
-        style={`width: ${test}ch`}
+        style={`width: ${inputWidth}ch`}
         on:input={(e) => {
             // @ts-ignore valueAsNumber does exist on target
             const val = e?.target?.valueAsNumber

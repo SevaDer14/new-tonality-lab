@@ -39,7 +39,7 @@
     function addToContext() {
         const newSpectrum = new Map<number, number>()
 
-        for (const partial of [...context, ...complement]) {
+        for (const partial of [...context, ...transposedComplement]) {
             const amplitude = newSpectrum.get(partial.freq) ?? 0
 
             newSpectrum.set(partial.freq, amplitude + partial.amp)
@@ -68,7 +68,7 @@
     let b1 = DEFAULT_DISSONANCE_PARAMS.b1
     let b2 = DEFAULT_DISSONANCE_PARAMS.b2
 
-    $: dissonanceCurve = new DissonanceCurve({ context, complement: context, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
+    $: dissonanceCurve = new DissonanceCurve({ context, complement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
     $: chartConfig = getChartConfig(dissonanceCurve, interval)
 </script>
 
@@ -89,16 +89,14 @@
 
         <div class="flex">
             <SpectrumControl title="Complement" bind:spectrum={complement} />
-            <div class="h-full flex items-center">
-                <button class="px-1 rounded bg-white-5 hover:bg-white-15" on:click={addToContext}>{'=>'}</button>
-            </div>
             <SpectrumControl title="Context" bind:spectrum={context} />
         </div>
     </Panel>
     <Panel size="md" title="Spectrum" class="col-span-2 flex-col" collapsible={false}>
         <SpectrumGraph complement={transposedComplement} {context} />
-        <div class="flex flex-wrap items-center border-t">
+        <div class="flex flex-wrap items-center border-t h-full">
             <NumberInput whole label="transpose (cents)" defaultValue={interval} bind:value={interval} valueRange={1000} min={-4800} max={4800} />
+            <button class="text-xs text-white-65 border border-white-15 px-2 rounded bg-white-5 hover:bg-white-15 hover:text-white hover:border-white-65" on:click={addToContext}>Add to context</button>
         </div>
     </Panel>
 
