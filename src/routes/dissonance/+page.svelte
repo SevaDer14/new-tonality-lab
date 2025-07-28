@@ -8,6 +8,7 @@
     import SpectrumGraph from './SpectrumGraph.svelte'
     import SpectrumControl from './SpectrumControl.svelte'
     import Button from '../../components/Button.svelte'
+    import CloseIcon from '../../icons/CloseIcon.svelte'
 
     let fundamental: number = 440
     let numberOfPartials: number = 6
@@ -81,17 +82,12 @@
 
 <div class="grid grid-rows-2 grid-cols-3 gap-4 w-full">
     <Panel size="full" title="Data" class="row-span-2 flex-col" collapsible={false}>
-        <div class="flex flex-wrap border-b px-4 py-2">
-            <div>
-                <NumberInput label="fundamental (Hz)" whole defaultValue={fundamental} bind:value={fundamental} valueRange={100} min={1} />
-                <NumberInput label="number of partials" whole defaultValue={numberOfPartials} bind:value={numberOfPartials} valueRange={10} min={1} />
-                <NumberInput label="stretch" defaultValue={stretch} bind:value={stretch} valueRange={1} min={0.1} />
-            </div>
-
-            <div class="flex flex-col">
-                <Button size="sm" variant="primary" onClick={generateSpectrums}>Generate</Button>
-                <Button size="sm" variant="danger" onClick={resetSpectrums}>Reset</Button>
-            </div>
+        <p class="text-sm px-6 py-2">Generate complement:</p>
+        <div class="grid grid-cols-2 grid-rows-2 border-b px-4 pb-4">
+            <NumberInput label="fundamental (Hz)" whole defaultValue={fundamental} bind:value={fundamental} valueRange={100} min={1} />
+            <NumberInput label="number of partials" whole defaultValue={numberOfPartials} bind:value={numberOfPartials} valueRange={10} min={1} />
+            <NumberInput label="stretch" defaultValue={stretch} bind:value={stretch} valueRange={1} min={0.1} />
+            <Button size="sm" color="green" onClick={generateSpectrums}>Generate partials</Button>
         </div>
 
         <div class="flex justify-between">
@@ -103,7 +99,7 @@
         <SpectrumGraph complement={transposedComplement} {context} />
         <div class="flex flex-wrap items-center border-t h-full">
             <NumberInput whole label="transpose (cents)" defaultValue={interval} bind:value={interval} valueRange={1000} min={-4800} max={4800} />
-            <button class="text-xs text-white-65 border border-white-15 px-2 rounded bg-white-5 hover:bg-white-15 hover:text-white hover:border-white-65" on:click={addToContext}>Add to context</button>
+            <Button size="xs" color="blue" onClick={addToContext}>Add to context</Button>
         </div>
     </Panel>
 

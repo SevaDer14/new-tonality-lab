@@ -41,3 +41,4 @@ export const colors = {
 }
 
 export const colorSeries = ['green', 'orange', 'yellow', 'pink', 'blue', 'white'] as const
+export type Color = typeof colorSeries[number]

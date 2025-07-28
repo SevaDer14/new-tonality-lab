@@ -1,22 +1,24 @@
 <script lang="ts">
+    import { colors, type Color } from '../theme/colors'
+
     export let onClick: (e: Event) => any
     export let disabled = false
-    export let size: 'lg' | 'sm' = 'lg'
-    export let variant: 'neutral' | 'primary' | 'danger' = 'neutral'
+    export let size: 'lg' | 'sm' | 'xs' = 'lg'
+    export let color: Color = 'white'
 
     $: sizeClass = (() => {
-        if (size == 'lg') return 'w-28'
-        if (size == 'sm') return 'text-xs min-w-12'
-    })()
-
-    $: variantClass = (() => {
-        if (variant == 'neutral') return ''
-        if (variant == 'primary') return 'text-blue border-blue-65 bg-blue-5'
-        if (variant == 'danger') return 'text-pink border-pink-65 bg-pink-5'
+        if (size == 'lg') return 'px-1 py-1 w-28'
+        if (size == 'sm') return 'px-1 py-1 text-xs'
+        if (size == 'xs') return 'px-1 py-0 text-xs max-w-fit'
     })()
 </script>
 
-<button class={`border rounded p-1 m-1 ${sizeClass} ${variantClass} ${$$props.class}`} on:click={onClick} {disabled}>
+<button
+    class={`mx-1 border rounded opacity-80 hover:opacity-100 ${sizeClass} ${$$props.class}`}
+    style="color: {colors[color].DEFAULT}; border-color: {colors[color][65]}"
+    on:click={onClick}
+    {disabled}
+>
     <slot />
 </button>
 
