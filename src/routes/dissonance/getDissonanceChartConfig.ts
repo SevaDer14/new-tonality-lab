@@ -2,7 +2,7 @@ import type { PlotOptions } from 'highcharts'
 import { colors } from '../../theme/colors'
 import type { DissonanceCurve } from './DissonanceCurve'
 
-export function getChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): PlotOptions {
+export function getDissonanceChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): PlotOptions {
     const intervalAmplitude = dissonanceCurve.get(interval)
 
     return {
@@ -37,6 +37,7 @@ export function getChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): 
         yAxis: [
             {
                 visible: false,
+                min: 0,
                 max: dissonanceCurve?.maxDissonance,
                 labels: {
                     enabled: false,
@@ -90,10 +91,9 @@ export function getChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): 
                 data: dissonanceCurve?.points ?? [],
             },
             {
-                // Sweep Spectrum Note Line
                 yAxis: 0,
                 type: 'column',
-                name: 'Note line',
+                name: 'Precieved dissonance value',
                 color: colors.orange.DEFAULT,
                 pointWidth: 2,
                 borderWidth: 0,
@@ -103,7 +103,7 @@ export function getChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): 
                 // Sweep Spectrum Note Ball
                 yAxis: 0,
                 type: 'scatter',
-                name: 'Partials',
+                name: 'Precieved dissonance value',
                 color: colors.orange.DEFAULT,
                 marker: { symbol: 'circle', radius: 4 },
                 data: [[interval, intervalAmplitude]],

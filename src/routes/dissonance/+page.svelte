@@ -1,9 +1,6 @@
 <script lang="ts">
-    import { DissonanceCurve } from './DissonanceCurve'
     import { transpose } from './utils'
-    import highcharts from '../../utils/highcharts.js'
     import Panel from '../../components/Panel.svelte'
-    import { getChartConfig } from './chartConfig'
     import NumberInput from '../../components/NumberInput.svelte'
     import SpectrumGraph from './SpectrumGraph.svelte'
     import SpectrumControl from './SpectrumControl.svelte'
@@ -12,6 +9,7 @@
     import type { Partial, Spectrum } from 'new-tonality-web-synth'
     import CONST from './const'
     import { onMount } from 'svelte'
+    import DissonanceChart from './DissonanceChart.svelte'
 
     let tutorial = CONST.TUTORIAL_STEP_START
 
@@ -24,38 +22,21 @@
     let fundamental: number = 440
     let numberOfPartials: number = 6
     let stretch: number = 1
-    let interval: number = 0
-
-    let muteComplement = true
-    let muteContext = true
-
     let context: Partial[] = []
     let complement: Partial[] = []
 
-    let rangeMin = CONST.DISSONANCE_PARAMS.rangeMin
-    let rangeMax = CONST.DISSONANCE_PARAMS.rangeMax
-    let step = CONST.DISSONANCE_PARAMS.step
-    let x_star = CONST.DISSONANCE_PARAMS.x_star
-    let s1 = CONST.DISSONANCE_PARAMS.s1
-    let s2 = CONST.DISSONANCE_PARAMS.s2
-    let b1 = CONST.DISSONANCE_PARAMS.b1
-    let b2 = CONST.DISSONANCE_PARAMS.b2
+    let muteComplement = true
+    let muteContext = true
+    let interval: number = 0
 
-    $: {
-        if (interval < rangeMin) rangeMin = interval
-        if (interval > rangeMax) rangeMax = interval
-    }
-
-    $: dissonanceCurve = new DissonanceCurve({ context, complement: transposedComplement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
-    $: chartConfig = getChartConfig(dissonanceCurve, interval)
+    $: transposedComplement = transpose(complement, interval)
+    $: synthActive = spectrum.flatMap((layer) => layer.partials).length > 0
     $: spectrum = (() => {
         const result: Spectrum = []
         if (!muteComplement) result.push({ partials: transposedComplement })
         if (!muteContext) result.push({ partials: context })
         return result
     })()
-    $: synthActive = spectrum.flatMap((layer) => layer.partials).length > 0
-    $: transposedComplement = transpose(complement, interval)
 
     function setTutorialStepOnUnmute(mute: boolean) {
         if (tutorial.step !== 1 || mute !== false) return
@@ -135,24 +116,6 @@
     </Panel>
 
     <Panel size="md" title="Dissonance curve" class="col-span-2" collapsible={false}>
-        <div class="min-w-full">
-            <div class="flex flex-wrap border-b">
-                <NumberInput label="min" whole defaultValue={rangeMin} bind:value={rangeMin} valueRange={1000} min={-4800} max={4800} />
-                <NumberInput label="max" whole defaultValue={rangeMax} bind:value={rangeMax} valueRange={1000} min={-4800} max={4800} />
-                <NumberInput label="step" whole defaultValue={CONST.DISSONANCE_PARAMS.step} bind:value={step} valueRange={10} min={0.1} />
-            </div>
-            <div
-                use:highcharts={{
-                    chart: chartConfig,
-                }}
-            />
-            <div class="flex flex-wrap border-t">
-                <NumberInput label="x*" defaultValue={CONST.DISSONANCE_PARAMS.x_star} bind:value={x_star} valueRange={0.1} min={0} />
-                <NumberInput label="s1" defaultValue={CONST.DISSONANCE_PARAMS.s1} bind:value={s1} valueRange={0.01} />
-                <NumberInput label="s2" defaultValue={CONST.DISSONANCE_PARAMS.s2} bind:value={s2} valueRange={10} />
-                <NumberInput label="b1" defaultValue={CONST.DISSONANCE_PARAMS.b1} bind:value={b1} valueRange={1} />
-                <NumberInput label="b2" defaultValue={CONST.DISSONANCE_PARAMS.b2} bind:value={b2} valueRange={1} />
-            </div>
-        </div>
+        <DissonanceChart {complement} {context} {interval} />
     </Panel>
 </div>

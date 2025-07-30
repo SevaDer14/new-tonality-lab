@@ -35,7 +35,7 @@ export const TUTORIAL_STEP_END = {
 }
 
 export const DISSONANCE_PARAMS = {
-    rangeMin: 0,
+    rangeMin: -1200,
     rangeMax: 1200,
     step: 1,
     s1: 0.021,
