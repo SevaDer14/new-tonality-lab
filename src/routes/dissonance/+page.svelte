@@ -8,7 +8,7 @@
     import SpectrumGraph from './SpectrumGraph.svelte'
     import SpectrumControl from './SpectrumControl.svelte'
     import Button from '../../components/Button.svelte'
-    import CloseIcon from '../../icons/CloseIcon.svelte'
+    import AdditiveSynth from './AdditiveSynth.svelte'
 
     let fundamental: number = 440
     let numberOfPartials: number = 6
@@ -80,6 +80,8 @@
     $: chartConfig = getChartConfig(dissonanceCurve, interval)
 </script>
 
+<AdditiveSynth data={transposedComplement} />
+
 <div class="grid grid-rows-2 grid-cols-3 gap-4 w-full">
     <Panel size="full" title="Data" class="row-span-2 flex-col" collapsible={false}>
         <p class="text-sm px-6 py-2">Generate complement:</p>
@@ -98,7 +100,7 @@
     <Panel size="md" title="Spectrum" class="col-span-2 flex-col" collapsible={false}>
         <SpectrumGraph complement={transposedComplement} {context} />
         <div class="flex flex-wrap items-center border-t h-full">
-            <NumberInput whole label="transpose (cents)" defaultValue={interval} bind:value={interval} valueRange={1000} min={-4800} max={4800} />
+            <NumberInput whole label="transpose (cents)" defaultValue={interval} bind:value={interval} valueRange={1000} min={-4800} max={4800} nonRessetable />
             <Button size="xs" color="blue" onClick={addToContext}>Add to context</Button>
         </div>
     </Panel>
@@ -108,7 +110,7 @@
             <div class="flex flex-wrap border-b">
                 <NumberInput label="min" whole defaultValue={rangeMin} bind:value={rangeMin} valueRange={1000} min={-4800} max={4800} />
                 <NumberInput label="max" whole defaultValue={rangeMax} bind:value={rangeMax} valueRange={1000} min={-4800} max={4800} />
-                <NumberInput label="step" whole defaultValue={DEFAULT_DISSONANCE_PARAMS.step} bind:debouncedValue={step} valueRange={10} min={0.1} />
+                <NumberInput label="step" whole defaultValue={DEFAULT_DISSONANCE_PARAMS.step} bind:value={step} valueRange={10} min={0.1} />
             </div>
             <div
                 use:highcharts={{
@@ -116,11 +118,11 @@
                 }}
             />
             <div class="flex flex-wrap border-t">
-                <NumberInput label="x*" defaultValue={DEFAULT_DISSONANCE_PARAMS.x_star} bind:debouncedValue={x_star} valueRange={0.1} min={0} />
-                <NumberInput label="s1" defaultValue={DEFAULT_DISSONANCE_PARAMS.s1} bind:debouncedValue={s1} valueRange={0.01} />
-                <NumberInput label="s2" defaultValue={DEFAULT_DISSONANCE_PARAMS.s2} bind:debouncedValue={s2} valueRange={10} />
-                <NumberInput label="b1" defaultValue={DEFAULT_DISSONANCE_PARAMS.b1} bind:debouncedValue={b1} valueRange={1} />
-                <NumberInput label="b2" defaultValue={DEFAULT_DISSONANCE_PARAMS.b2} bind:debouncedValue={b2} valueRange={1} />
+                <NumberInput label="x*" defaultValue={DEFAULT_DISSONANCE_PARAMS.x_star} bind:value={x_star} valueRange={0.1} min={0} />
+                <NumberInput label="s1" defaultValue={DEFAULT_DISSONANCE_PARAMS.s1} bind:value={s1} valueRange={0.01} />
+                <NumberInput label="s2" defaultValue={DEFAULT_DISSONANCE_PARAMS.s2} bind:value={s2} valueRange={10} />
+                <NumberInput label="b1" defaultValue={DEFAULT_DISSONANCE_PARAMS.b1} bind:value={b1} valueRange={1} />
+                <NumberInput label="b2" defaultValue={DEFAULT_DISSONANCE_PARAMS.b2} bind:value={b2} valueRange={1} />
             </div>
         </div>
     </Panel>

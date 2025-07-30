@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { onDestroy, onMount } from 'svelte'
+    import { onMount } from 'svelte'
+    import throttle from 'lodash/throttle'
+    import debounce from 'lodash/debounce'
 
     export let defaultValue: number
     export let value = defaultValue,
@@ -7,20 +9,26 @@
         max: number = +Infinity
     export let pixelRange = 100
     export let valueRange: number
-    export let label: string
     export let debouncedValue: number = defaultValue
-    export let onInput: (v: number) => void = () => {}
+    export let label: string
+    export let onInput: undefined | ((v: number) => void) = undefined
     export let whole = false
+    export let nonRessetable = false
 
-    let timer: NodeJS.Timeout
     let active = false
 
-    const debounce = (v: number) => {
-        clearTimeout(timer)
-        timer = setTimeout(() => {
-            debouncedValue = v
-        }, 50)
-    }
+    const setDebouncedValue = debounce((v: number) => {
+        debouncedValue = v
+    }, 50)
+
+    const setValue = throttle(
+        (v) => {
+            value = v
+            if (onInput) onInput(v)
+        },
+        10,
+        { leading: false }
+    )
 
     let startY: number, startValue: number, fine: boolean
 
@@ -40,11 +48,11 @@
         if (valueRange <= 1 && fine) range = whole ? 1 : 0.1
 
         const valueDiff = (range * (clientY - startY)) / pixelRange
-        value = clamp(startValue - valueDiff)
-        onInput(value)
-    }
+        const val = clamp(startValue - valueDiff)
 
-    $: debounce(value)
+        setValue(val)
+        setDebouncedValue(val)
+    }
 
     function handleFineAdjustment({ shiftKey }: { shiftKey: boolean }) {
         fine = shiftKey
@@ -92,11 +100,11 @@
             // @ts-ignore valueAsNumber does exist on target
             const val = e?.target?.valueAsNumber
             if (!val) return
-            onInput(val)
+            if (onInput) onInput(val)
         }}
     />
 
-    {#if value !== defaultValue}
+    {#if !nonRessetable && value !== defaultValue}
         <button on:click={reset} class="absolute top-[0.5px] right-0 rounded-full h-3 w-3 hover:bg-white-25 leading-none">×</button>
     {/if}
 </div>
