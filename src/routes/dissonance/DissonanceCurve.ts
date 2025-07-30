@@ -1,8 +1,9 @@
-import { getSetharesDissonance, SETHARES_DISSONANCE_PARAMS, transpose, type Spectrum } from './utils'
+import type { Partial as SpectrumPartial } from 'new-tonality-web-synth'
+import { getSetharesDissonance, SETHARES_DISSONANCE_PARAMS, transpose } from './utils'
 
 export type DissonanceCurveOptions = Partial<typeof SETHARES_DISSONANCE_PARAMS> & {
-    context: Spectrum
-    complement: Spectrum
+    context: SpectrumPartial[]
+    complement: SpectrumPartial[]
     step?: number
     rangeMin?: number
     rangeMax?: number

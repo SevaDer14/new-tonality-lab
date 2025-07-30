@@ -1,15 +1,17 @@
 <script lang="ts">
-    import type { Spectrum } from './utils'
     import NumberInput from '../../components/NumberInput.svelte'
     import VolumeOnIcon from '../../icons/VolumeOnIcon.svelte'
     import Button from '../../components/Button.svelte'
     import CloseIcon from '../../icons/CloseIcon.svelte'
+    import type { Partial } from 'new-tonality-web-synth'
+    import VolumeOffIcon from '../../icons/VolumeOffIcon.svelte'
 
-    export let spectrum: Spectrum
+    export let spectrum: Partial[]
     export let title: string
+    export let mute = false
 
-    function handleInput(partial: Spectrum[number], partialIndex: number) {
-        const notChanged = spectrum[partialIndex].freq === partial.freq && spectrum[partialIndex].amp === partial.amp
+    function handleInput(partial: Partial, partialIndex: number) {
+        const notChanged = spectrum[partialIndex].rate === partial.rate && spectrum[partialIndex].amplitude === partial.amplitude
 
         if (notChanged) return
 
@@ -24,13 +26,19 @@
     <div class="flex items-center pt-1 pb-2">
         <p class="text-sm px-2">{title}</p>
         <Button size="sm" color="pink" onClick={() => (spectrum = [])} disabled={spectrum.length == 0}><CloseIcon /></Button>
-        <Button size="sm" color="green" onClick={() => {}} disabled={spectrum.length == 0}><VolumeOnIcon /></Button>
+        <Button size="sm" color={mute ? 'orange' : 'green'} onClick={() => (mute = !mute)} disabled={spectrum.length == 0}>
+            {#if mute === true}
+                <VolumeOffIcon />
+            {:else}
+                <VolumeOnIcon />
+            {/if}</Button
+        >
     </div>
 
     {#each spectrum as partial, index}
         <div class="grid grid-cols-2 gap-x-2">
-            <NumberInput label="f" defaultValue={partial.freq} value={partial.freq} onInput={(v) => handleInput({ ...partial, freq: v }, index)} valueRange={100} min={0} />
-            <NumberInput label="a" defaultValue={partial.amp} value={partial.amp} onInput={(v) => handleInput({ ...partial, amp: v }, index)} valueRange={1} min={0} />
+            <NumberInput label="f" defaultValue={partial.rate} value={partial.rate} onInput={(v) => handleInput({ ...partial, rate: v }, index)} valueRange={100} min={0} />
+            <NumberInput label="a" defaultValue={partial.amplitude} value={partial.amplitude} onInput={(v) => handleInput({ ...partial, amplitude: v }, index)} valueRange={1} min={0} />
         </div>
     {/each}
 </div>

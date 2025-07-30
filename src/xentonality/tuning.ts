@@ -1,4 +1,4 @@
-import { round } from 'lodash'
+import round from 'lodash/round'
 import type { Partial } from '../synth'
 
 export type Fraction = [number, number]

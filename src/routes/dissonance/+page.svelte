@@ -1,6 +1,6 @@
 <script lang="ts">
     import { DissonanceCurve } from './DissonanceCurve'
-    import { transpose, type Spectrum } from './utils'
+    import { transpose } from './utils'
     import highcharts from '../../utils/highcharts.js'
     import Panel from '../../components/Panel.svelte'
     import { getChartConfig } from './chartConfig'
@@ -9,29 +9,28 @@
     import SpectrumControl from './SpectrumControl.svelte'
     import Button from '../../components/Button.svelte'
     import AdditiveSynth from './AdditiveSynth.svelte'
+    import type { Partial, Spectrum } from 'new-tonality-web-synth'
 
     let fundamental: number = 440
     let numberOfPartials: number = 6
     let stretch: number = 1
     let interval: number = 0
 
-    let context: Spectrum = []
-    let complement: Spectrum = []
+    let muteComplement = false
+    let muteContext = false
+
+    let context: Partial[] = []
+    let complement: Partial[] = []
 
     $: transposedComplement = transpose(complement, interval)
 
-    function resetSpectrums() {
-        context = []
-        complement = []
-    }
-
-    function generateSpectrums() {
-        let result: Spectrum = []
+    function generateComplement() {
+        let result: Partial[] = []
 
         for (let i = 1; i <= numberOfPartials; i++) {
             result.push({
-                freq: fundamental * Math.pow(i, stretch),
-                amp: 1 / i,
+                rate: fundamental * Math.pow(i, stretch),
+                amplitude: 1 / i,
             })
         }
 
@@ -42,12 +41,12 @@
         const newSpectrum = new Map<number, number>()
 
         for (const partial of [...context, ...transposedComplement]) {
-            const amplitude = newSpectrum.get(partial.freq) ?? 0
+            const amplitude = newSpectrum.get(partial.rate) ?? 0
 
-            newSpectrum.set(partial.freq, amplitude + partial.amp)
+            newSpectrum.set(partial.rate, amplitude + partial.amplitude)
         }
 
-        context = Array.from(newSpectrum.entries()).map((p) => ({ freq: p[0], amp: p[1] }))
+        context = Array.from(newSpectrum.entries()).map((p) => ({ rate: p[0], amplitude: p[1] }))
     }
 
     const DEFAULT_DISSONANCE_PARAMS = {
@@ -76,11 +75,18 @@
     let b1 = DEFAULT_DISSONANCE_PARAMS.b1
     let b2 = DEFAULT_DISSONANCE_PARAMS.b2
 
-    $: dissonanceCurve = new DissonanceCurve({ context, complement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
+    $: dissonanceCurve = new DissonanceCurve({ context, complement: transposedComplement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
     $: chartConfig = getChartConfig(dissonanceCurve, interval)
+    $: spectrum = (() => {
+        const result: Spectrum = []
+        if (!muteComplement) result.push({ partials: transposedComplement })
+        if (!muteContext) result.push({ partials: context })
+        return result
+    })()
+    $: synthActive = spectrum.length > 0
 </script>
 
-<AdditiveSynth data={transposedComplement} />
+<AdditiveSynth {spectrum} bind:active={synthActive} />
 
 <div class="grid grid-rows-2 grid-cols-3 gap-4 w-full">
     <Panel size="full" title="Data" class="row-span-2 flex-col" collapsible={false}>
@@ -89,12 +95,12 @@
             <NumberInput label="fundamental (Hz)" whole defaultValue={fundamental} bind:value={fundamental} valueRange={100} min={1} />
             <NumberInput label="number of partials" whole defaultValue={numberOfPartials} bind:value={numberOfPartials} valueRange={10} min={1} />
             <NumberInput label="stretch" defaultValue={stretch} bind:value={stretch} valueRange={1} min={0.1} />
-            <Button size="sm" color="green" onClick={generateSpectrums}>Generate partials</Button>
+            <Button size="sm" color="green" onClick={generateComplement}>Generate partials</Button>
         </div>
 
         <div class="flex justify-between">
-            <SpectrumControl title="Complement" bind:spectrum={complement} />
-            <SpectrumControl title="Context" bind:spectrum={context} />
+            <SpectrumControl title="Complement" bind:spectrum={complement} bind:mute={muteComplement} />
+            <SpectrumControl title="Context" bind:spectrum={context} bind:mute={muteContext} />
         </div>
     </Panel>
     <Panel size="md" title="Spectrum" class="col-span-2 flex-col" collapsible={false}>

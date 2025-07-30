@@ -1,7 +1,4 @@
-export type Spectrum = {
-    freq: number
-    amp: number
-}[]
+import type { Partial as SpectrumPartial } from 'new-tonality-web-synth'
 
 const NORMALISATION_PRESSURE_UNIT = 2.8284271247461905
 
@@ -33,14 +30,14 @@ export const SETHARES_DISSONANCE_PARAMS = {
 export type SetharesDissonanceParams = Partial<typeof SETHARES_DISSONANCE_PARAMS>
 
 /** The formula to calculate sensory dissoannce proposed by Sethares in the appendix "How to Draw Dissonance Curves" */
-export function getPlompLeveltDissonance(partial1: Spectrum[number], partial2: Spectrum[number], params = SETHARES_DISSONANCE_PARAMS): number {
-    if (partial1.freq === partial2.freq) return 0
+export function getPlompLeveltDissonance(partial1: SpectrumPartial, partial2: SpectrumPartial, params = SETHARES_DISSONANCE_PARAMS): number {
+    if (partial1.rate === partial2.rate) return 0
 
-    const minLoudness = Math.min(getLoudness(partial1.amp), getLoudness(partial2.amp))
+    const minLoudness = Math.min(getLoudness(partial1.amplitude), getLoudness(partial2.amplitude))
     if (minLoudness <= 0) return 0
 
-    const minFrequency = Math.min(partial1.freq, partial2.freq)
-    const frequencyDifference = Math.abs(partial1.freq - partial2.freq)
+    const minFrequency = Math.min(partial1.rate, partial2.rate)
+    const frequencyDifference = Math.abs(partial1.rate - partial2.rate)
 
     if (minFrequency <= 0) return 0
 
@@ -49,7 +46,7 @@ export function getPlompLeveltDissonance(partial1: Spectrum[number], partial2: S
     return minLoudness * (Math.exp(-1 * params.b1 * s * frequencyDifference) - Math.exp(-1 * params.b2 * s * frequencyDifference))
 }
 
-export function getIntrinsicDissonance(spectrum: Spectrum, params?: SetharesDissonanceParams) {
+export function getIntrinsicDissonance(spectrum: SpectrumPartial[], params?: SetharesDissonanceParams) {
     let dissonance = 0
 
     for (let i = 0; i < spectrum.length; i++) {
@@ -64,7 +61,7 @@ export function getIntrinsicDissonance(spectrum: Spectrum, params?: SetharesDiss
     return dissonance
 }
 
-export function getSetharesDissonance(spectrum1: Spectrum, spectrum2: Spectrum, params?: SetharesDissonanceParams) {
+export function getSetharesDissonance(spectrum1: SpectrumPartial[], spectrum2: SpectrumPartial[], params?: SetharesDissonanceParams) {
     let dissonance = getIntrinsicDissonance(spectrum1, params) + getIntrinsicDissonance(spectrum2, params)
 
     for (let i = 0; i < spectrum1.length; i++) {
@@ -87,13 +84,13 @@ export function centsToRatio(cents: number): number {
     return Math.pow(2, cents / 1200)
 }
 
-export function transpose(spectrum: Spectrum, cents: number) {
-    const result: Spectrum = []
+export function transpose(partials: SpectrumPartial[], cents: number) {
+    const result: SpectrumPartial[] = []
 
-    for (const partial of spectrum) {
+    for (const partial of partials) {
         result.push({
-            freq: partial.freq * centsToRatio(cents),
-            amp: partial.amp,
+            rate: partial.rate * centsToRatio(cents),
+            amplitude: partial.amplitude,
         })
     }
 
