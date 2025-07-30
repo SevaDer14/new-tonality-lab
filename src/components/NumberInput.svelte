@@ -89,7 +89,7 @@
     }
 </script>
 
-<div class={`relative text-xs px-2 py-1 max-w-fit flex items-center gap-1 pr-3 ${active ? 'text-white' : 'text-white-65'} hover:text-white cursor-ns-resize`} on:pointerdown={pointerDown}>
+<div class={`relative text-xs px-2 py-1 max-w-fit flex items-center gap-1 pr-3 ${active ? 'text-white' : 'text-white-65'} hover:text-white cursor-ns-resize ${$$props.class}`} on:pointerdown={pointerDown}>
     <span class="select-non">{label}:</span>
     <input
         type="number"

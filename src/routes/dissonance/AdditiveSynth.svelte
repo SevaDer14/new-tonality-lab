@@ -5,6 +5,8 @@
     export let spectrum: Spectrum
     export let active = false
 
+    const voiceId = 'context+complement'
+
     let synth: AdditiveSynth
     let audioContext: AudioContext
 
@@ -15,10 +17,10 @@
             spectrum,
             audioContext,
             adsr: {
-                attack: 0,
+                attack: 0.1,
                 sustain: 1,
-                decay: 1,
-                release: 100,
+                decay: 0,
+                release: 1,
             },
         })
         synth.setMasterGain(0.25)
@@ -33,9 +35,9 @@
     $: {
         if (synth) {
             if (active) {
-                synth.play({ pitch: 1, velocity: 1, voiceId: 'context+complement' })
+                synth.play({ pitch: 1, velocity: 1, voiceId })
             } else {
-                synth.releaseAll()
+                synth.release(voiceId)
             }
         }
     }

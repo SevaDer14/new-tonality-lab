@@ -44,7 +44,7 @@
                 backgroundColor: '#00000000',
                 animation: false,
                 spacing: [8, 0, 4, 0],
-                height: 244,
+                height: 274,
                 style: {
                     fontFamily: 'monospace',
                 },
