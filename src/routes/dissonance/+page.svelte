@@ -29,11 +29,10 @@
     let muteContext = true
     let interval: number = 0
 
-    $: transposedComplement = transpose(complement, interval)
     $: synthActive = spectrum.flatMap((layer) => layer.partials).length > 0
     $: spectrum = (() => {
         const result: Spectrum = []
-        if (!muteComplement) result.push({ partials: transposedComplement })
+        if (!muteComplement) result.push({ partials: complement })
         if (!muteContext) result.push({ partials: context })
         return result
     })()
@@ -50,8 +49,9 @@
         localStorage.setItem(CONST.TUTORIAL_KEY, 'true')
     }
 
-    function setTutorialStepOnTranspose(val: number) {
-        if (tutorial.step === 3 && (val > 20 || val < -20)) endTutorial()
+    function handleTranspose(val: number) {
+        interval = val
+        if (tutorial.step === 3 && (interval > 20 || interval < -20)) endTutorial()
     }
 
     function generateComplement() {
@@ -75,7 +75,7 @@
     function addToContext() {
         const newSpectrum = new Map<number, number>()
 
-        for (const partial of [...context, ...transposedComplement]) {
+        for (const partial of [...context, ...complement]) {
             const amplitude = newSpectrum.get(partial.rate) ?? 0
 
             newSpectrum.set(partial.rate, amplitude + partial.amplitude)
@@ -103,7 +103,7 @@
         </div>
 
         <div class="grid grid-rows-1 grid-cols-[1fr_2rem_1fr] justify-between px-2">
-            <SpectrumControl canTranspose title="Complement" bind:partials={complement} bind:mute={muteComplement} onMuteToggle={setTutorialStepOnUnmute} onTranspose={setTutorialStepOnTranspose} emptyMessage="Start by generating some partials" hint={tutorial.complementHint} />
+            <SpectrumControl canTranspose title="Complement" bind:partials={complement} bind:mute={muteComplement} onMuteToggle={setTutorialStepOnUnmute} onTranspose={handleTranspose} emptyMessage="Start by generating some partials" hint={tutorial.complementHint} />
             <div class="h-full w-6 flex items-center justify-center">
                 <Button size="xs" onClick={addToContext} disabled={complement.length === 0}>{'=>'}</Button>
             </div>
@@ -112,7 +112,7 @@
     </Panel>
 
     <Panel size="md" title="Spectrum Graph" class="col-span-2" collapsible={false}>
-        <SpectrumGraph complement={transposedComplement} {context} />
+        <SpectrumGraph {complement} {context} />
     </Panel>
 
     <Panel size="md" title="Dissonance curve" class="col-span-2" collapsible={false}>

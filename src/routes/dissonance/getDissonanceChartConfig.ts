@@ -53,12 +53,10 @@ export function getDissonanceChartConfig(dissonanceCurve: DissonanceCurve, inter
                     },
                 },
                 type: 'linear',
-
                 gridLineWidth: 1,
                 gridLineColor: colors.white[25],
                 gridLineDashStyle: 'dash',
                 lineColor: colors.white[25],
-
                 tickInterval: 100,
                 tickPosition: 'inside',
                 labels: {

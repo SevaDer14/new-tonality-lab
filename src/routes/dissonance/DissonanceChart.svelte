@@ -5,10 +5,17 @@
     import { getDissonanceChartConfig } from './getDissonanceChartConfig'
     import type { Partial } from 'new-tonality-web-synth'
     import NumberInput from '../../components/NumberInput.svelte'
+    import { transpose } from './utils'
+    import Checkbox from '../../components/Checkbox.svelte'
 
     export let context: Partial[]
     export let complement: Partial[]
     export let interval: number
+
+    let perspective: 'staicCurve' | 'staticInterval' = 'staticInterval'
+
+    $: int = perspective === 'staticInterval' ? 0 : interval
+    $: myComplement = perspective === 'staticInterval' ? complement : transpose(complement, -interval)
 
     let rangeMin = CONST.DISSONANCE_PARAMS.rangeMin
     let rangeMax = CONST.DISSONANCE_PARAMS.rangeMax
@@ -19,12 +26,20 @@
     let b1 = CONST.DISSONANCE_PARAMS.b1
     let b2 = CONST.DISSONANCE_PARAMS.b2
 
-    $: dissonanceCurve = new DissonanceCurve({ context, complement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
-    $: dissonanceChartConfig = getDissonanceChartConfig(dissonanceCurve, interval)
+    $: dissonanceCurve = new DissonanceCurve({ context, complement: myComplement, rangeMin, rangeMax, step, s1, s2, b1, b2, x_star })
+    $: dissonanceChartConfig = getDissonanceChartConfig(dissonanceCurve, int)
 
     $: {
-        if (interval < rangeMin) rangeMin = interval
-        if (interval > rangeMax) rangeMax = interval
+        if (int < rangeMin) rangeMin = int
+        if (int > rangeMax) rangeMax = int
+    }
+
+    function handlePerspectiveChange(checked: boolean) {
+        if (checked) {
+            perspective = 'staicCurve'
+        } else {
+            perspective = 'staticInterval'
+        }
     }
 </script>
 
@@ -33,6 +48,9 @@
         <NumberInput label="min" whole defaultValue={rangeMin} bind:value={rangeMin} valueRange={1000} min={-4800} max={4800} />
         <NumberInput label="max" whole defaultValue={rangeMax} bind:value={rangeMax} valueRange={1000} min={-4800} max={4800} />
         <NumberInput label="step" whole defaultValue={CONST.DISSONANCE_PARAMS.step} bind:value={step} valueRange={10} min={0.1} />
+        <div class="ml-auto mr-4">
+            <Checkbox label="Fixed" checked={perspective === 'staicCurve'} onChange={handlePerspectiveChange} />
+        </div>
     </div>
     <div
         use:highcharts={{
