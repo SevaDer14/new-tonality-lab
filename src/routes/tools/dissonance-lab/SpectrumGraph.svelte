@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Partial } from 'new-tonality-web-synth'
-    import { colors } from '../../theme/colors.js'
-    import highcharts from '../../utils/highcharts.js'
+    import { colors } from '../../../theme/colors.js'
+    import highcharts from '../../../utils/highcharts.js'
     import type { PlotOptions } from 'highcharts'
 
     export let context: Partial[]

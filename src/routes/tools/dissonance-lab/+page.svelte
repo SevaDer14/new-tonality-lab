@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { transpose } from './utils'
-    import Panel from '../../components/Panel.svelte'
-    import NumberInput from '../../components/NumberInput.svelte'
+    import Panel from '../../../components/Panel.svelte'
+    import NumberInput from '../../../components/NumberInput.svelte'
     import SpectrumGraph from './SpectrumGraph.svelte'
     import SpectrumControl from './SpectrumControl.svelte'
-    import Button from '../../components/Button.svelte'
+    import Button from '../../../components/Button.svelte'
     import AdditiveSynth from './AdditiveSynth.svelte'
     import type { Partial, Spectrum } from 'new-tonality-web-synth'
     import CONST from './const'

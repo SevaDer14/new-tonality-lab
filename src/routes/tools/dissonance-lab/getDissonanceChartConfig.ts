@@ -1,5 +1,5 @@
 import type { PlotOptions } from 'highcharts'
-import { colors } from '../../theme/colors'
+import { colors } from '../../../theme/colors'
 import type { DissonanceCurve } from './DissonanceCurve'
 
 export function getDissonanceChartConfig(dissonanceCurve: DissonanceCurve, interval = 0): PlotOptions {
@@ -10,7 +10,7 @@ export function getDissonanceChartConfig(dissonanceCurve: DissonanceCurve, inter
             zoomType: 'xy',
             backgroundColor: '#00000000',
             spacing: [8, 0, 4, 0],
-            height: 224,
+            height: 208,
             animation: false,
             style: {
                 fontFamily: 'monospace',

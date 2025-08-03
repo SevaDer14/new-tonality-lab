@@ -1,11 +1,11 @@
 <script lang="ts">
-    import NumberInput from '../../components/NumberInput.svelte'
-    import VolumeOnIcon from '../../icons/VolumeOnIcon.svelte'
-    import Button from '../../components/Button.svelte'
+    import NumberInput from '../../../components/NumberInput.svelte'
+    import VolumeOnIcon from '../../../icons/VolumeOnIcon.svelte'
+    import Button from '../../../components/Button.svelte'
     import type { Partial } from 'new-tonality-web-synth'
-    import VolumeOffIcon from '../../icons/VolumeOffIcon.svelte'
+    import VolumeOffIcon from '../../../icons/VolumeOffIcon.svelte'
     import { transpose } from './utils'
-    import TrashIcon from '../../icons/TrashIcon.svelte'
+    import TrashIcon from '../../../icons/TrashIcon.svelte'
 
     export let partials: Partial[]
     export let title: string

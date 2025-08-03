@@ -1,12 +1,12 @@
 <script lang="ts">
     import CONST from './const'
     import { DissonanceCurve } from './DissonanceCurve'
-    import highcharts from '../../utils/highcharts.js'
+    import highcharts from '../../../utils/highcharts.js'
     import { getDissonanceChartConfig } from './getDissonanceChartConfig'
     import type { Partial } from 'new-tonality-web-synth'
-    import NumberInput from '../../components/NumberInput.svelte'
+    import NumberInput from '../../../components/NumberInput.svelte'
     import { transpose } from './utils'
-    import Checkbox from '../../components/Checkbox.svelte'
+    import Checkbox from '../../../components/Checkbox.svelte'
 
     export let context: Partial[]
     export let complement: Partial[]
