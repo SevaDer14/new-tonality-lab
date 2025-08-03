@@ -1,7 +1,6 @@
 <script lang="ts">
     import KoFiIcon from '../icons/KoFiIcon.svelte'
     import YouTubeIcon from '../icons/YouTubeIcon.svelte'
-    import TwitterIcon from '../icons/TwitterIcon.svelte'
     import MailIcon from '../icons/MailIcon.svelte'
     import MenuItem from './MenuItem.svelte'
     import BandcampIcon from '../icons/BandcampIcon.svelte'
@@ -21,16 +20,12 @@
         <MenuItem href="https://www.youtube.com/@new_tonality">
             <YouTubeIcon />
         </MenuItem>
-
-        <MenuItem href="https://twitter.com/new_tonality">
-            <TwitterIcon />
-        </MenuItem>
         
         <MenuItem href="mailto: info@newtonality.net">
             <MailIcon />
         </MenuItem>
 
-        <MenuItem href="https://github.com/SevaDer14/new-tonality-lab">
+        <MenuItem href="https://github.com/new-tonality-project">
             <GithubIcon />   
         </MenuItem>
     </ul>

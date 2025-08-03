@@ -14,9 +14,10 @@
             <a class="block sm:hidden" href="/">NT</a>
         </h1>
         <ul class="flex">
-            <MenuItem href="/" active={setActive($page.routeId, 'lab')}>Lab</MenuItem>
+            <MenuItem href="/tools/synth" active={setActive($page.routeId, 'synth')}>Synth</MenuItem>
+            <MenuItem href="/tools/dissonance-lab" active={setActive($page.routeId, 'dissonance')}>Dissonance</MenuItem>
             <MenuItem href="/about" active={setActive($page.routeId, 'about')}>About</MenuItem>
-            <MenuItem href="/set-theoretic-solution-for-the-tuning-problem.pdf">Whitepaper</MenuItem>
+            <MenuItem href="https://payhip.com/b/TtdJB">eBook</MenuItem>
         </ul>
     </nav>
 </header>
